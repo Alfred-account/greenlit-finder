@@ -1,4 +1,4 @@
-import { CalendarDays, ExternalLink, ListChecks, Users, User } from "lucide-react";
+import { CalendarDays, ExternalLink, ListChecks, Users, User, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ export function OpportunityDialog({
                       : "rounded-full bg-muted px-3 py-1 text-muted-foreground"
                   }
                 >
-                  {item.cost === "Free" ? "Бесплатно" : "Платно"}
+                  {item.cost === "Free" ? "Бесплатно" : item.price ? `Платно · ${item.price}` : "Платно"}
                 </Badge>
               </div>
               <DialogTitle className="text-2xl leading-tight">{item.title}</DialogTitle>
@@ -40,6 +40,10 @@ export function OpportunityDialog({
             <div className="flex flex-wrap gap-4 rounded-xl bg-muted/60 p-4 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-2">
                 <CalendarDays className="size-4" /> Дедлайн: {formatDeadline(item.deadline)}
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <Wallet className="size-4" /> Стоимость:{" "}
+                {item.cost === "Free" ? "Бесплатно" : item.price ? item.price : "Платно (уточняется)"}
               </span>
               <span className="inline-flex items-center gap-2">
                 {item.format === "Team-based" ? <Users className="size-4" /> : <User className="size-4" />}

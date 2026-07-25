@@ -4,6 +4,7 @@ export type Opportunity = {
   sphere: string;
   grade: string;
   cost: "Free" | "Paid";
+  price?: string;
   format: "Individual" | "Team-based";
   deadline: string; // ISO date
   snippet: string;
@@ -54,6 +55,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     title: "Model United Nations Summit",
     sphere: "International Relations",
     grade: "11 Grade",
+    price: "50 000 ₸",
     cost: "Paid",
     format: "Team-based",
     deadline: "2026-08-30",
@@ -96,6 +98,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     title: "Debate Masters Cup",
     sphere: "Debates",
     grade: "9 Grade",
+    price: "25 000 ₸",
     cost: "Paid",
     format: "Team-based",
     deadline: "2026-06-05",
@@ -148,6 +151,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     title: "Digital Art Biennale (Youth)",
     sphere: "Art & Design",
     grade: "8 Grade",
+    price: "15 000 ₸",
     cost: "Paid",
     format: "Individual",
     deadline: "2026-12-10",
