@@ -4,6 +4,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowDown, Filter, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
 
+import { DateField } from "@/components/date-field";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { OpportunityCard, OpportunityCardSkeleton } from "@/components/opportunity-card";
 import { OpportunityDialog } from "@/components/opportunity-dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { fetchOpportunities } from "@/lib/airtable.functions";
+import { useI18n } from "@/lib/i18n";
 import { COSTS, FORMATS, GRADES, SPHERES, type Opportunity } from "@/lib/opportunities";
 
 export const Route = createFileRoute("/")({
@@ -40,6 +43,7 @@ function Home() {
     queryKey: ["opportunities"],
     queryFn: () => getOpportunities(),
   });
+  const { t, tSphere, tGrade, tCost, tFormat } = useI18n();
 
   const [query, setQuery] = useState("");
   const [sphere, setSphere] = useState<string>(ALL);
@@ -55,7 +59,8 @@ function Home() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return items.filter((o) => {
-      if (q && !`${o.title} ${o.snippet} ${o.description} ${o.sphere}`.toLowerCase().includes(q)) return false;
+      if (q && !`${o.title} ${o.snippet} ${o.description} ${o.sphere} ${tSphere(o.sphere)}`.toLowerCase().includes(q))
+        return false;
       if (sphere !== ALL && o.sphere !== sphere) return false;
       if (grade !== ALL && o.grade !== grade) return false;
       if (cost !== ALL && o.cost !== cost) return false;
@@ -64,7 +69,7 @@ function Home() {
       if (to && o.deadline && o.deadline > to) return false;
       return true;
     });
-  }, [items, query, sphere, grade, cost, format, from, to]);
+  }, [items, query, sphere, grade, cost, format, from, to, tSphere]);
 
   const hasFilters =
     query !== "" || sphere !== ALL || grade !== ALL || cost !== ALL || format !== ALL || from !== "" || to !== "";
@@ -85,10 +90,14 @@ function Home() {
 
   return (
     <main className="min-h-screen">
+      <div className="absolute top-5 right-5 z-20">
+        <LanguageSwitcher />
+      </div>
+
       <section className="hero-surface relative flex min-h-[88vh] flex-col items-center justify-center px-6 py-24 text-center">
         <span className="rise-in inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-1.5 text-sm font-medium text-primary backdrop-blur">
           <Sparkles className="size-4" />
-          Новые возможности каждый день
+          {t("hero.badge")}
         </span>
 
         <h1 className="rise-in mt-8 text-5xl font-bold sm:text-6xl md:text-7xl" style={{ animationDelay: "80ms" }}>
@@ -99,8 +108,7 @@ function Home() {
           className="rise-in mt-6 max-w-xl text-base text-muted-foreground sm:text-lg"
           style={{ animationDelay: "160ms" }}
         >
-          Олимпиады, конкурсы и программы, которые открывают двери. Найди то, что подходит именно тебе — по
-          направлению, классу, формату и дедлайну.
+          {t("hero.subtitle")}
         </p>
 
         <div
@@ -112,7 +120,7 @@ function Home() {
             onClick={scrollToCatalog}
             className="gradient-emerald shadow-lift cta-glow h-13 rounded-xl px-8 text-base font-semibold text-primary-foreground transition-transform hover:scale-[1.04]"
           >
-            Начать поиск
+            {t("hero.cta")}
             <ArrowDown className="size-4 animate-bounce" />
           </Button>
         </div>
@@ -127,13 +135,11 @@ function Home() {
             <Megaphone className="size-5" />
           </span>
           <span className="flex-1">
-            <span className="block font-semibold">Поделись своей возможностью бесплатно!</span>
-            <span className="block text-sm text-muted-foreground">
-              Организуешь олимпиаду или конкурс? Разместим после быстрой модерации.
-            </span>
+            <span className="block font-semibold">{t("banner.title")}</span>
+            <span className="block text-sm text-muted-foreground">{t("banner.subtitle")}</span>
           </span>
           <span className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-            Заполнить форму
+            {t("banner.action")}
           </span>
         </Link>
 
@@ -143,40 +149,46 @@ function Home() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value.slice(0, 100))}
-              placeholder="Поиск по названию, направлению или описанию…"
+              placeholder={t("search.placeholder")}
               className="h-12 rounded-xl pl-11"
-              aria-label="Поиск возможностей"
+              aria-label={t("search.aria")}
             />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <FilterSelect label="Направление" value={sphere} onChange={setSphere} options={[...SPHERES]} />
-            <FilterSelect label="Класс / уровень" value={grade} onChange={setGrade} options={[...GRADES]} />
             <FilterSelect
-              label="Стоимость"
+              label={t("filter.sphere")}
+              value={sphere}
+              onChange={setSphere}
+              options={[...SPHERES]}
+              render={tSphere}
+            />
+            <FilterSelect
+              label={t("filter.grade")}
+              value={grade}
+              onChange={setGrade}
+              options={[...GRADES]}
+              render={tGrade}
+            />
+            <FilterSelect
+              label={t("filter.cost")}
               value={cost}
               onChange={setCost}
               options={[...COSTS]}
-              labels={{ Free: "Бесплатно", Paid: "Платно" }}
+              render={tCost}
             />
             <FilterSelect
-              label="Формат"
+              label={t("filter.format")}
               value={format}
               onChange={setFormat}
               options={[...FORMATS]}
-              labels={{ Individual: "Индивидуально", "Team-based": "Командно" }}
+              render={tFormat}
             />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Дедлайн с</Label>
-              <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-11 rounded-xl" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Дедлайн по</Label>
-              <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-11 rounded-xl" />
-            </div>
+            <DateField label={t("filter.from")} value={from} onChange={setFrom} />
+            <DateField label={t("filter.to")} value={to} onChange={setTo} />
             <div className="flex items-end lg:col-span-2">
               <Button
                 variant="outline"
@@ -184,7 +196,7 @@ function Home() {
                 disabled={!hasFilters}
                 className="h-11 w-full rounded-xl sm:w-auto"
               >
-                <RotateCcw className="size-4" /> Сбросить фильтры
+                <RotateCcw className="size-4" /> {t("filter.reset")}
               </Button>
             </div>
           </div>
@@ -192,7 +204,7 @@ function Home() {
 
         <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="size-4" />
-          {isPending ? "Загружаем возможности…" : `Найдено: ${filtered.length}`}
+          {isPending ? t("list.loading") : `${t("list.found")}: ${filtered.length}`}
         </div>
 
         <div className="mt-4 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -208,11 +220,9 @@ function Home() {
             <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
               <Search className="size-5" />
             </span>
-            <p className="max-w-sm text-muted-foreground">
-              Увы, пока нет подходящих олимпиад. Попробуйте сбросить фильтры
-            </p>
+            <p className="max-w-sm text-muted-foreground">{t("empty.text")}</p>
             <Button onClick={reset} variant="outline" className="rounded-xl">
-              <RotateCcw className="size-4" /> Сбросить фильтры
+              <RotateCcw className="size-4" /> {t("filter.reset")}
             </Button>
           </div>
         )}
@@ -228,26 +238,27 @@ function FilterSelect({
   value,
   onChange,
   options,
-  labels,
+  render,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: string[];
-  labels?: Record<string, string>;
+  render?: (v: string) => string;
 }) {
+  const { t } = useI18n();
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="h-11 w-full rounded-xl">
-          <SelectValue placeholder="Все" />
+          <SelectValue placeholder={t("filter.all")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ALL}>Все</SelectItem>
+          <SelectItem value={ALL}>{t("filter.all")}</SelectItem>
           {options.map((o) => (
             <SelectItem key={o} value={o}>
-              {labels?.[o] ?? o}
+              {render?.(o) ?? o}
             </SelectItem>
           ))}
         </SelectContent>

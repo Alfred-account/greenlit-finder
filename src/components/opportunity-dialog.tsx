@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatDeadline } from "@/components/opportunity-card";
+import { useI18n } from "@/lib/i18n";
 import type { Opportunity } from "@/lib/opportunities";
 
 export function OpportunityDialog({
@@ -13,6 +14,8 @@ export function OpportunityDialog({
   item: Opportunity | null;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t, tSphere, tGrade, localeTag } = useI18n();
+
   return (
     <Dialog open={!!item} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[88vh] overflow-y-auto rounded-2xl sm:max-w-2xl">
@@ -20,9 +23,11 @@ export function OpportunityDialog({
           <>
             <DialogHeader className="space-y-3 text-left">
               <div className="flex flex-wrap gap-2">
-                <Badge className="rounded-full bg-accent px-3 py-1 text-accent-foreground">{item.sphere}</Badge>
+                <Badge className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
+                  {tSphere(item.sphere)}
+                </Badge>
                 <Badge variant="outline" className="rounded-full px-3 py-1">
-                  {item.grade}
+                  {tGrade(item.grade)}
                 </Badge>
                 <Badge
                   className={
@@ -31,7 +36,11 @@ export function OpportunityDialog({
                       : "rounded-full bg-muted px-3 py-1 text-muted-foreground"
                   }
                 >
-                  {item.cost === "Free" ? "Бесплатно" : item.price ? `Платно · ${item.price}` : "Платно"}
+                  {item.cost === "Free"
+                    ? t("cost.free")
+                    : item.price
+                      ? `${t("cost.paid")} · ${item.price}`
+                      : t("cost.paid")}
                 </Badge>
               </div>
               <DialogTitle className="text-2xl leading-tight">{item.title}</DialogTitle>
@@ -39,15 +48,16 @@ export function OpportunityDialog({
 
             <div className="flex flex-wrap gap-4 rounded-xl bg-muted/60 p-4 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-2">
-                <CalendarDays className="size-4" /> Дедлайн: {formatDeadline(item.deadline)}
+                <CalendarDays className="size-4" /> {t("dialog.deadline")}:{" "}
+                {formatDeadline(item.deadline, localeTag, t("card.noDeadline"))}
               </span>
               <span className="inline-flex items-center gap-2">
-                <Wallet className="size-4" /> Стоимость:{" "}
-                {item.cost === "Free" ? "Бесплатно" : item.price ? item.price : "Платно (уточняется)"}
+                <Wallet className="size-4" /> {t("dialog.cost")}:{" "}
+                {item.cost === "Free" ? t("cost.free") : item.price ? item.price : t("dialog.paidTbd")}
               </span>
               <span className="inline-flex items-center gap-2">
                 {item.format === "Team-based" ? <Users className="size-4" /> : <User className="size-4" />}
-                {item.format === "Team-based" ? "Командное участие" : "Индивидуальное участие"}
+                {item.format === "Team-based" ? t("dialog.formatTeam") : t("dialog.formatIndividual")}
               </span>
             </div>
 
@@ -58,7 +68,7 @@ export function OpportunityDialog({
             {item.steps.length > 0 && (
               <div className="space-y-3">
                 <h4 className="inline-flex items-center gap-2 text-sm font-semibold">
-                  <ListChecks className="size-4 text-primary" /> Как участвовать
+                  <ListChecks className="size-4 text-primary" /> {t("dialog.steps")}
                 </h4>
                 <ol className="space-y-2">
                   {item.steps.map((step, i) => (
@@ -76,7 +86,7 @@ export function OpportunityDialog({
             {item.url && (
               <Button asChild size="lg" className="gradient-emerald w-full rounded-xl text-primary-foreground">
                 <a href={item.url} target="_blank" rel="noopener noreferrer">
-                  Перейти на официальный сайт <ExternalLink className="size-4" />
+                  {t("dialog.official")} <ExternalLink className="size-4" />
                 </a>
               </Button>
             )}
