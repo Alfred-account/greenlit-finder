@@ -115,8 +115,16 @@ function Home() {
             Начать поиск
             <ArrowDown className="size-4" />
           </Button>
-          <Button asChild variant="ghost" size="lg" className="h-13 rounded-xl px-6 text-base">
-            <Link to="/share">Поделиться возможностью</Link>
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="shadow-soft h-13 rounded-xl border-2 border-primary/40 bg-card/80 px-8 text-base font-semibold text-primary backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-accent hover:text-accent-foreground"
+          >
+            <Link to="/share">
+              <Megaphone className="size-4" />
+              Поделиться возможностью
+            </Link>
           </Button>
         </div>
       </section>
