@@ -5,12 +5,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Send } from "lucide-react";
 import { toast } from "sonner";
 
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitOpportunity, type SubmissionInput } from "@/lib/airtable.functions";
+import { useI18n } from "@/lib/i18n";
 import { COSTS, FORMATS, GRADES, SPHERES } from "@/lib/opportunities";
 
 export const Route = createFileRoute("/share")({
@@ -49,15 +51,16 @@ function SharePage() {
   const router = useRouter();
   const submit = useServerFn(submitOpportunity);
   const [form, setForm] = useState<SubmissionInput>(empty);
+  const { t, tSphere, tGrade, tCost, tFormat } = useI18n();
 
   const mutation = useMutation({
     mutationFn: (data: SubmissionInput) => submit({ data }),
     onSuccess: () => {
-      toast.success("Заявка отправлена на модерацию!");
+      toast.success(t("toast.success"));
       setForm(empty);
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Не удалось отправить заявку");
+      toast.error(error.message || t("toast.error"));
     },
   });
 
@@ -68,11 +71,11 @@ function SharePage() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.sphere || !form.grade) {
-      toast.error("Выберите направление и класс");
+      toast.error(t("toast.needSphere"));
       return;
     }
     if (form.cost === "Paid" && !form.price?.trim()) {
-      toast.error("Укажите стоимость участия");
+      toast.error(t("toast.needPrice"));
       return;
     }
     mutation.mutate({ ...form, price: form.cost === "Paid" ? form.price : "" });
@@ -81,43 +84,44 @@ function SharePage() {
   return (
     <main className="hero-surface min-h-screen px-6 py-14">
       <div className="mx-auto w-full max-w-2xl">
-        <Button variant="ghost" onClick={() => router.history.back()} className="mb-6 -ml-2 rounded-xl">
-          <ArrowLeft className="size-4" /> Назад
-        </Button>
+        <div className="mb-6 flex items-center justify-between">
+          <Button variant="ghost" onClick={() => router.history.back()} className="-ml-2 rounded-xl">
+            <ArrowLeft className="size-4" /> {t("share.back")}
+          </Button>
+          <LanguageSwitcher />
+        </div>
 
-        <h1 className="text-4xl font-bold">Поделись своей возможностью бесплатно!</h1>
-        <p className="mt-3 text-muted-foreground">
-          Заполните короткую форму — мы проверим заявку и опубликуем её в каталоге. Это бесплатно.
-        </p>
+        <h1 className="text-4xl font-bold">{t("share.title")}</h1>
+        <p className="mt-3 text-muted-foreground">{t("share.subtitle")}</p>
 
         <form
           onSubmit={onSubmit}
           className="shadow-soft mt-8 space-y-6 rounded-2xl border border-border/70 bg-card p-6"
         >
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Ваше имя" required>
+            <Field label={t("share.name")} required>
               <Input
                 required
                 maxLength={100}
                 value={form.contactName}
                 onChange={(e) => set("contactName", e.target.value)}
-                placeholder="Айгерим"
+                placeholder={t("share.namePlaceholder")}
                 className="h-11 rounded-xl"
               />
             </Field>
-            <Field label="Контакт (Email / Telegram)" required>
+            <Field label={t("share.contact")} required>
               <Input
                 required
                 maxLength={200}
                 value={form.contactInfo}
                 onChange={(e) => set("contactInfo", e.target.value)}
-                placeholder="you@mail.com или @username"
+                placeholder={t("share.contactPlaceholder")}
                 className="h-11 rounded-xl"
               />
             </Field>
           </div>
 
-          <Field label="Название события" required>
+          <Field label={t("share.eventTitle")} required>
             <Input
               required
               maxLength={200}
@@ -129,43 +133,48 @@ function SharePage() {
           </Field>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Направление" required>
-              <Selector value={form.sphere} onChange={(v) => set("sphere", v)} options={[...SPHERES]} />
+            <Field label={t("filter.sphere")} required>
+              <Selector
+                value={form.sphere}
+                onChange={(v) => set("sphere", v)}
+                options={[...SPHERES]}
+                render={tSphere}
+              />
             </Field>
-            <Field label="Класс / уровень" required>
-              <Selector value={form.grade} onChange={(v) => set("grade", v)} options={[...GRADES]} />
+            <Field label={t("filter.grade")} required>
+              <Selector value={form.grade} onChange={(v) => set("grade", v)} options={[...GRADES]} render={tGrade} />
             </Field>
-            <Field label="Стоимость" required>
+            <Field label={t("filter.cost")} required>
               <Selector
                 value={form.cost}
                 onChange={(v) => set("cost", v as SubmissionInput["cost"])}
                 options={[...COSTS]}
-                labels={{ Free: "Бесплатно", Paid: "Платно" }}
+                render={tCost}
               />
             </Field>
             {form.cost === "Paid" && (
-              <Field label="Сколько стоит участие?" required>
+              <Field label={t("share.price")} required>
                 <Input
                   required
                   maxLength={100}
                   value={form.price ?? ""}
                   onChange={(e) => set("price", e.target.value)}
-                  placeholder="Например: 15 000 ₸ за участника"
+                  placeholder={t("share.pricePlaceholder")}
                   className="h-11 rounded-xl"
                 />
               </Field>
             )}
-            <Field label="Формат участия" required>
+            <Field label={t("share.formatLabel")} required>
               <Selector
                 value={form.format}
                 onChange={(v) => set("format", v as SubmissionInput["format"])}
                 options={[...FORMATS]}
-                labels={{ Individual: "Индивидуально", "Team-based": "Командно" }}
+                render={tFormat}
               />
             </Field>
           </div>
 
-          <Field label="Ссылка на сайт" required>
+          <Field label={t("share.url")} required>
             <Input
               required
               type="url"
@@ -177,18 +186,18 @@ function SharePage() {
             />
           </Field>
 
-          <Field label="Описание" required>
+          <Field label={t("share.description")} required>
             <Textarea
               required
               maxLength={4000}
               rows={7}
               value={form.description}
               onChange={(e) => set("description", e.target.value)}
-              placeholder={"Кратко о событии, этапах и призах.\nКаждый шаг участия — с новой строки."}
+              placeholder={t("share.descriptionPlaceholder")}
               className="rounded-xl"
             />
             <p className="text-xs text-muted-foreground">
-              {form.description.length}/4000 — переносы строк сохраняются в описании.
+              {form.description.length}/4000 — {t("share.counterHint")}
             </p>
           </Field>
 
@@ -198,14 +207,14 @@ function SharePage() {
             disabled={mutation.isPending}
             className="gradient-emerald h-12 w-full rounded-xl text-primary-foreground"
           >
-            {mutation.isPending ? "Отправляем…" : "Отправить на модерацию"}
+            {mutation.isPending ? t("share.submitting") : t("share.submit")}
             <Send className="size-4" />
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Уже отправили?{" "}
+            {t("share.already")}{" "}
             <Link to="/" className="font-medium text-primary hover:underline">
-              Вернуться в каталог
+              {t("share.backToCatalog")}
             </Link>
           </p>
         </form>
@@ -237,22 +246,23 @@ function Selector({
   value,
   onChange,
   options,
-  labels,
+  render,
 }: {
   value: string;
   onChange: (v: string) => void;
   options: string[];
-  labels?: Record<string, string>;
+  render?: (v: string) => string;
 }) {
+  const { t } = useI18n();
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className="h-11 w-full rounded-xl">
-        <SelectValue placeholder="Выберите…" />
+        <SelectValue placeholder={t("share.selectPlaceholder")} />
       </SelectTrigger>
       <SelectContent>
         {options.map((o) => (
           <SelectItem key={o} value={o}>
-            {labels?.[o] ?? o}
+            {render?.(o) ?? o}
           </SelectItem>
         ))}
       </SelectContent>
