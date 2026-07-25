@@ -219,3 +219,60 @@
 @utility rise-in {
   animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow:
+      var(--shadow-lift),
+      0 0 0 0 color-mix(in oklab, var(--primary) 45%, transparent);
+  }
+  50% {
+    box-shadow:
+      var(--shadow-lift),
+      0 0 0 12px color-mix(in oklab, var(--primary) 0%, transparent);
+  }
+}
+
+@keyframes sheen-sweep {
+  0% {
+    transform: translateX(-140%) skewX(-18deg);
+  }
+  60%,
+  100% {
+    transform: translateX(240%) skewX(-18deg);
+  }
+}
+
+@utility cta-glow {
+  position: relative;
+  overflow: hidden;
+  animation: pulse-glow 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 45%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, white 38%, transparent),
+      transparent
+    );
+    animation: sheen-sweep 3.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow,
+  .cta-glow::after {
+    animation: none;
+  }
+}
