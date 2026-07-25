@@ -39,6 +39,7 @@ const empty: SubmissionInput = {
   sphere: "",
   grade: "",
   cost: "Free",
+  price: "",
   format: "Individual",
   url: "",
   description: "",
@@ -70,7 +71,11 @@ function SharePage() {
       toast.error("Выберите направление и класс");
       return;
     }
-    mutation.mutate(form);
+    if (form.cost === "Paid" && !form.price?.trim()) {
+      toast.error("Укажите стоимость участия");
+      return;
+    }
+    mutation.mutate({ ...form, price: form.cost === "Paid" ? form.price : "" });
   }
 
   return (
@@ -138,6 +143,18 @@ function SharePage() {
                 labels={{ Free: "Бесплатно", Paid: "Платно" }}
               />
             </Field>
+            {form.cost === "Paid" && (
+              <Field label="Сколько стоит участие?" required>
+                <Input
+                  required
+                  maxLength={100}
+                  value={form.price ?? ""}
+                  onChange={(e) => set("price", e.target.value)}
+                  placeholder="Например: 15 000 ₸ за участника"
+                  className="h-11 rounded-xl"
+                />
+              </Field>
+            )}
             <Field label="Формат участия" required>
               <Selector
                 value={form.format}

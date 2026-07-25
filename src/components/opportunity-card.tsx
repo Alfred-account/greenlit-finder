@@ -48,7 +48,7 @@ export function OpportunityCard({
               : "rounded-full bg-muted px-3 py-1 text-muted-foreground"
           }
         >
-          {item.cost === "Free" ? "Бесплатно" : "Платно"}
+          {item.cost === "Free" ? "Бесплатно" : item.price ? `Платно · ${item.price}` : "Платно"}
         </Badge>
       </div>
 
