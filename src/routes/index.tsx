@@ -110,10 +110,10 @@ function Home() {
           <Button
             size="lg"
             onClick={scrollToCatalog}
-            className="gradient-emerald shadow-lift h-13 rounded-xl px-8 text-base text-primary-foreground transition-transform hover:scale-[1.03]"
+            className="gradient-emerald shadow-lift cta-glow h-13 rounded-xl px-8 text-base font-semibold text-primary-foreground transition-transform hover:scale-[1.04]"
           >
             Начать поиск
-            <ArrowDown className="size-4" />
+            <ArrowDown className="size-4 animate-bounce" />
           </Button>
           <Button
             asChild
