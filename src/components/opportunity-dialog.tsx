@@ -14,7 +14,8 @@ export function OpportunityDialog({
   item: Opportunity | null;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { t, tSphere, tGrade, localeTag } = useI18n();
+  const { t, tSphere, tGrade, tItem, localeTag } = useI18n();
+  const local = item ? tItem(item) : null;
 
   return (
     <Dialog open={!!item} onOpenChange={onOpenChange}>
@@ -43,7 +44,7 @@ export function OpportunityDialog({
                       : t("cost.paid")}
                 </Badge>
               </div>
-              <DialogTitle className="text-2xl leading-tight">{item.title}</DialogTitle>
+              <DialogTitle className="text-2xl leading-tight">{local?.title}</DialogTitle>
             </DialogHeader>
 
             <div className="flex flex-wrap gap-4 rounded-xl bg-muted/60 p-4 text-sm text-muted-foreground">
@@ -62,16 +63,16 @@ export function OpportunityDialog({
             </div>
 
             <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
-              {item.description || item.snippet}
+              {local?.description || local?.snippet}
             </p>
 
-            {item.steps.length > 0 && (
+            {(local?.steps.length ?? 0) > 0 && (
               <div className="space-y-3">
                 <h4 className="inline-flex items-center gap-2 text-sm font-semibold">
                   <ListChecks className="size-4 text-primary" /> {t("dialog.steps")}
                 </h4>
                 <ol className="space-y-2">
-                  {item.steps.map((step, i) => (
+                  {local!.steps.map((step, i) => (
                     <li key={i} className="flex gap-3 text-sm text-muted-foreground">
                       <span className="grid size-6 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">
                         {i + 1}
