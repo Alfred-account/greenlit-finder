@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowDown, Filter, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
+import { ArrowDown, Filter, Loader2, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
 
 import { DateField } from "@/components/date-field";
 import { IvyBackdrop } from "@/components/ivy-backdrop";
@@ -55,6 +55,7 @@ function Home() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [active, setActive] = useState<Opportunity | null>(null);
+  const [scrolling, setScrolling] = useState(false);
 
   const items = data?.items ?? [];
 
