@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowDown, Filter, Loader2, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
+import { ArrowDown, Filter, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
 
 import { DateField } from "@/components/date-field";
 import { IvyBackdrop } from "@/components/ivy-backdrop";
@@ -55,7 +55,6 @@ function Home() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [active, setActive] = useState<Opportunity | null>(null);
-  const [scrolling, setScrolling] = useState(false);
 
   const items = data?.items ?? [];
 
@@ -88,12 +87,7 @@ function Home() {
   }
 
   function scrollToCatalog() {
-    if (scrolling) return;
-    setScrolling(true);
-    window.setTimeout(() => {
-      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      window.setTimeout(() => setScrolling(false), 500);
-    }, 650);
+    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
@@ -130,15 +124,10 @@ function Home() {
           <Button
             size="lg"
             onClick={scrollToCatalog}
-            aria-busy={scrolling}
-            className={`gradient-emerald shadow-lift h-13 relative overflow-hidden rounded-xl px-8 text-base font-semibold text-primary-foreground transition-transform hover:scale-[1.04] ${scrolling ? "" : "cta-glow"}`}
+            className="gradient-emerald shadow-lift cta-glow h-13 relative overflow-hidden rounded-xl px-8 text-base font-semibold text-primary-foreground transition-transform duration-200 hover:scale-[1.04] active:scale-[0.98]"
           >
-            {scrolling ? <Loader2 className="size-4 animate-spin" /> : null}
             {t("hero.cta")}
-            {scrolling ? null : <ArrowDown className="size-4 animate-bounce" />}
-            {scrolling && (
-              <span className="cta-load-bar pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-primary-foreground/70" />
-            )}
+            <ArrowDown className="size-4 animate-bounce" />
           </Button>
         </div>
       </section>

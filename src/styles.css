@@ -357,7 +357,8 @@
 @media (prefers-reduced-motion: reduce) {
   .cta-glow,
   .cta-glow::after,
-  .ivy-drift .ivy-crest {
+  .ivy-track,
+  .ivy-bob {
     animation: none;
   }
 }
