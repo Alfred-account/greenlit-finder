@@ -5,7 +5,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowDown, Filter, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
 
 import { DateField } from "@/components/date-field";
+import { IvyBackdrop } from "@/components/ivy-backdrop";
 import { LanguageSwitcher } from "@/components/language-switcher";
+
 import { OpportunityCard, OpportunityCardSkeleton } from "@/components/opportunity-card";
 import { OpportunityDialog } from "@/components/opportunity-dialog";
 import { Button } from "@/components/ui/button";
@@ -94,27 +96,32 @@ function Home() {
         <LanguageSwitcher />
       </div>
 
-      <section className="hero-surface relative flex min-h-[88vh] flex-col items-center justify-center px-6 py-24 text-center">
-        <span className="rise-in inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-1.5 text-sm font-medium text-primary backdrop-blur">
+      <section className="hero-surface relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden px-6 py-24 text-center">
+        <IvyBackdrop />
+        <span className="rise-in relative inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-1.5 text-sm font-medium text-primary backdrop-blur">
           <Sparkles className="size-4" />
           {t("hero.badge")}
         </span>
 
-        <h1 className="rise-in mt-8 text-5xl font-bold sm:text-6xl md:text-7xl" style={{ animationDelay: "80ms" }}>
+        <h1
+          className="rise-in relative mt-8 text-5xl font-bold sm:text-6xl md:text-7xl"
+          style={{ animationDelay: "80ms" }}
+        >
           Green Lit&nbsp;Space
         </h1>
 
         <p
-          className="rise-in mt-6 max-w-xl text-base text-muted-foreground sm:text-lg"
+          className="rise-in relative mt-6 max-w-xl text-base text-muted-foreground sm:text-lg"
           style={{ animationDelay: "160ms" }}
         >
           {t("hero.subtitle")}
         </p>
 
         <div
-          className="rise-in mt-10 flex flex-col items-center gap-4 sm:flex-row"
+          className="rise-in relative mt-10 flex flex-col items-center gap-4 sm:flex-row"
           style={{ animationDelay: "240ms" }}
         >
+
           <Button
             size="lg"
             onClick={scrollToCatalog}
