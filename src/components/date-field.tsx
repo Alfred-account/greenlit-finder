@@ -69,6 +69,7 @@ export function DateField({
         <PopoverContent align="start" className="w-auto rounded-2xl p-0">
           <Calendar
             mode="single"
+            showOutsideDays={false}
             locale={locale}
             selected={selected}
             defaultMonth={selected}

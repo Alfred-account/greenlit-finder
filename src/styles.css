@@ -270,29 +270,53 @@
   }
 }
 
-@keyframes ivy-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(calc(var(--tilt, 0deg) * -1)) scale(1);
-    opacity: 0.34;
+@keyframes ivy-slide {
+  from {
+    transform: translateX(-20vw);
   }
-  50% {
-    transform: translateY(-24px) rotate(var(--tilt, 0deg)) scale(1.04);
-    opacity: 0.62;
+  to {
+    transform: translateX(110vw);
   }
 }
 
-@utility ivy-drift {
-  will-change: transform;
-  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
-  & .ivy-crest {
-    animation: ivy-float 24s ease-in-out infinite;
-    animation-duration: inherit;
-    animation-delay: inherit;
-    filter: saturate(0.5) contrast(0.95)
-      drop-shadow(0 10px 18px color-mix(in oklab, var(--primary) 35%, transparent));
+@keyframes ivy-slide-reverse {
+  from {
+    transform: translateX(110vw);
+  }
+  to {
+    transform: translateX(-20vw);
   }
 }
+
+@keyframes ivy-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@utility ivy-track {
+  left: 0;
+  will-change: transform;
+  animation: ivy-slide 60s linear infinite;
+}
+
+@utility ivy-track-reverse {
+  animation-name: ivy-slide-reverse;
+}
+
+@utility ivy-bob {
+  animation: ivy-bob 11s ease-in-out infinite;
+}
+
+.ivy-crest {
+  opacity: 0.15;
+  filter: saturate(0.6) contrast(0.95);
+}
+
 
 @utility ivy-halo {
   position: relative;
@@ -333,7 +357,8 @@
 @media (prefers-reduced-motion: reduce) {
   .cta-glow,
   .cta-glow::after,
-  .ivy-drift .ivy-crest {
+  .ivy-track,
+  .ivy-bob {
     animation: none;
   }
 }

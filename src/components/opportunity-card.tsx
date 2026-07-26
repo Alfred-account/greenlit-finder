@@ -21,7 +21,8 @@ export function OpportunityCard({
   onOpen: () => void;
   index?: number;
 }) {
-  const { t, tSphere, tGrade, tFormat, localeTag } = useI18n();
+  const { t, tSphere, tGrade, tFormat, tItem, localeTag } = useI18n();
+  const local = tItem(item);
 
   return (
     <Card
@@ -61,9 +62,9 @@ export function OpportunityCard({
 
       <div className="space-y-2">
         <h3 className="text-lg leading-snug font-semibold transition-colors group-hover:text-primary">
-          {item.title}
+          {local.title}
         </h3>
-        <p className="line-clamp-3 text-sm text-muted-foreground">{item.snippet}</p>
+        <p className="line-clamp-3 text-sm text-muted-foreground">{local.snippet}</p>
       </div>
 
       <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-border/70 pt-4 text-xs text-muted-foreground">

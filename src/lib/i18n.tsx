@@ -1,3 +1,4 @@
+import { localizeOpportunity, type Opportunity } from "@/lib/opportunities";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export const LANGUAGES = [
@@ -245,6 +246,7 @@ type Ctx = {
   tGrade: (value: string) => string;
   tCost: (value: string) => string;
   tFormat: (value: string) => string;
+  tItem: (item: Opportunity) => Opportunity;
   localeTag: string;
 };
 
@@ -281,6 +283,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       },
       tCost: (v: string) => (v === "Free" ? t("cost.free") : t("cost.paid")),
       tFormat: (v: string) => (v === "Team-based" ? t("format.team") : t("format.individual")),
+      tItem: (item: Opportunity) => localizeOpportunity(item, lang),
     };
   }, [lang, setLang]);
 
