@@ -270,9 +270,33 @@
   }
 }
 
+@keyframes ivy-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(-26px) rotate(2deg);
+    opacity: 0.9;
+  }
+}
+
+@utility ivy-drift {
+  will-change: transform;
+  & > svg {
+    animation: ivy-float var(--ivy-dur, 24s) ease-in-out infinite;
+    animation-duration: inherit;
+    animation-delay: inherit;
+  }
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cta-glow,
-  .cta-glow::after {
+  .cta-glow::after,
+  .ivy-drift > svg {
     animation: none;
   }
 }
+
