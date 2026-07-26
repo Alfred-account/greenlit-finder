@@ -87,7 +87,12 @@ function Home() {
   }
 
   function scrollToCatalog() {
-    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (scrolling) return;
+    setScrolling(true);
+    window.setTimeout(() => {
+      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => setScrolling(false), 500);
+    }, 650);
   }
 
   return (
