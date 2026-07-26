@@ -273,29 +273,67 @@
 @keyframes ivy-float {
   0%,
   100% {
-    transform: translateY(0) rotate(-2deg);
-    opacity: 0.55;
+    transform: translateY(0) rotate(calc(var(--tilt, 0deg) * -1)) scale(1);
+    opacity: 0.34;
   }
   50% {
-    transform: translateY(-26px) rotate(2deg);
-    opacity: 0.9;
+    transform: translateY(-24px) rotate(var(--tilt, 0deg)) scale(1.04);
+    opacity: 0.62;
   }
 }
 
 @utility ivy-drift {
   will-change: transform;
-  & > svg {
-    animation: ivy-float var(--ivy-dur, 24s) ease-in-out infinite;
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  & .ivy-crest {
+    animation: ivy-float 24s ease-in-out infinite;
     animation-duration: inherit;
     animation-delay: inherit;
+    filter: saturate(0.5) contrast(0.95)
+      drop-shadow(0 10px 18px color-mix(in oklab, var(--primary) 35%, transparent));
   }
-  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@utility ivy-halo {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -22%;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--primary) 16%, transparent),
+      transparent 70%
+    );
+  }
+}
+
+@utility ivy-veil {
+  background: radial-gradient(
+    70% 55% at 50% 45%,
+    color-mix(in oklab, var(--background) 82%, transparent),
+    transparent 75%
+  );
+}
+
+@keyframes cta-load-bar {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@utility cta-load-bar {
+  animation: cta-load-bar 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cta-glow,
   .cta-glow::after,
-  .ivy-drift > svg {
+  .ivy-drift .ivy-crest {
     animation: none;
   }
 }
