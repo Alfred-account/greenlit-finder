@@ -127,14 +127,18 @@ function Home() {
           className="rise-in relative mt-10 flex flex-col items-center gap-4 sm:flex-row"
           style={{ animationDelay: "240ms" }}
         >
-
           <Button
             size="lg"
             onClick={scrollToCatalog}
-            className="gradient-emerald shadow-lift cta-glow h-13 rounded-xl px-8 text-base font-semibold text-primary-foreground transition-transform hover:scale-[1.04]"
+            aria-busy={scrolling}
+            className={`gradient-emerald shadow-lift h-13 relative overflow-hidden rounded-xl px-8 text-base font-semibold text-primary-foreground transition-transform hover:scale-[1.04] ${scrolling ? "" : "cta-glow"}`}
           >
+            {scrolling ? <Loader2 className="size-4 animate-spin" /> : null}
             {t("hero.cta")}
-            <ArrowDown className="size-4 animate-bounce" />
+            {scrolling ? null : <ArrowDown className="size-4 animate-bounce" />}
+            {scrolling && (
+              <span className="cta-load-bar pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-primary-foreground/70" />
+            )}
           </Button>
         </div>
       </section>
