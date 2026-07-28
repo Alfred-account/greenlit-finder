@@ -21,7 +21,7 @@ export function OpportunityCard({
   onOpen: () => void;
   index?: number;
 }) {
-  const { t, tSphere, tGrade, tFormat, tItem, localeTag } = useI18n();
+  const { t, tSphere, tGrades, tFormat, tItem, localeTag } = useI18n();
   const local = tItem(item);
 
   return (
