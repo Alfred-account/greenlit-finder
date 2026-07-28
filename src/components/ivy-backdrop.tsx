@@ -1,11 +1,6 @@
-import brown from "@/assets/crests/brown.png.asset.json";
-import columbia from "@/assets/crests/columbia.png.asset.json";
-import cornell from "@/assets/crests/cornell.png.asset.json";
-import dartmouth from "@/assets/crests/dartmouth.png.asset.json";
-import harvard from "@/assets/crests/harvard.png.asset.json";
-import penn from "@/assets/crests/penn.png.asset.json";
-import princeton from "@/assets/crests/princeton.png.asset.json";
-import yale from "@/assets/crests/yale.png.asset.json";
+// Crests live in public/assets/crests and are committed to Git, so they work on
+// any host (Vercel included) without depending on external CDN infrastructure.
+const crest = (name: string) => `/assets/crests/${name}.png`;
 
 type Crest = {
   name: string;
@@ -19,14 +14,14 @@ type Crest = {
 };
 
 const IVY: Crest[] = [
-  { name: "Harvard", src: harvard.url, top: "12%", size: 92, delay: "0s", dur: "58s", tilt: -6 },
-  { name: "Yale", src: yale.url, top: "24%", size: 78, delay: "-22s", dur: "72s", tilt: 7, reverse: true },
-  { name: "Princeton", src: princeton.url, top: "38%", size: 84, delay: "-9s", dur: "64s", tilt: 5 },
-  { name: "Columbia", src: columbia.url, top: "52%", size: 72, delay: "-35s", dur: "80s", tilt: -8, reverse: true },
-  { name: "Brown", src: brown.url, top: "6%", size: 84, delay: "-46s", dur: "76s", tilt: 3, reverse: true },
-  { name: "Cornell", src: cornell.url, top: "66%", size: 66, delay: "-16s", dur: "62s", tilt: -4 },
-  { name: "Dartmouth", src: dartmouth.url, top: "78%", size: 64, delay: "-52s", dur: "70s", tilt: 9, reverse: true },
-  { name: "Penn", src: penn.url, top: "88%", size: 80, delay: "-30s", dur: "66s", tilt: -5 },
+  { name: "Harvard", src: crest("harvard"), top: "12%", size: 92, delay: "0s", dur: "58s", tilt: -6 },
+  { name: "Yale", src: crest("yale"), top: "24%", size: 78, delay: "-22s", dur: "72s", tilt: 7, reverse: true },
+  { name: "Princeton", src: crest("princeton"), top: "38%", size: 84, delay: "-9s", dur: "64s", tilt: 5 },
+  { name: "Columbia", src: crest("columbia"), top: "52%", size: 72, delay: "-35s", dur: "80s", tilt: -8, reverse: true },
+  { name: "Brown", src: crest("brown"), top: "6%", size: 84, delay: "-46s", dur: "76s", tilt: 3, reverse: true },
+  { name: "Cornell", src: crest("cornell"), top: "66%", size: 66, delay: "-16s", dur: "62s", tilt: -4 },
+  { name: "Dartmouth", src: crest("dartmouth"), top: "78%", size: 64, delay: "-52s", dur: "70s", tilt: 9, reverse: true },
+  { name: "Penn", src: crest("penn"), top: "88%", size: 80, delay: "-30s", dur: "66s", tilt: -5 },
 ];
 
 export function IvyBackdrop() {
