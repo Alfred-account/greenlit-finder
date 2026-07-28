@@ -14,7 +14,7 @@ export function OpportunityDialog({
   item: Opportunity | null;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { t, tSphere, tGrade, tItem, localeTag } = useI18n();
+  const { t, tSphere, tGrades, tItem, localeTag } = useI18n();
   const local = item ? tItem(item) : null;
 
   return (
@@ -28,7 +28,7 @@ export function OpportunityDialog({
                   {tSphere(item.sphere)}
                 </Badge>
                 <Badge variant="outline" className="rounded-full px-3 py-1">
-                  {tGrade(item.grade)}
+                  {tGrades(item.grades)}
                 </Badge>
                 <Badge
                   className={
