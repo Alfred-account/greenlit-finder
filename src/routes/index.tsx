@@ -13,7 +13,13 @@ import { OpportunityDialog } from "@/components/opportunity-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { fetchOpportunities } from "@/lib/airtable.functions";
 import { useI18n } from "@/lib/i18n";
 import { COSTS, FORMATS, GRADES, SPHERES, type Opportunity } from "@/lib/opportunities";
@@ -30,7 +36,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Green Lit Space — каталог олимпиад и возможностей" },
       {
         property: "og:description",
-        content: "Новые возможности каждый день: олимпиады, конкурсы и программы для школьников и студентов.",
+        content:
+          "Новые возможности каждый день: олимпиады, конкурсы и программы для школьников и студентов.",
       },
     ],
   }),
@@ -48,7 +55,8 @@ function Home() {
 
   useEffect(() => {
     if (data?.error) console.error(data.error);
-    else if (data?.source === "sample") console.warn("[airtable] Показаны демо-данные вместо записей Airtable.");
+    else if (data?.source === "sample")
+      console.warn("[airtable] Показаны демо-данные вместо записей Airtable.");
   }, [data]);
 
   const { t, tSphere, tGrade, tCost, tFormat } = useI18n();
@@ -67,7 +75,12 @@ function Home() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return items.filter((o) => {
-      if (q && !`${o.title} ${o.snippet} ${o.description} ${o.sphere} ${tSphere(o.sphere)}`.toLowerCase().includes(q))
+      if (
+        q &&
+        !`${o.title} ${o.snippet} ${o.description} ${o.sphere} ${tSphere(o.sphere)}`
+          .toLowerCase()
+          .includes(q)
+      )
         return false;
       if (sphere !== ALL && o.sphere !== sphere) return false;
       if (grade !== ALL && o.grade !== grade) return false;
@@ -80,7 +93,13 @@ function Home() {
   }, [items, query, sphere, grade, cost, format, from, to, tSphere]);
 
   const hasFilters =
-    query !== "" || sphere !== ALL || grade !== ALL || cost !== ALL || format !== ALL || from !== "" || to !== "";
+    query !== "" ||
+    sphere !== ALL ||
+    grade !== ALL ||
+    cost !== ALL ||
+    format !== ALL ||
+    from !== "" ||
+    to !== "";
 
   function reset() {
     setQuery("");
@@ -223,7 +242,12 @@ function Home() {
           {isPending
             ? Array.from({ length: 6 }).map((_, i) => <OpportunityCardSkeleton key={i} />)
             : filtered.map((item, i) => (
-                <OpportunityCard key={item.id} item={item} index={i} onOpen={() => setActive(item)} />
+                <OpportunityCard
+                  key={item.id}
+                  item={item}
+                  index={i}
+                  onOpen={() => setActive(item)}
+                />
               ))}
         </div>
 

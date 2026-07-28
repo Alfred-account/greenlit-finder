@@ -9,7 +9,13 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitOpportunity, type SubmissionInput } from "@/lib/airtable.functions";
 import { useI18n } from "@/lib/i18n";
@@ -85,7 +91,11 @@ function SharePage() {
     <main className="hero-surface min-h-screen px-6 py-14">
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
-          <Button variant="ghost" onClick={() => router.history.back()} className="-ml-2 rounded-xl">
+          <Button
+            variant="ghost"
+            onClick={() => router.history.back()}
+            className="-ml-2 rounded-xl"
+          >
             <ArrowLeft className="size-4" /> {t("share.back")}
           </Button>
           <LanguageSwitcher />
@@ -142,7 +152,12 @@ function SharePage() {
               />
             </Field>
             <Field label={t("filter.grade")} required>
-              <Selector value={form.grade} onChange={(v) => set("grade", v)} options={[...GRADES]} render={tGrade} />
+              <Selector
+                value={form.grade}
+                onChange={(v) => set("grade", v)}
+                options={[...GRADES]}
+                render={tGrade}
+              />
             </Field>
             <Field label={t("filter.cost")} required>
               <Selector

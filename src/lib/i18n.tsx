@@ -1,5 +1,13 @@
 import { localizeOpportunity, type Opportunity } from "@/lib/opportunities";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 export const LANGUAGES = [
   { code: "ru", label: "Русский", short: "RU" },
@@ -49,7 +57,8 @@ const ru: Dict = {
   "dialog.official": "Перейти на официальный сайт",
   "share.back": "Назад",
   "share.title": "Поделись своей возможностью бесплатно!",
-  "share.subtitle": "Заполните короткую форму — мы проверим заявку и опубликуем её в каталоге. Это бесплатно.",
+  "share.subtitle":
+    "Заполните короткую форму — мы проверим заявку и опубликуем её в каталоге. Это бесплатно.",
   "share.name": "Ваше имя",
   "share.namePlaceholder": "Айгерим",
   "share.contact": "Контакт (Email / Telegram)",
@@ -60,7 +69,8 @@ const ru: Dict = {
   "share.formatLabel": "Формат участия",
   "share.url": "Ссылка на сайт",
   "share.description": "Описание",
-  "share.descriptionPlaceholder": "Кратко о событии, этапах и призах.\nКаждый шаг участия — с новой строки.",
+  "share.descriptionPlaceholder":
+    "Кратко о событии, этапах и призах.\nКаждый шаг участия — с новой строки.",
   "share.counterHint": "переносы строк сохраняются в описании.",
   "share.selectPlaceholder": "Выберите…",
   "share.submit": "Отправить на модерацию",
@@ -82,7 +92,8 @@ const kk: Dict = {
     "Есік ашатын олимпиадалар, байқаулар мен бағдарламалар. Бағыт, сынып, формат және мерзім бойынша өзіңе қолайлысын тап.",
   "hero.cta": "Іздеуді бастау",
   "banner.title": "Өз мүмкіндігіңмен тегін бөліс!",
-  "banner.subtitle": "Олимпиада не байқау ұйымдастырасың ба? Жылдам модерациядан кейін жариялаймыз.",
+  "banner.subtitle":
+    "Олимпиада не байқау ұйымдастырасың ба? Жылдам модерациядан кейін жариялаймыз.",
   "banner.action": "Форманы толтыру",
   "search.placeholder": "Атауы, бағыты немесе сипаттамасы бойынша іздеу…",
   "search.aria": "Мүмкіндіктерді іздеу",
@@ -114,7 +125,8 @@ const kk: Dict = {
   "dialog.official": "Ресми сайтқа өту",
   "share.back": "Артқа",
   "share.title": "Өз мүмкіндігіңмен тегін бөліс!",
-  "share.subtitle": "Қысқа форманы толтырыңыз — өтінімді тексеріп, каталогта жариялаймыз. Бұл тегін.",
+  "share.subtitle":
+    "Қысқа форманы толтырыңыз — өтінімді тексеріп, каталогта жариялаймыз. Бұл тегін.",
   "share.name": "Атыңыз",
   "share.namePlaceholder": "Айгерім",
   "share.contact": "Байланыс (Email / Telegram)",
@@ -125,7 +137,8 @@ const kk: Dict = {
   "share.formatLabel": "Қатысу форматы",
   "share.url": "Сайтқа сілтеме",
   "share.description": "Сипаттама",
-  "share.descriptionPlaceholder": "Іс-шара, кезеңдер және жүлделер туралы қысқаша.\nӘр қадам — жаңа жолдан.",
+  "share.descriptionPlaceholder":
+    "Іс-шара, кезеңдер және жүлделер туралы қысқаша.\nӘр қадам — жаңа жолдан.",
   "share.counterHint": "жол ауыстырулары сипаттамада сақталады.",
   "share.selectPlaceholder": "Таңдаңыз…",
   "share.submit": "Модерацияға жіберу",
@@ -179,7 +192,8 @@ const en: Dict = {
   "dialog.official": "Go to official website",
   "share.back": "Back",
   "share.title": "Share your opportunity for free!",
-  "share.subtitle": "Fill in a short form — we'll review it and publish it in the catalog. It's free.",
+  "share.subtitle":
+    "Fill in a short form — we'll review it and publish it in the catalog. It's free.",
   "share.name": "Your name",
   "share.namePlaceholder": "Aigerim",
   "share.contact": "Contact (Email / Telegram)",
@@ -190,7 +204,8 @@ const en: Dict = {
   "share.formatLabel": "Participation format",
   "share.url": "Website link",
   "share.description": "Description",
-  "share.descriptionPlaceholder": "Briefly about the event, stages and prizes.\nEach step on a new line.",
+  "share.descriptionPlaceholder":
+    "Briefly about the event, stages and prizes.\nEach step on a new line.",
   "share.counterHint": "line breaks are preserved in the description.",
   "share.selectPlaceholder": "Select…",
   "share.submit": "Submit for review",

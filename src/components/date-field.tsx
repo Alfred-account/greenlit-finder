@@ -40,7 +40,11 @@ export function DateField({
           >
             <CalendarDays className="size-4 text-primary" />
             {selected
-              ? selected.toLocaleDateString(localeTag, { day: "numeric", month: "long", year: "numeric" })
+              ? selected.toLocaleDateString(localeTag, {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
               : t("filter.pickDate")}
             {selected && (
               <span

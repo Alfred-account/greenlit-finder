@@ -25,7 +25,14 @@ export const SPHERES = [
   "Art & Design",
 ] as const;
 
-export const GRADES = ["8 Grade", "9 Grade", "10 Grade", "11 Grade", "12 Grade", "Undergrad"] as const;
+export const GRADES = [
+  "8 Grade",
+  "9 Grade",
+  "10 Grade",
+  "11 Grade",
+  "12 Grade",
+  "Undergrad",
+] as const;
 
 export const COSTS = ["Free", "Paid"] as const;
 export const FORMATS = ["Individual", "Team-based"] as const;
@@ -62,7 +69,12 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     snippet: "Командная конференция по международным отношениям с делегациями из 40 стран.",
     description:
       "Участники представляют страны в смоделированных комитетах ООН, готовят позиционные документы и защищают резолюции.",
-    steps: ["Соберите делегацию 3–6 человек", "Подайте заявку", "Оплатите взнос", "Подготовьте position paper"],
+    steps: [
+      "Соберите делегацию 3–6 человек",
+      "Подайте заявку",
+      "Оплатите взнос",
+      "Подготовьте position paper",
+    ],
     url: "https://example.com/mun-summit",
   },
   {
@@ -76,7 +88,11 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     snippet: "Лаборатория короткого метра с менторами из индустрии и питчингом проектов.",
     description:
       "Шестинедельная программа: сценарное мастерство, режиссура, монтаж. Лучшие проекты получают продюсерскую поддержку.",
-    steps: ["Отправьте шоурил или короткометражку", "Пройдите онлайн-интервью", "Сформируйте съёмочную группу"],
+    steps: [
+      "Отправьте шоурил или короткометражку",
+      "Пройдите онлайн-интервью",
+      "Сформируйте съёмочную группу",
+    ],
     url: "https://example.com/filmmakers-lab",
   },
   {
@@ -116,7 +132,8 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     format: "Individual",
     deadline: "2026-11-12",
     snippet: "Кейс-чемпионат по праву: решение реальных юридических задач.",
-    description: "Участники анализируют кейсы из практики и предлагают правовые решения. Финал — устная защита.",
+    description:
+      "Участники анализируют кейсы из практики и предлагают правовые решения. Финал — устная защита.",
     steps: ["Решите отборочный кейс", "Пройдите во второй тур", "Устная защита перед жюри"],
     url: "https://example.com/future-lawyers",
   },
@@ -142,7 +159,8 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     format: "Individual",
     deadline: "2026-05-25",
     snippet: "Премия для школьных и студенческих журналистов за лучший репортаж.",
-    description: "Принимаются тексты, подкасты и видеорепортажи. Победители проходят стажировку в редакции.",
+    description:
+      "Принимаются тексты, подкасты и видеорепортажи. Победители проходят стажировку в редакции.",
     steps: ["Отправьте до 3 работ", "Дождитесь шортлиста", "Церемония награждения"],
     url: "https://example.com/press-award",
   },
@@ -184,7 +202,8 @@ export const OPPORTUNITY_I18N: Record<string, { kk?: LocalizedContent; en?: Loca
       ],
     },
     kk: {
-      snippet: "Алгоритмдер мен деректер құрылымы бойынша халықаралық олимпиада, онлайн іріктеумен.",
+      snippet:
+        "Алгоритмдер мен деректер құрылымы бойынша халықаралық олимпиада, онлайн іріктеумен.",
       description:
         "Үш кезеңді олимпиада: онлайн іріктеу, аймақтық тур және халықаралық финал. Жеңімпаздар серіктес университеттерден шақыру алады.",
       steps: [
@@ -200,13 +219,24 @@ export const OPPORTUNITY_I18N: Record<string, { kk?: LocalizedContent; en?: Loca
       snippet: "A team conference on international relations with delegations from 40 countries.",
       description:
         "Participants represent countries in simulated UN committees, prepare position papers and defend resolutions.",
-      steps: ["Gather a delegation of 3–6 people", "Submit an application", "Pay the fee", "Prepare a position paper"],
+      steps: [
+        "Gather a delegation of 3–6 people",
+        "Submit an application",
+        "Pay the fee",
+        "Prepare a position paper",
+      ],
     },
     kk: {
-      snippet: "40 елден келген делегациялары бар халықаралық қатынастар бойынша командалық конференция.",
+      snippet:
+        "40 елден келген делегациялары бар халықаралық қатынастар бойынша командалық конференция.",
       description:
         "Қатысушылар БҰҰ комитеттерінің моделінде елдерді таныстырады, позициялық құжат дайындап, қарарларды қорғайды.",
-      steps: ["3–6 адамнан делегация жинаңыз", "Өтінім беріңіз", "Жарнаны төлеңіз", "Position paper дайындаңыз"],
+      steps: [
+        "3–6 адамнан делегация жинаңыз",
+        "Өтінім беріңіз",
+        "Жарнаны төлеңіз",
+        "Position paper дайындаңыз",
+      ],
     },
   },
   s3: {
@@ -220,7 +250,11 @@ export const OPPORTUNITY_I18N: Record<string, { kk?: LocalizedContent; en?: Loca
       snippet: "Индустрия менторлары мен жоба питчингі бар қысқаметражды фильм зертханасы.",
       description:
         "Алты апталық бағдарлама: сценарий шеберлігі, режиссура, монтаж. Үздік жобалар продюсерлік қолдау алады.",
-      steps: ["Шоурил не қысқаметраж жіберіңіз", "Онлайн сұхбаттан өтіңіз", "Түсірілім тобын құрыңыз"],
+      steps: [
+        "Шоурил не қысқаметраж жіберіңіз",
+        "Онлайн сұхбаттан өтіңіз",
+        "Түсірілім тобын құрыңыз",
+      ],
     },
   },
   s4: {
@@ -240,7 +274,8 @@ export const OPPORTUNITY_I18N: Record<string, { kk?: LocalizedContent; en?: Loca
   s5: {
     en: {
       snippet: "A British Parliamentary format tournament for school teams.",
-      description: "Five qualifying rounds and a final. Judges are champions of national debate leagues.",
+      description:
+        "Five qualifying rounds and a final. Judges are champions of national debate leagues.",
       steps: ["Register a team of 2", "Pay the fee", "Attend the briefing"],
     },
     kk: {
@@ -254,11 +289,16 @@ export const OPPORTUNITY_I18N: Record<string, { kk?: LocalizedContent; en?: Loca
       snippet: "A law case championship: solving real legal problems.",
       description:
         "Participants analyse real-life cases and propose legal solutions. The final is an oral defence.",
-      steps: ["Solve the qualifying case", "Advance to the second round", "Oral defence before the jury"],
+      steps: [
+        "Solve the qualifying case",
+        "Advance to the second round",
+        "Oral defence before the jury",
+      ],
     },
     kk: {
       snippet: "Құқық бойынша кейс-чемпионат: нақты заңдық мәселелерді шешу.",
-      description: "Қатысушылар тәжірибедегі кейстерді талдап, құқықтық шешім ұсынады. Финал — ауызша қорғау.",
+      description:
+        "Қатысушылар тәжірибедегі кейстерді талдап, құқықтық шешім ұсынады. Финал — ауызша қорғау.",
       steps: ["Іріктеу кейсін шешіңіз", "Екінші турға өтіңіз", "Қазылар алдында ауызша қорғау"],
     },
   },
@@ -277,12 +317,14 @@ export const OPPORTUNITY_I18N: Record<string, { kk?: LocalizedContent; en?: Loca
   s8: {
     en: {
       snippet: "An award for school and student journalists for the best story.",
-      description: "Texts, podcasts and video reports are accepted. Winners get an editorial internship.",
+      description:
+        "Texts, podcasts and video reports are accepted. Winners get an editorial internship.",
       steps: ["Submit up to 3 works", "Wait for the shortlist", "Award ceremony"],
     },
     kk: {
       snippet: "Үздік репортаж үшін мектеп және студент журналистерге арналған сыйлық.",
-      description: "Мәтін, подкаст және бейнерепортаждар қабылданады. Жеңімпаздар редакцияда тәжірибеден өтеді.",
+      description:
+        "Мәтін, подкаст және бейнерепортаждар қабылданады. Жеңімпаздар редакцияда тәжірибеден өтеді.",
       steps: ["3-ке дейін жұмыс жіберіңіз", "Шорт-листті күтіңіз", "Марапаттау рәсімі"],
     },
   },
@@ -290,7 +332,11 @@ export const OPPORTUNITY_I18N: Record<string, { kk?: LocalizedContent; en?: Loca
     en: {
       snippet: "A digital art exhibition for young artists and designers.",
       description: "Works are selected by curators and exhibited online and in the gallery.",
-      steps: ["Upload your portfolio", "Pay the application fee", "Wait for the curators' decision"],
+      steps: [
+        "Upload your portfolio",
+        "Pay the application fee",
+        "Wait for the curators' decision",
+      ],
     },
     kk: {
       snippet: "Жас суретшілер мен дизайнерлерге арналған цифрлық өнер көрмесі.",

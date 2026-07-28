@@ -39,7 +39,10 @@ export function OpportunityCard({
       className="rise-in shadow-soft hover:shadow-lift group flex cursor-pointer flex-col gap-4 rounded-2xl border-border/70 p-5 transition-all duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="secondary" className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
+        <Badge
+          variant="secondary"
+          className="rounded-full bg-accent px-3 py-1 text-accent-foreground"
+        >
           {tSphere(item.sphere)}
         </Badge>
         <Badge variant="outline" className="rounded-full px-3 py-1 text-muted-foreground">
@@ -73,7 +76,11 @@ export function OpportunityCard({
           {formatDeadline(item.deadline, localeTag, t("card.noDeadline"))}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          {item.format === "Team-based" ? <Users className="size-3.5" /> : <User className="size-3.5" />}
+          {item.format === "Team-based" ? (
+            <Users className="size-3.5" />
+          ) : (
+            <User className="size-3.5" />
+          )}
           {tFormat(item.format)}
         </span>
         <span className="ml-auto inline-flex items-center gap-1.5 font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">

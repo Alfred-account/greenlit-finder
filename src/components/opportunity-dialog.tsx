@@ -54,11 +54,21 @@ export function OpportunityDialog({
               </span>
               <span className="inline-flex items-center gap-2">
                 <Wallet className="size-4" /> {t("dialog.cost")}:{" "}
-                {item.cost === "Free" ? t("cost.free") : item.price ? item.price : t("dialog.paidTbd")}
+                {item.cost === "Free"
+                  ? t("cost.free")
+                  : item.price
+                    ? item.price
+                    : t("dialog.paidTbd")}
               </span>
               <span className="inline-flex items-center gap-2">
-                {item.format === "Team-based" ? <Users className="size-4" /> : <User className="size-4" />}
-                {item.format === "Team-based" ? t("dialog.formatTeam") : t("dialog.formatIndividual")}
+                {item.format === "Team-based" ? (
+                  <Users className="size-4" />
+                ) : (
+                  <User className="size-4" />
+                )}
+                {item.format === "Team-based"
+                  ? t("dialog.formatTeam")
+                  : t("dialog.formatIndividual")}
               </span>
             </div>
 
@@ -85,7 +95,11 @@ export function OpportunityDialog({
             )}
 
             {item.url && (
-              <Button asChild size="lg" className="gradient-emerald w-full rounded-xl text-primary-foreground">
+              <Button
+                asChild
+                size="lg"
+                className="gradient-emerald w-full rounded-xl text-primary-foreground"
+              >
                 <a href={item.url} target="_blank" rel="noopener noreferrer">
                   {t("dialog.official")} <ExternalLink className="size-4" />
                 </a>

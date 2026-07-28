@@ -92,7 +92,8 @@
   --sidebar-border: oklch(0.91 0.015 155);
   --sidebar-ring: oklch(0.58 0.14 158);
 
-  --gradient-hero: radial-gradient(
+  --gradient-hero:
+    radial-gradient(
       1200px 600px at 50% -10%,
       color-mix(in oklab, var(--primary) 22%, transparent),
       transparent 70%
@@ -317,7 +318,6 @@
   filter: saturate(0.6) contrast(0.95);
 }
 
-
 @utility ivy-halo {
   position: relative;
   &::before {
@@ -362,4 +362,3 @@
     animation: none;
   }
 }
-

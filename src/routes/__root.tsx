@@ -8,10 +8,10 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { I18nProvider } from "@/lib/i18n";
-
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -82,7 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Green Lit Space" },
-      { name: "description", content: "Новые возможности каждый день: олимпиады, конкурсы и программы." },
+      {
+        name: "description",
+        content: "Новые возможности каждый день: олимпиады, конкурсы и программы.",
+      },
       { name: "author", content: "Green Lit Space" },
       { property: "og:title", content: "Green Lit Space" },
       { property: "og:description", content: "Новые возможности каждый день." },
@@ -119,6 +122,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <body>
         {children}
         <Scripts />
+        <Analytics />
       </body>
     </html>
   );
@@ -137,5 +141,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-
-
