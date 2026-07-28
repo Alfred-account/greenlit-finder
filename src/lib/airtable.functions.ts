@@ -3,13 +3,19 @@ import { z } from "zod";
 
 import { SAMPLE_OPPORTUNITIES, type Opportunity } from "./opportunities";
 
-const TABLE = "Opportunities";
-
 function getConfig() {
+  // Read env INSIDE the handler-call path: serverless runtimes inject env per request.
   const apiKey = process.env.AIRTABLE_API_KEY ?? process.env.VITE_AIRTABLE_API_KEY;
   const baseId = process.env.AIRTABLE_BASE_ID ?? process.env.VITE_AIRTABLE_BASE_ID;
-  if (!apiKey || !baseId) return null;
-  return { apiKey, baseId };
+  const table = process.env.AIRTABLE_TABLE_NAME ?? process.env.VITE_AIRTABLE_TABLE_NAME ?? "Opportunities";
+  const missing: string[] = [];
+  if (!apiKey) missing.push("AIRTABLE_API_KEY");
+  if (!baseId) missing.push("AIRTABLE_BASE_ID");
+  if (missing.length) {
+    console.error(`[airtable] Missing environment variables: ${missing.join(", ")}`);
+    return null;
+  }
+  return { apiKey: apiKey!, baseId: baseId!, table };
 }
 
 type Fields = Record<string, unknown>;
