@@ -45,6 +45,12 @@ function Home() {
     queryKey: ["opportunities"],
     queryFn: () => getOpportunities(),
   });
+
+  useEffect(() => {
+    if (data?.error) console.error(data.error);
+    else if (data?.source === "sample") console.warn("[airtable] Показаны демо-данные вместо записей Airtable.");
+  }, [data]);
+
   const { t, tSphere, tGrade, tCost, tFormat } = useI18n();
 
   const [query, setQuery] = useState("");
