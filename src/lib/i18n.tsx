@@ -1,4 +1,4 @@
-import { localizeOpportunity, type Opportunity } from "@/lib/opportunities";
+import { formatGrades, localizeOpportunity, type Opportunity } from "@/lib/opportunities";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export const LANGUAGES = [
@@ -244,6 +244,7 @@ type Ctx = {
   t: (key: string) => string;
   tSphere: (value: string) => string;
   tGrade: (value: string) => string;
+  tGrades: (values: string[]) => string;
   tCost: (value: string) => string;
   tFormat: (value: string) => string;
   tItem: (item: Opportunity) => Opportunity;
@@ -280,6 +281,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         const num = v.match(/\d+/)?.[0];
         if (!num) return v;
         return lang === "en" ? `${num}th grade` : `${num} ${t("grade.suffix")}`;
+      },
+      tGrades: (values: string[]) => {
+        const tg = (v: string) => {
+          if (v === "Undergrad") return t("grade.undergrad");
+          const num = v.match(/\d+/)?.[0];
+          if (!num) return v;
+          return lang === "en" ? `${num}th grade` : `${num} ${t("grade.suffix")}`;
+        };
+        return formatGrades(values, tg, lang === "en" ? "grade" : t("grade.suffix"));
       },
       tCost: (v: string) => (v === "Free" ? t("cost.free") : t("cost.paid")),
       tFormat: (v: string) => (v === "Team-based" ? t("format.team") : t("format.individual")),
