@@ -24,6 +24,23 @@ function str(v: unknown, fallback = ""): string {
   return typeof v === "string" ? v : fallback;
 }
 
+function parseGrades(raw: unknown): string[] {
+  const list = Array.isArray(raw)
+    ? raw.map((v) => String(v))
+    : String(raw ?? "")
+        .split(/[,;/]|\s–\s|\s-\s/)
+        .map((v) => v.trim());
+  const normalized = list
+    .map((v) => {
+      if (!v) return "";
+      if (/undergrad|student|студ/i.test(v)) return "Undergrad";
+      const num = v.match(/\d+/)?.[0];
+      return num ? `${num} Grade` : "";
+    })
+    .filter(Boolean);
+  return normalized.length ? sortGrades(normalized) : ["Undergrad"];
+}
+
 function mapRecord(rec: { id: string; fields: Fields }): Opportunity {
   const f = rec.fields;
   const rawSteps = f.Steps;
@@ -38,7 +55,7 @@ function mapRecord(rec: { id: string; fields: Fields }): Opportunity {
     id: rec.id,
     title: str(f.Title, "Без названия"),
     sphere: str(f.Sphere ?? f.Profession, "Other"),
-    grade: str(f.Grade, "Undergrad"),
+    grades: parseGrades(f.Grade ?? f.Grades),
     cost: str(f.Cost) === "Paid" ? "Paid" : "Free",
     price: str(f.Price ?? f.Cost_Amount) || undefined,
     format: str(f.Format) === "Team-based" ? "Team-based" : "Individual",
@@ -106,7 +123,7 @@ const submissionSchema = z.object({
   contactInfo: z.string().trim().min(3).max(200),
   title: z.string().trim().min(1).max(200),
   sphere: z.string().trim().min(1).max(100),
-  grade: z.string().trim().min(1).max(50),
+  grades: z.array(z.string().trim().min(1).max(50)).min(1).max(12),
   cost: z.enum(["Free", "Paid"]),
   price: z.string().trim().max(100).optional(),
   format: z.enum(["Individual", "Team-based"]),
@@ -137,7 +154,7 @@ export const submitOpportunity = createServerFn({ method: "POST" })
             fields: {
               Title: data.title,
               Sphere: data.sphere,
-              Grade: data.grade,
+              Grade: sortGrades(data.grades).join(", "),
               Cost: data.cost,
               Price: data.cost === "Paid" ? (data.price ?? "") : "",
               Format: data.format,
