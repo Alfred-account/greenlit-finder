@@ -74,6 +74,9 @@ const ru: Dict = {
   "lang.label": "Язык",
   "grade.undergrad": "Студент",
   "grade.suffix": "класс",
+  "share.gradesLabel": "Для каких классов",
+  "share.gradesHint": "Отметьте все классы, которые могут участвовать — например 9, 10 и 11.",
+  "share.gradesSelected": "Выбрано",
 };
 
 const kk: Dict = {
@@ -139,6 +142,9 @@ const kk: Dict = {
   "lang.label": "Тіл",
   "grade.undergrad": "Студент",
   "grade.suffix": "сынып",
+  "share.gradesLabel": "Қай сыныптарға арналған",
+  "share.gradesHint": "Қатыса алатын барлық сыныпты белгілеңіз — мысалы 9, 10 және 11.",
+  "share.gradesSelected": "Таңдалды",
 };
 
 const en: Dict = {
@@ -204,6 +210,9 @@ const en: Dict = {
   "lang.label": "Language",
   "grade.undergrad": "Undergrad",
   "grade.suffix": "grade",
+  "share.gradesLabel": "Eligible grades",
+  "share.gradesHint": "Select every grade that can take part — e.g. 9, 10 and 11.",
+  "share.gradesSelected": "Selected",
 };
 
 const DICTS: Record<Lang, Dict> = { ru, kk, en };

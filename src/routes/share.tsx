@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { submitOpportunity, type SubmissionInput } from "@/lib/airtable.functions";
 import { useI18n } from "@/lib/i18n";
-import { COSTS, FORMATS, GRADES, SPHERES } from "@/lib/opportunities";
+import { COSTS, FORMATS, GRADES, SPHERES, sortGrades } from "@/lib/opportunities";
 
 export const Route = createFileRoute("/share")({
   head: () => ({
@@ -39,7 +39,7 @@ const empty: SubmissionInput = {
   contactInfo: "",
   title: "",
   sphere: "",
-  grade: "",
+  grades: [],
   cost: "Free",
   price: "",
   format: "Individual",
@@ -51,7 +51,7 @@ function SharePage() {
   const router = useRouter();
   const submit = useServerFn(submitOpportunity);
   const [form, setForm] = useState<SubmissionInput>(empty);
-  const { t, tSphere, tGrade, tCost, tFormat } = useI18n();
+  const { t, tSphere, tGrade, tGrades, tCost, tFormat } = useI18n();
 
   const mutation = useMutation({
     mutationFn: (data: SubmissionInput) => submit({ data }),
@@ -70,7 +70,7 @@ function SharePage() {
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.sphere || !form.grade) {
+    if (!form.sphere || form.grades.length === 0) {
       toast.error(t("toast.needSphere"));
       return;
     }
@@ -141,9 +141,38 @@ function SharePage() {
                 render={tSphere}
               />
             </Field>
-            <Field label={t("filter.grade")} required>
-              <Selector value={form.grade} onChange={(v) => set("grade", v)} options={[...GRADES]} render={tGrade} />
-            </Field>
+            <div className="sm:col-span-2">
+              <Field label={t("share.gradesLabel")} required>
+                <div className="flex flex-wrap gap-2">
+                  {GRADES.map((g) => {
+                    const on = form.grades.includes(g);
+                    return (
+                      <button
+                        key={g}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() =>
+                          set(
+                            "grades",
+                            sortGrades(on ? form.grades.filter((x) => x !== g) : [...form.grades, g]),
+                          )
+                        }
+                        className={`rounded-full border px-4 py-2 text-sm transition-all ${
+                          on
+                            ? "border-primary bg-primary text-primary-foreground shadow-soft"
+                            : "border-border/70 bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                        }`}
+                      >
+                        {tGrade(g)}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {form.grades.length > 0 ? `${t("share.gradesSelected")}: ${tGrades(form.grades)}` : t("share.gradesHint")}
+                </p>
+              </Field>
+            </div>
             <Field label={t("filter.cost")} required>
               <Selector
                 value={form.cost}
