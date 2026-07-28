@@ -125,7 +125,7 @@ export const submitOpportunity = createServerFn({ method: "POST" })
       return { ok: true, stored: false };
     }
 
-    const res = await fetch(`https://api.airtable.com/v0/${config.baseId}/${encodeURIComponent(TABLE)}`, {
+    const res = await fetch(`https://api.airtable.com/v0/${config.baseId}/${encodeURIComponent(config.table)}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${config.apiKey}`,
