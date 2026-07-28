@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { SAMPLE_OPPORTUNITIES, type Opportunity } from "./opportunities";
+import { SAMPLE_OPPORTUNITIES, parseGrades, sortGrades, type Opportunity } from "./opportunities";
 
 function getConfig() {
   // Read env INSIDE the handler-call path: serverless runtimes inject env per request.
@@ -38,7 +38,7 @@ function mapRecord(rec: { id: string; fields: Fields }): Opportunity {
     id: rec.id,
     title: str(f.Title, "Без названия"),
     sphere: str(f.Sphere ?? f.Profession, "Other"),
-    grade: str(f.Grade, "Undergrad"),
+    grades: parseGrades(f.Grade ?? f.Grades),
     cost: str(f.Cost) === "Paid" ? "Paid" : "Free",
     price: str(f.Price ?? f.Cost_Amount) || undefined,
     format: str(f.Format) === "Team-based" ? "Team-based" : "Individual",
@@ -106,7 +106,7 @@ const submissionSchema = z.object({
   contactInfo: z.string().trim().min(3).max(200),
   title: z.string().trim().min(1).max(200),
   sphere: z.string().trim().min(1).max(100),
-  grade: z.string().trim().min(1).max(50),
+  grades: z.array(z.string().trim().min(1).max(50)).min(1).max(12),
   cost: z.enum(["Free", "Paid"]),
   price: z.string().trim().max(100).optional(),
   format: z.enum(["Individual", "Team-based"]),
@@ -137,7 +137,7 @@ export const submitOpportunity = createServerFn({ method: "POST" })
             fields: {
               Title: data.title,
               Sphere: data.sphere,
-              Grade: data.grade,
+              Grade: sortGrades(data.grades).join(", "),
               Cost: data.cost,
               Price: data.cost === "Paid" ? (data.price ?? "") : "",
               Format: data.format,

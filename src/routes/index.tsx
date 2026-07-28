@@ -70,7 +70,7 @@ function Home() {
       if (q && !`${o.title} ${o.snippet} ${o.description} ${o.sphere} ${tSphere(o.sphere)}`.toLowerCase().includes(q))
         return false;
       if (sphere !== ALL && o.sphere !== sphere) return false;
-      if (grade !== ALL && o.grade !== grade) return false;
+      if (grade !== ALL && !o.grades.includes(grade)) return false;
       if (cost !== ALL && o.cost !== cost) return false;
       if (format !== ALL && o.format !== format) return false;
       if (from && o.deadline && o.deadline < from) return false;

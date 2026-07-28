@@ -1,4 +1,4 @@
-import { localizeOpportunity, type Opportunity } from "@/lib/opportunities";
+import { formatGrades, localizeOpportunity, type Opportunity } from "@/lib/opportunities";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export const LANGUAGES = [
@@ -74,6 +74,9 @@ const ru: Dict = {
   "lang.label": "Язык",
   "grade.undergrad": "Студент",
   "grade.suffix": "класс",
+  "share.gradesLabel": "Для каких классов",
+  "share.gradesHint": "Отметьте все классы, которые могут участвовать — например 9, 10 и 11.",
+  "share.gradesSelected": "Выбрано",
 };
 
 const kk: Dict = {
@@ -139,6 +142,9 @@ const kk: Dict = {
   "lang.label": "Тіл",
   "grade.undergrad": "Студент",
   "grade.suffix": "сынып",
+  "share.gradesLabel": "Қай сыныптарға арналған",
+  "share.gradesHint": "Қатыса алатын барлық сыныпты белгілеңіз — мысалы 9, 10 және 11.",
+  "share.gradesSelected": "Таңдалды",
 };
 
 const en: Dict = {
@@ -204,6 +210,9 @@ const en: Dict = {
   "lang.label": "Language",
   "grade.undergrad": "Undergrad",
   "grade.suffix": "grade",
+  "share.gradesLabel": "Eligible grades",
+  "share.gradesHint": "Select every grade that can take part — e.g. 9, 10 and 11.",
+  "share.gradesSelected": "Selected",
 };
 
 const DICTS: Record<Lang, Dict> = { ru, kk, en };
@@ -244,6 +253,7 @@ type Ctx = {
   t: (key: string) => string;
   tSphere: (value: string) => string;
   tGrade: (value: string) => string;
+  tGrades: (values: string[]) => string;
   tCost: (value: string) => string;
   tFormat: (value: string) => string;
   tItem: (item: Opportunity) => Opportunity;
@@ -280,6 +290,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         const num = v.match(/\d+/)?.[0];
         if (!num) return v;
         return lang === "en" ? `${num}th grade` : `${num} ${t("grade.suffix")}`;
+      },
+      tGrades: (values: string[]) => {
+        const tg = (v: string) => {
+          if (v === "Undergrad") return t("grade.undergrad");
+          const num = v.match(/\d+/)?.[0];
+          if (!num) return v;
+          return lang === "en" ? `${num}th grade` : `${num} ${t("grade.suffix")}`;
+        };
+        return formatGrades(values, tg, lang === "en" ? "grade" : t("grade.suffix"));
       },
       tCost: (v: string) => (v === "Free" ? t("cost.free") : t("cost.paid")),
       tFormat: (v: string) => (v === "Team-based" ? t("format.team") : t("format.individual")),

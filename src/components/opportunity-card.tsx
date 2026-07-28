@@ -21,7 +21,7 @@ export function OpportunityCard({
   onOpen: () => void;
   index?: number;
 }) {
-  const { t, tSphere, tGrade, tFormat, tItem, localeTag } = useI18n();
+  const { t, tSphere, tGrades, tFormat, tItem, localeTag } = useI18n();
   const local = tItem(item);
 
   return (
@@ -43,7 +43,7 @@ export function OpportunityCard({
           {tSphere(item.sphere)}
         </Badge>
         <Badge variant="outline" className="rounded-full px-3 py-1 text-muted-foreground">
-          {tGrade(item.grade)}
+          {tGrades(item.grades)}
         </Badge>
         <Badge
           className={
