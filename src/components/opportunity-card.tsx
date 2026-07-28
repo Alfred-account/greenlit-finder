@@ -43,7 +43,7 @@ export function OpportunityCard({
           {tSphere(item.sphere)}
         </Badge>
         <Badge variant="outline" className="rounded-full px-3 py-1 text-muted-foreground">
-          {tGrade(item.grade)}
+          {tGrades(item.grades)}
         </Badge>
         <Badge
           className={
