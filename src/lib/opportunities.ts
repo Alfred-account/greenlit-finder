@@ -2,7 +2,7 @@ export type Opportunity = {
   id: string;
   title: string;
   sphere: string;
-  grade: string;
+  grades: string[];
   cost: "Free" | "Paid";
   price?: string;
   format: "Individual" | "Team-based";
@@ -27,6 +27,27 @@ export const SPHERES = [
 
 export const GRADES = ["8 Grade", "9 Grade", "10 Grade", "11 Grade", "12 Grade", "Undergrad"] as const;
 
+export function gradeOrder(g: string) {
+  if (g === "Undergrad") return 99;
+  return Number(g.match(/\d+/)?.[0] ?? 0);
+}
+
+export function sortGrades(grades: string[]) {
+  return [...new Set(grades)].sort((a, b) => gradeOrder(a) - gradeOrder(b));
+}
+
+/** "9–11 класс" for a contiguous school range, otherwise a comma list. */
+export function formatGrades(grades: string[], tGrade: (v: string) => string, suffix: string) {
+  const list = sortGrades(grades);
+  if (list.length === 0) return "";
+  if (list.length === 1) return tGrade(list[0]);
+  const nums = list.filter((g) => g !== "Undergrad").map(gradeOrder);
+  const hasUndergrad = list.includes("Undergrad");
+  const contiguous = nums.length > 1 && nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
+  if (contiguous && !hasUndergrad) return `${nums[0]}\u2013${nums[nums.length - 1]} ${suffix}`;
+  return list.map(tGrade).join(", ");
+}
+
 export const COSTS = ["Free", "Paid"] as const;
 export const FORMATS = ["Individual", "Team-based"] as const;
 
@@ -35,7 +56,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     id: "s1",
     title: "Global Informatics Challenge",
     sphere: "Computer Science",
-    grades: ["10 Grade"],
+    grades: ["9 Grade", "10 Grade", "11 Grade"],
     cost: "Free",
     format: "Individual",
     deadline: "2026-09-15",
@@ -54,7 +75,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     id: "s2",
     title: "Model United Nations Summit",
     sphere: "International Relations",
-    grades: ["11 Grade"],
+    grades: ["10 Grade", "11 Grade", "12 Grade"],
     price: "50 000 ₸",
     cost: "Paid",
     format: "Team-based",
@@ -97,7 +118,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     id: "s5",
     title: "Debate Masters Cup",
     sphere: "Debates",
-    grades: ["9 Grade"],
+    grades: ["8 Grade", "9 Grade", "10 Grade"],
     price: "25 000 ₸",
     cost: "Paid",
     format: "Team-based",
