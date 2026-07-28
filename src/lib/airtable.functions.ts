@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { SAMPLE_OPPORTUNITIES, sortGrades, type Opportunity } from "./opportunities";
+import { SAMPLE_OPPORTUNITIES, parseGrades, sortGrades, type Opportunity } from "./opportunities";
 
 function getConfig() {
   // Read env INSIDE the handler-call path: serverless runtimes inject env per request.
@@ -22,23 +22,6 @@ type Fields = Record<string, unknown>;
 
 function str(v: unknown, fallback = ""): string {
   return typeof v === "string" ? v : fallback;
-}
-
-function parseGrades(raw: unknown): string[] {
-  const list = Array.isArray(raw)
-    ? raw.map((v) => String(v))
-    : String(raw ?? "")
-        .split(/[,;/]|\s–\s|\s-\s/)
-        .map((v) => v.trim());
-  const normalized = list
-    .map((v) => {
-      if (!v) return "";
-      if (/undergrad|student|студ/i.test(v)) return "Undergrad";
-      const num = v.match(/\d+/)?.[0];
-      return num ? `${num} Grade` : "";
-    })
-    .filter(Boolean);
-  return normalized.length ? sortGrades(normalized) : ["Undergrad"];
 }
 
 function mapRecord(rec: { id: string; fields: Fields }): Opportunity {

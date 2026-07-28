@@ -48,6 +48,23 @@ export function formatGrades(grades: string[], tGrade: (v: string) => string, su
   return list.map(tGrade).join(", ");
 }
 
+export function parseGrades(raw: unknown): string[] {
+  const list = Array.isArray(raw)
+    ? raw.map((v) => String(v))
+    : String(raw ?? "")
+        .split(/[,;/]|\s–\s|\s-\s/)
+        .map((v) => v.trim());
+  const normalized = list
+    .map((v) => {
+      if (!v) return "";
+      if (/undergrad|student|студ/i.test(v)) return "Undergrad";
+      const num = v.match(/\d+/)?.[0];
+      return num ? `${num} Grade` : "";
+    })
+    .filter(Boolean);
+  return normalized.length ? sortGrades(normalized) : ["Undergrad"];
+}
+
 export const COSTS = ["Free", "Paid"] as const;
 export const FORMATS = ["Individual", "Team-based"] as const;
 
