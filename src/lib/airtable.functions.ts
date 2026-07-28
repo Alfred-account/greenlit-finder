@@ -154,8 +154,10 @@ export const submitOpportunity = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const body = await res.text();
-      console.error(`Airtable submit failed [${res.status}]: ${body}`);
-      throw new Error(`Не удалось отправить заявку [${res.status}]`);
+      console.error(
+        `[airtable] Submit failed [${res.status} ${res.statusText}] table="${config.table}" base="${config.baseId}": ${body}`,
+      );
+      throw new Error(`Не удалось отправить заявку [${res.status}]: ${body}`);
     }
 
     return { ok: true, stored: true };
