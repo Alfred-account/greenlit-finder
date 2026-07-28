@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { SAMPLE_OPPORTUNITIES, type Opportunity } from "./opportunities";
+import { SAMPLE_OPPORTUNITIES, sortGrades, type Opportunity } from "./opportunities";
 
 function getConfig() {
   // Read env INSIDE the handler-call path: serverless runtimes inject env per request.
