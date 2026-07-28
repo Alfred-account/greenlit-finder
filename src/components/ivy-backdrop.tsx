@@ -1,11 +1,6 @@
-import brown from "@/assets/crests/brown.png.asset.json";
-import columbia from "@/assets/crests/columbia.png.asset.json";
-import cornell from "@/assets/crests/cornell.png.asset.json";
-import dartmouth from "@/assets/crests/dartmouth.png.asset.json";
-import harvard from "@/assets/crests/harvard.png.asset.json";
-import penn from "@/assets/crests/penn.png.asset.json";
-import princeton from "@/assets/crests/princeton.png.asset.json";
-import yale from "@/assets/crests/yale.png.asset.json";
+// Crests live in public/assets/crests and are committed to Git, so they work on
+// any host (Vercel included) without depending on external CDN infrastructure.
+const crest = (name: string) => `/assets/crests/${name}.png`;
 
 type Crest = {
   name: string;
