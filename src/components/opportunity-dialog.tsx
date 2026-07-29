@@ -1,4 +1,4 @@
-import { CalendarDays, ExternalLink, ListChecks, Users, User, Wallet } from "lucide-react";
+import { CalendarDays, ExternalLink, Instagram, ListChecks, MapPin, Globe, Blend, Users, User, Wallet, Ticket } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ export function OpportunityDialog({
   item: Opportunity | null;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { t, tSphere, tGrades, tItem, localeTag } = useI18n();
+  const { t, tSphere, tGrades, tDelivery, tItem, localeTag } = useI18n();
   const local = item ? tItem(item) : null;
 
   return (
@@ -60,6 +60,16 @@ export function OpportunityDialog({
                 {item.format === "Team-based" ? <Users className="size-4" /> : <User className="size-4" />}
                 {item.format === "Team-based" ? t("dialog.formatTeam") : t("dialog.formatIndividual")}
               </span>
+              <span className="inline-flex items-center gap-2">
+                {item.delivery === "Offline" ? (
+                  <MapPin className="size-4" />
+                ) : item.delivery === "Hybrid" ? (
+                  <Blend className="size-4" />
+                ) : (
+                  <Globe className="size-4" />
+                )}
+                {t("dialog.delivery")}: {tDelivery(item.delivery)}
+              </span>
             </div>
 
             <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
@@ -84,13 +94,33 @@ export function OpportunityDialog({
               </div>
             )}
 
-            {item.url && (
-              <Button asChild size="lg" className="gradient-emerald w-full rounded-xl text-primary-foreground">
-                <a href={item.url} target="_blank" rel="noopener noreferrer">
-                  {t("dialog.official")} <ExternalLink className="size-4" />
-                </a>
-              </Button>
-            )}
+            <div className="space-y-2">
+              {item.url && (
+                <Button asChild size="lg" className="gradient-emerald w-full rounded-xl text-primary-foreground">
+                  <a href={item.url} target="_blank" rel="noopener noreferrer">
+                    {t("dialog.official")} <ExternalLink className="size-4" />
+                  </a>
+                </Button>
+              )}
+              {(item.registerUrl || item.instagram) && (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {item.registerUrl && (
+                    <Button asChild variant="outline" size="lg" className="w-full rounded-xl border-primary/40 text-primary">
+                      <a href={item.registerUrl} target="_blank" rel="noopener noreferrer">
+                        <Ticket className="size-4" /> {t("dialog.register")}
+                      </a>
+                    </Button>
+                  )}
+                  {item.instagram && (
+                    <Button asChild variant="outline" size="lg" className="w-full rounded-xl border-primary/40 text-primary">
+                      <a href={item.instagram} target="_blank" rel="noopener noreferrer">
+                        <Instagram className="size-4" /> {t("dialog.instagram")}
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
           </>
         )}
       </DialogContent>

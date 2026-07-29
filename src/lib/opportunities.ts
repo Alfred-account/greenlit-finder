@@ -6,11 +6,16 @@ export type Opportunity = {
   cost: "Free" | "Paid";
   price?: string;
   format: "Individual" | "Team-based";
+  delivery: "Online" | "Offline" | "Hybrid";
   deadline: string; // ISO date
   snippet: string;
   description: string;
   steps: string[];
   url: string;
+  instagram?: string;
+  registerUrl?: string;
+  /** Per-language content coming straight from the data source (Airtable). */
+  i18n?: Partial<Record<"kk" | "en", LocalizedContent>>;
 };
 
 export const SPHERES = [
@@ -67,6 +72,7 @@ export function parseGrades(raw: unknown): string[] {
 
 export const COSTS = ["Free", "Paid"] as const;
 export const FORMATS = ["Individual", "Team-based"] as const;
+export const DELIVERIES = ["Online", "Offline", "Hybrid"] as const;
 
 export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
   {
@@ -76,6 +82,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     grades: ["9 Grade", "10 Grade", "11 Grade"],
     cost: "Free",
     format: "Individual",
+    delivery: "Hybrid",
     deadline: "2026-09-15",
     snippet: "Международная олимпиада по алгоритмам и структурам данных с онлайн-отбором.",
     description:
@@ -96,6 +103,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     price: "50 000 ₸",
     cost: "Paid",
     format: "Team-based",
+    delivery: "Offline",
     deadline: "2026-08-30",
     snippet: "Командная конференция по международным отношениям с делегациями из 40 стран.",
     description:
@@ -110,6 +118,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     grades: ["Undergrad"],
     cost: "Free",
     format: "Team-based",
+    delivery: "Online",
     deadline: "2026-10-01",
     snippet: "Лаборатория короткого метра с менторами из индустрии и питчингом проектов.",
     description:
@@ -124,6 +133,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     grades: ["12 Grade"],
     cost: "Free",
     format: "Individual",
+    delivery: "Online",
     deadline: "2026-07-20",
     snippet: "Исследовательская олимпиада по биомедицине с защитой собственного проекта.",
     description:
@@ -139,6 +149,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     price: "25 000 ₸",
     cost: "Paid",
     format: "Team-based",
+    delivery: "Offline",
     deadline: "2026-06-05",
     snippet: "Турнир по британскому парламентскому формату для школьных команд.",
     description: "Пять отборочных раундов и финал. Судьи — чемпионы национальных лиг дебатов.",
@@ -152,6 +163,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     grades: ["11 Grade"],
     cost: "Free",
     format: "Individual",
+    delivery: "Online",
     deadline: "2026-11-12",
     snippet: "Кейс-чемпионат по праву: решение реальных юридических задач.",
     description: "Участники анализируют кейсы из практики и предлагают правовые решения. Финал — устная защита.",
@@ -165,6 +177,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     grades: ["10 Grade"],
     cost: "Free",
     format: "Team-based",
+    delivery: "Offline",
     deadline: "2026-09-01",
     snippet: "Акселератор выходного дня: от идеи до питча за 48 часов.",
     description: "Команды разрабатывают бизнес-модель, прототип и презентуют инвесторам.",
@@ -178,6 +191,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     grades: ["12 Grade"],
     cost: "Free",
     format: "Individual",
+    delivery: "Online",
     deadline: "2026-05-25",
     snippet: "Премия для школьных и студенческих журналистов за лучший репортаж.",
     description: "Принимаются тексты, подкасты и видеорепортажи. Победители проходят стажировку в редакции.",
@@ -192,6 +206,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     price: "15 000 ₸",
     cost: "Paid",
     format: "Individual",
+    delivery: "Hybrid",
     deadline: "2026-12-10",
     snippet: "Выставка цифрового искусства для молодых художников и дизайнеров.",
     description: "Работы отбираются кураторами и экспонируются онлайн и в галерее.",
@@ -340,7 +355,9 @@ export const OPPORTUNITY_I18N: Record<string, { kk?: LocalizedContent; en?: Loca
 
 export function localizeOpportunity(item: Opportunity, lang: string): Opportunity {
   if (lang === "ru") return item;
-  const tr = OPPORTUNITY_I18N[item.id]?.[lang as "kk" | "en"];
+  const key = lang as "kk" | "en";
+  // Data-source translations (Airtable columns) win over the built-in sample map.
+  const tr = item.i18n?.[key] ?? OPPORTUNITY_I18N[item.id]?.[key];
   if (!tr) return item;
   return {
     ...item,

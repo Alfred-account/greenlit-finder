@@ -1,4 +1,4 @@
-import { CalendarDays, Users, User, ArrowUpRight } from "lucide-react";
+import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -21,7 +21,7 @@ export function OpportunityCard({
   onOpen: () => void;
   index?: number;
 }) {
-  const { t, tSphere, tGrades, tFormat, tItem, localeTag } = useI18n();
+  const { t, tSphere, tGrades, tFormat, tDelivery, tItem, localeTag } = useI18n();
   const local = tItem(item);
 
   return (
@@ -75,6 +75,16 @@ export function OpportunityCard({
         <span className="inline-flex items-center gap-1.5">
           {item.format === "Team-based" ? <Users className="size-3.5" /> : <User className="size-3.5" />}
           {tFormat(item.format)}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          {item.delivery === "Offline" ? (
+            <MapPin className="size-3.5" />
+          ) : item.delivery === "Hybrid" ? (
+            <Blend className="size-3.5" />
+          ) : (
+            <Globe className="size-3.5" />
+          )}
+          {tDelivery(item.delivery)}
         </span>
         <span className="ml-auto inline-flex items-center gap-1.5 font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
           {t("card.more")}

@@ -1,7 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { SAMPLE_OPPORTUNITIES, parseGrades, sortGrades, type Opportunity } from "./opportunities";
+import {
+  SAMPLE_OPPORTUNITIES,
+  parseGrades,
+  sortGrades,
+  type LocalizedContent,
+  type Opportunity,
+} from "./opportunities";
 
 function getConfig() {
   // Read env INSIDE the handler-call path: serverless runtimes inject env per request.
@@ -24,15 +30,42 @@ function str(v: unknown, fallback = ""): string {
   return typeof v === "string" ? v : fallback;
 }
 
-function mapRecord(rec: { id: string; fields: Fields }): Opportunity {
-  const f = rec.fields;
-  const rawSteps = f.Steps;
-  const steps = Array.isArray(rawSteps)
-    ? rawSteps.map((s) => String(s))
-    : str(rawSteps)
+function toSteps(raw: unknown): string[] {
+  return Array.isArray(raw)
+    ? raw.map((s) => String(s))
+    : str(raw)
         .split("\n")
         .map((s) => s.replace(/^[-*\d.\s]+/, "").trim())
         .filter(Boolean);
+}
+
+/** Reads optional per-language columns: Title_EN, Snippet_KK, Description_EN, Steps_KK … */
+function localized(f: Fields, suffix: "EN" | "KK"): LocalizedContent | undefined {
+  const title = str(f[`Title_${suffix}`]);
+  const snippet = str(f[`Snippet_${suffix}`]);
+  const description = str(f[`Description_${suffix}`]);
+  const steps = toSteps(f[`Steps_${suffix}`]);
+  if (!title && !snippet && !description && steps.length === 0) return undefined;
+  return {
+    title: title || undefined,
+    snippet: snippet || description.slice(0, 140) || undefined,
+    description: description || undefined,
+    steps: steps.length ? steps : undefined,
+  };
+}
+
+function mapDelivery(v: unknown): Opportunity["delivery"] {
+  const s = str(v).toLowerCase();
+  if (/hybrid|гибрид|аралас|смеш/.test(s)) return "Hybrid";
+  if (/offline|офлайн|оффлайн|очно|onsite|on-site|офлайн/.test(s)) return "Offline";
+  return "Online";
+}
+
+function mapRecord(rec: { id: string; fields: Fields }): Opportunity {
+  const f = rec.fields;
+  const steps = toSteps(f.Steps);
+  const en = localized(f, "EN");
+  const kk = localized(f, "KK");
 
   return {
     id: rec.id,
@@ -42,11 +75,15 @@ function mapRecord(rec: { id: string; fields: Fields }): Opportunity {
     cost: str(f.Cost) === "Paid" ? "Paid" : "Free",
     price: str(f.Price ?? f.Cost_Amount) || undefined,
     format: str(f.Format) === "Team-based" ? "Team-based" : "Individual",
+    delivery: mapDelivery(f.Delivery ?? f.Mode ?? f.Location),
     deadline: str(f.Deadline),
     snippet: str(f.Snippet) || str(f.Description).slice(0, 140),
     description: str(f.Description),
     steps,
     url: str(f.URL ?? f.Website),
+    instagram: str(f.Instagram ?? f.Instagram_URL) || undefined,
+    registerUrl: str(f.Registration ?? f.Registration_URL ?? f.Register) || undefined,
+    i18n: en || kk ? { en, kk } : undefined,
   };
 }
 
@@ -110,7 +147,10 @@ const submissionSchema = z.object({
   cost: z.enum(["Free", "Paid"]),
   price: z.string().trim().max(100).optional(),
   format: z.enum(["Individual", "Team-based"]),
+  delivery: z.enum(["Online", "Offline", "Hybrid"]),
   url: z.string().trim().url().max(500),
+  instagram: z.string().trim().max(500).optional(),
+  registerUrl: z.string().trim().max(500).optional(),
   description: z.string().trim().min(10).max(4000),
 });
 
@@ -141,7 +181,10 @@ export const submitOpportunity = createServerFn({ method: "POST" })
               Cost: data.cost,
               Price: data.cost === "Paid" ? (data.price ?? "") : "",
               Format: data.format,
+              Delivery: data.delivery,
               URL: data.url,
+              Instagram: data.instagram ?? "",
+              Registration: data.registerUrl ?? "",
               Description: data.description,
               ContactName: data.contactName,
               ContactInfo: data.contactInfo,
