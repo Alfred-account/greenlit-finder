@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { submitOpportunity, type SubmissionInput } from "@/lib/airtable.functions";
 import { useI18n } from "@/lib/i18n";
-import { COSTS, FORMATS, GRADES, SPHERES, sortGrades } from "@/lib/opportunities";
+import { COSTS, DELIVERIES, FORMATS, GRADES, SPHERES, sortGrades } from "@/lib/opportunities";
 
 export const Route = createFileRoute("/share")({
   head: () => ({
@@ -43,7 +43,10 @@ const empty: SubmissionInput = {
   cost: "Free",
   price: "",
   format: "Individual",
+  delivery: "Online",
   url: "",
+  instagram: "",
+  registerUrl: "",
   description: "",
 };
 
@@ -51,7 +54,7 @@ function SharePage() {
   const router = useRouter();
   const submit = useServerFn(submitOpportunity);
   const [form, setForm] = useState<SubmissionInput>(empty);
-  const { t, tSphere, tGrade, tGrades, tCost, tFormat } = useI18n();
+  const { t, tSphere, tGrade, tGrades, tCost, tFormat, tDelivery } = useI18n();
 
   const mutation = useMutation({
     mutationFn: (data: SubmissionInput) => submit({ data }),
@@ -201,6 +204,14 @@ function SharePage() {
                 render={tFormat}
               />
             </Field>
+            <Field label={t("share.deliveryLabel")} required>
+              <Selector
+                value={form.delivery}
+                onChange={(v) => set("delivery", v as SubmissionInput["delivery"])}
+                options={[...DELIVERIES]}
+                render={tDelivery}
+              />
+            </Field>
           </div>
 
           <Field label={t("share.url")} required>
@@ -214,6 +225,29 @@ function SharePage() {
               className="h-11 rounded-xl"
             />
           </Field>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label={t("share.register")}>
+              <Input
+                type="url"
+                maxLength={500}
+                value={form.registerUrl ?? ""}
+                onChange={(e) => set("registerUrl", e.target.value)}
+                placeholder="https://…"
+                className="h-11 rounded-xl"
+              />
+            </Field>
+            <Field label={t("share.instagram")}>
+              <Input
+                type="url"
+                maxLength={500}
+                value={form.instagram ?? ""}
+                onChange={(e) => set("instagram", e.target.value)}
+                placeholder="https://instagram.com/…"
+                className="h-11 rounded-xl"
+              />
+            </Field>
+          </div>
 
           <Field label={t("share.description")} required>
             <Textarea

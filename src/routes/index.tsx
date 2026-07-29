@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { fetchOpportunities } from "@/lib/airtable.functions";
 import { useI18n } from "@/lib/i18n";
-import { COSTS, FORMATS, GRADES, SPHERES, type Opportunity } from "@/lib/opportunities";
+import { COSTS, DELIVERIES, FORMATS, GRADES, SPHERES, type Opportunity } from "@/lib/opportunities";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,13 +51,14 @@ function Home() {
     else if (data?.source === "sample") console.warn("[airtable] Показаны демо-данные вместо записей Airtable.");
   }, [data]);
 
-  const { t, tSphere, tGrade, tCost, tFormat } = useI18n();
+  const { t, tSphere, tGrade, tCost, tFormat, tDelivery, lang } = useI18n();
 
   const [query, setQuery] = useState("");
   const [sphere, setSphere] = useState<string>(ALL);
   const [grade, setGrade] = useState<string>(ALL);
   const [cost, setCost] = useState<string>(ALL);
   const [format, setFormat] = useState<string>(ALL);
+  const [delivery, setDelivery] = useState<string>(ALL);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [active, setActive] = useState<Opportunity | null>(null);
@@ -73,14 +74,22 @@ function Home() {
       if (grade !== ALL && !o.grades.includes(grade)) return false;
       if (cost !== ALL && o.cost !== cost) return false;
       if (format !== ALL && o.format !== format) return false;
+      if (delivery !== ALL && o.delivery !== delivery) return false;
       if (from && o.deadline && o.deadline < from) return false;
       if (to && o.deadline && o.deadline > to) return false;
       return true;
     });
-  }, [items, query, sphere, grade, cost, format, from, to, tSphere]);
+  }, [items, query, sphere, grade, cost, format, delivery, from, to, tSphere]);
 
   const hasFilters =
-    query !== "" || sphere !== ALL || grade !== ALL || cost !== ALL || format !== ALL || from !== "" || to !== "";
+    query !== "" ||
+    sphere !== ALL ||
+    grade !== ALL ||
+    cost !== ALL ||
+    format !== ALL ||
+    delivery !== ALL ||
+    from !== "" ||
+    to !== "";
 
   function reset() {
     setQuery("");
@@ -88,9 +97,18 @@ function Home() {
     setGrade(ALL);
     setCost(ALL);
     setFormat(ALL);
+    setDelivery(ALL);
     setFrom("");
     setTo("");
   }
+
+  // Title/description follow the selected (or browser-detected) language.
+  useEffect(() => {
+    document.title = t("meta.title");
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute("content", t("meta.description"));
+  }, [t, lang]);
 
   function scrollToCatalog() {
     document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -116,8 +134,12 @@ function Home() {
           Green Lit&nbsp;Space
         </h1>
 
+        <p className="rise-in relative mt-4 text-lg font-medium text-primary" style={{ animationDelay: "120ms" }}>
+          {t("hero.tagline")}
+        </p>
+
         <p
-          className="rise-in relative mt-6 max-w-xl text-base text-muted-foreground sm:text-lg"
+          className="rise-in relative mt-4 max-w-xl text-base text-muted-foreground sm:text-lg"
           style={{ animationDelay: "160ms" }}
         >
           {t("hero.subtitle")}
@@ -195,6 +217,13 @@ function Home() {
               onChange={setFormat}
               options={[...FORMATS]}
               render={tFormat}
+            />
+            <FilterSelect
+              label={t("filter.delivery")}
+              value={delivery}
+              onChange={setDelivery}
+              options={[...DELIVERIES]}
+              render={tDelivery}
             />
           </div>
 
