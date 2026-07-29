@@ -12,6 +12,20 @@ export type Lang = (typeof LANGUAGES)[number]["code"];
 type Dict = Record<string, string>;
 
 const ru: Dict = {
+  "hero.tagline": "Green Lit Space — Каталог олимпиад и возможностей!",
+  "meta.title": "Green Lit Space — каталог олимпиад и возможностей",
+  "meta.description":
+    "Каталог олимпиад, конкурсов и программ: фильтры по направлению, классу, стоимости, формату и участию онлайн или офлайн.",
+  "filter.delivery": "Онлайн / офлайн",
+  "delivery.online": "Онлайн",
+  "delivery.offline": "Офлайн",
+  "delivery.hybrid": "Гибрид",
+  "dialog.delivery": "Участие",
+  "dialog.instagram": "Instagram",
+  "dialog.register": "Регистрация",
+  "share.deliveryLabel": "Онлайн, офлайн или гибрид?",
+  "share.instagram": "Ссылка на Instagram (необязательно)",
+  "share.register": "Ссылка на регистрацию (необязательно)",
   "hero.badge": "Новые возможности каждый день",
   "hero.subtitle":
     "Олимпиады, конкурсы и программы, которые открывают двери. Найди то, что подходит именно тебе — по направлению, классу, формату и дедлайну.",
@@ -80,6 +94,20 @@ const ru: Dict = {
 };
 
 const kk: Dict = {
+  "hero.tagline": "Green Lit Space — Олимпиадалар мен мүмкіндіктер каталогы!",
+  "meta.title": "Green Lit Space — олимпиадалар мен мүмкіндіктер каталогы",
+  "meta.description":
+    "Олимпиадалар, байқаулар мен бағдарламалар каталогы: бағыт, сынып, құны, формат және онлайн/офлайн бойынша сүзгілер.",
+  "filter.delivery": "Онлайн / офлайн",
+  "delivery.online": "Онлайн",
+  "delivery.offline": "Офлайн",
+  "delivery.hybrid": "Аралас",
+  "dialog.delivery": "Қатысу",
+  "dialog.instagram": "Instagram",
+  "dialog.register": "Тіркелу",
+  "share.deliveryLabel": "Онлайн, офлайн әлде аралас па?",
+  "share.instagram": "Instagram сілтемесі (міндетті емес)",
+  "share.register": "Тіркелу сілтемесі (міндетті емес)",
   "hero.badge": "Күн сайын жаңа мүмкіндіктер",
   "hero.subtitle":
     "Есік ашатын олимпиадалар, байқаулар мен бағдарламалар. Бағыт, сынып, формат және мерзім бойынша өзіңе қолайлысын тап.",
@@ -148,6 +176,20 @@ const kk: Dict = {
 };
 
 const en: Dict = {
+  "hero.tagline": "Green Lit Space – Catalog of Olympiads and Opportunities!",
+  "meta.title": "Green Lit Space — catalog of olympiads and opportunities",
+  "meta.description":
+    "A catalog of olympiads, contests and programs: filter by field, grade, cost, format and online or offline participation.",
+  "filter.delivery": "Online / offline",
+  "delivery.online": "Online",
+  "delivery.offline": "Offline",
+  "delivery.hybrid": "Hybrid",
+  "dialog.delivery": "Participation",
+  "dialog.instagram": "Instagram",
+  "dialog.register": "Registration",
+  "share.deliveryLabel": "Online, offline or hybrid?",
+  "share.instagram": "Instagram link (optional)",
+  "share.register": "Registration link (optional)",
   "hero.badge": "New opportunities every day",
   "hero.subtitle":
     "Olympiads, contests and programs that open doors. Find the right one by field, grade, format and deadline.",
@@ -247,6 +289,19 @@ const LOCALE_TAG: Record<Lang, string> = { ru: "ru-RU", kk: "kk-KZ", en: "en-US"
 
 const STORAGE_KEY = "gls-lang";
 
+/** Picks the site language from the browser preferences (falls back to English). */
+export function detectBrowserLang(): Lang {
+  const prefs =
+    typeof navigator === "undefined" ? [] : [...(navigator.languages ?? []), navigator.language].filter(Boolean);
+  for (const raw of prefs) {
+    const code = raw.toLowerCase().split("-")[0];
+    if (code === "ru") return "ru";
+    if (code === "kk" || code === "kz") return "kk";
+    if (code === "en") return "en";
+  }
+  return "en";
+}
+
 type Ctx = {
   lang: Lang;
   setLang: (l: Lang) => void;
@@ -256,6 +311,7 @@ type Ctx = {
   tGrades: (values: string[]) => string;
   tCost: (value: string) => string;
   tFormat: (value: string) => string;
+  tDelivery: (value: string) => string;
   tItem: (item: Opportunity) => Opportunity;
   localeTag: string;
 };
@@ -267,7 +323,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored && LANGUAGES.some((l) => l.code === stored)) setLangState(stored as Lang);
+    if (stored && LANGUAGES.some((l) => l.code === stored)) {
+      setLangState(stored as Lang);
+      document.documentElement.lang = stored;
+      return;
+    }
+    // No explicit choice yet — follow the browser language.
+    const detected = detectBrowserLang();
+    setLangState(detected);
+    document.documentElement.lang = detected;
   }, []);
 
   const setLang = useCallback((l: Lang) => {
@@ -302,6 +366,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       },
       tCost: (v: string) => (v === "Free" ? t("cost.free") : t("cost.paid")),
       tFormat: (v: string) => (v === "Team-based" ? t("format.team") : t("format.individual")),
+      tDelivery: (v: string) =>
+        v === "Offline" ? t("delivery.offline") : v === "Hybrid" ? t("delivery.hybrid") : t("delivery.online"),
       tItem: (item: Opportunity) => localizeOpportunity(item, lang),
     };
   }, [lang, setLang]);
