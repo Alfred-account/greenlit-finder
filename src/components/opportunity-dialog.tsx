@@ -72,7 +72,13 @@ export function OpportunityDialog({
                 )}
                 {t("dialog.delivery")}: {tDelivery(item.delivery)}
               </span>
+              {place && (
+                <span className="inline-flex items-center gap-2">
+                  <MapPin className="size-4 text-primary" /> {place}
+                </span>
+              )}
             </div>
+
 
             <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
               {local?.description || local?.snippet}
