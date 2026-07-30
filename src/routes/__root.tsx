@@ -10,7 +10,10 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 import { I18nProvider } from "@/lib/i18n";
+
 
 
 import appCss from "../styles.css?url";
