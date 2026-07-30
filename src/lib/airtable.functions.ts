@@ -3,11 +3,13 @@ import { z } from "zod";
 
 import {
   SAMPLE_OPPORTUNITIES,
+  normalizeSphere,
   parseGrades,
   sortGrades,
   type LocalizedContent,
   type Opportunity,
 } from "./opportunities";
+import { normalizeCity, normalizeCountry } from "./locations";
 
 function getConfig() {
   // Read env INSIDE the handler-call path: serverless runtimes inject env per request.
@@ -70,12 +72,14 @@ function mapRecord(rec: { id: string; fields: Fields }): Opportunity {
   return {
     id: rec.id,
     title: str(f.Title, "Без названия"),
-    sphere: str(f.Sphere ?? f.Profession, "Other"),
+    sphere: normalizeSphere(str(f.Sphere ?? f.Profession ?? f.Field)),
     grades: parseGrades(f.Grade ?? f.Grades),
     cost: str(f.Cost) === "Paid" ? "Paid" : "Free",
     price: str(f.Price ?? f.Cost_Amount) || undefined,
     format: str(f.Format) === "Team-based" ? "Team-based" : "Individual",
-    delivery: mapDelivery(f.Delivery ?? f.Mode ?? f.Location),
+    delivery: mapDelivery(f.Delivery ?? f.Mode),
+    country: normalizeCountry(str(f.Country)) || undefined,
+    city: normalizeCity(str(f.City ?? f.Location)) || undefined,
     deadline: str(f.Deadline),
     snippet: str(f.Snippet) || str(f.Description).slice(0, 140),
     description: str(f.Description),
@@ -148,10 +152,19 @@ const submissionSchema = z.object({
   price: z.string().trim().max(100).optional(),
   format: z.enum(["Individual", "Team-based"]),
   delivery: z.enum(["Online", "Offline", "Hybrid"]),
-  url: z.string().trim().url().max(500),
-  instagram: z.string().trim().max(500).optional(),
+  country: z.string().trim().max(100).optional(),
+  city: z.string().trim().max(100).optional(),
+  deadline: z.string().trim().max(20).optional(),
+  url: z.string().trim().max(500).optional(),
+  instagram: z.string().trim().url().max(500),
   registerUrl: z.string().trim().max(500).optional(),
-  description: z.string().trim().min(10).max(4000),
+  description: z
+    .string()
+    .trim()
+    .max(4000)
+    .refine((v) => v.split(/\s+/).filter(Boolean).length >= 50, {
+      message: "Описание должно содержать минимум 50 слов",
+    }),
 });
 
 export type SubmissionInput = z.infer<typeof submissionSchema>;
@@ -182,7 +195,10 @@ export const submitOpportunity = createServerFn({ method: "POST" })
               Price: data.cost === "Paid" ? (data.price ?? "") : "",
               Format: data.format,
               Delivery: data.delivery,
-              URL: data.url,
+              Country: data.country ?? "",
+              City: data.city ?? "",
+              Deadline: data.deadline ?? "",
+              URL: data.url ?? "",
               Instagram: data.instagram ?? "",
               Registration: data.registerUrl ?? "",
               Description: data.description,

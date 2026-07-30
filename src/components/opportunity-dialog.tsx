@@ -14,8 +14,10 @@ export function OpportunityDialog({
   item: Opportunity | null;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { t, tSphere, tGrades, tDelivery, tItem, localeTag } = useI18n();
+  const { t, tSphere, tGrades, tDelivery, tItem, tPlace, localeTag } = useI18n();
   const local = item ? tItem(item) : null;
+  const place = item ? [tPlace(item.city), tPlace(item.country)].filter(Boolean).join(", ") : "";
+
 
   return (
     <Dialog open={!!item} onOpenChange={onOpenChange}>
@@ -70,7 +72,13 @@ export function OpportunityDialog({
                 )}
                 {t("dialog.delivery")}: {tDelivery(item.delivery)}
               </span>
+              {place && (
+                <span className="inline-flex items-center gap-2">
+                  <MapPin className="size-4 text-primary" /> {place}
+                </span>
+              )}
             </div>
+
 
             <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
               {local?.description || local?.snippet}
