@@ -362,7 +362,7 @@ function Home() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <div className="contents" data-tour="dates">
+            <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2" data-tour="dates">
               <DateField label={t("filter.from")} value={from} onChange={setFrom} />
               <DateField label={t("filter.to")} value={to} onChange={setTo} />
             </div>

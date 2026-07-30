@@ -14,6 +14,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitOpportunity, type SubmissionInput } from "@/lib/airtable.functions";
 import { useI18n } from "@/lib/i18n";
 import { COSTS, DELIVERIES, FORMATS, GRADES, SPHERES, sortGrades } from "@/lib/opportunities";
+import { COUNTRIES } from "@/lib/locations";
+import { CityField } from "@/components/city-field";
+import { DateField } from "@/components/date-field";
 
 export const Route = createFileRoute("/share")({
   head: () => ({
@@ -44,6 +47,9 @@ const empty: SubmissionInput = {
   price: "",
   format: "Individual",
   delivery: "Online",
+  country: "",
+  city: "",
+  deadline: "",
   url: "",
   instagram: "",
   registerUrl: "",
@@ -54,7 +60,7 @@ function SharePage() {
   const router = useRouter();
   const submit = useServerFn(submitOpportunity);
   const [form, setForm] = useState<SubmissionInput>(empty);
-  const { t, tSphere, tGrade, tGrades, tCost, tFormat, tDelivery } = useI18n();
+  const { t, tSphere, tGrade, tGrades, tCost, tFormat, tDelivery, tPlace } = useI18n();
 
   const mutation = useMutation({
     mutationFn: (data: SubmissionInput) => submit({ data }),
@@ -66,6 +72,8 @@ function SharePage() {
       toast.error(error.message || t("toast.error"));
     },
   });
+
+  const wordCount = form.description.trim().split(/\s+/).filter(Boolean).length;
 
   function set<K extends keyof SubmissionInput>(key: K, value: SubmissionInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -79,6 +87,14 @@ function SharePage() {
     }
     if (form.cost === "Paid" && !form.price?.trim()) {
       toast.error(t("toast.needPrice"));
+      return;
+    }
+    if (!form.instagram?.trim()) {
+      toast.error(t("toast.needInstagram"));
+      return;
+    }
+    if (wordCount < 50) {
+      toast.error(t("toast.needDescription"));
       return;
     }
     mutation.mutate({ ...form, price: form.cost === "Paid" ? form.price : "" });
@@ -212,11 +228,27 @@ function SharePage() {
                 render={tDelivery}
               />
             </Field>
+            <Field label={t("share.country")}>
+              <Selector
+                value={form.country ?? ""}
+                onChange={(v) => setForm((prev) => ({ ...prev, country: v, city: "" }))}
+                options={[...COUNTRIES]}
+                render={tPlace}
+              />
+            </Field>
+            <CityField
+              key={form.country}
+              label={t("share.city")}
+              country={form.country ?? ""}
+              value={form.city ?? ""}
+              onChange={(v) => set("city", v)}
+              hint={t("share.cityHint")}
+            />
+            <DateField label={t("share.deadline")} value={form.deadline ?? ""} onChange={(v) => set("deadline", v)} />
           </div>
 
-          <Field label={t("share.url")} required>
+          <Field label={t("share.url")}>
             <Input
-              required
               type="url"
               maxLength={500}
               value={form.url}
@@ -237,8 +269,9 @@ function SharePage() {
                 className="h-11 rounded-xl"
               />
             </Field>
-            <Field label={t("share.instagram")}>
+            <Field label={t("share.instagram")} required>
               <Input
+                required
                 type="url"
                 maxLength={500}
                 value={form.instagram ?? ""}
@@ -259,8 +292,8 @@ function SharePage() {
               placeholder={t("share.descriptionPlaceholder")}
               className="rounded-xl"
             />
-            <p className="text-xs text-muted-foreground">
-              {form.description.length}/4000 — {t("share.counterHint")}
+            <p className={`text-xs ${wordCount >= 50 ? "text-muted-foreground" : "text-primary"}`}>
+              {wordCount} {t("share.words")} · {t("share.descriptionHint")}
             </p>
           </Field>
 
