@@ -110,6 +110,13 @@ export function OpportunityCard({
           )}
           {tDelivery(item.delivery)}
         </span>
+        {place && (
+          <span className="inline-flex items-center gap-1.5">
+            <MapPin className="size-3.5 text-primary" />
+            {place}
+          </span>
+        )}
+
         <span className="ml-auto inline-flex items-center gap-1.5 font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
           {t("card.more")}
           <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
