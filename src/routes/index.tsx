@@ -2,9 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowDown, Filter, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
+import { ArrowDown, Bookmark, Filter, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
 
+import { AccountMenu } from "@/components/account-menu";
+import { CityField } from "@/components/city-field";
 import { DateField } from "@/components/date-field";
+import { FilterTourButton } from "@/components/filter-tour";
 import { IvyBackdrop } from "@/components/ivy-backdrop";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
@@ -14,8 +17,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useSavedOpportunities } from "@/hooks/use-saved";
 import { fetchOpportunities } from "@/lib/airtable.functions";
 import { useI18n } from "@/lib/i18n";
+import { COUNTRIES } from "@/lib/locations";
 import { COSTS, DELIVERIES, FORMATS, GRADES, SPHERES, type Opportunity } from "@/lib/opportunities";
 
 export const Route = createFileRoute("/")({
@@ -25,19 +30,48 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Каталог олимпиад, конкурсов и программ по 9 направлениям: от Computer Science до Art & Design. Фильтры по классу, стоимости и формату участия.",
+          "Каталог олимпиад, конкурсов и программ по 14 направлениям: фильтры по классу, стоимости, формату, городу и дедлайну.",
       },
       { property: "og:title", content: "Green Lit Space — каталог олимпиад и возможностей" },
       {
         property: "og:description",
-        content: "Новые возможности каждый день: олимпиады, конкурсы и программы для школьников и студентов.",
+        content: "Олимпиады, конкурсы и программы для школьников и студентов — в одном месте.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,
 });
 
 const ALL = "__all__";
+
+/**
+ * Quick-search chips. The visible set rotates every hour so the hero stays
+ * alive; each chip pre-selects the matching field.
+ */
+const QUICK_SEARCH_POOL: { label: string; sphere: string }[] = [
+  { label: "Computer Science", sphere: "Computer Science & Technology" },
+  { label: "MUN", sphere: "International Relations" },
+  { label: "Robotics", sphere: "Engineering" },
+  { label: "Law", sphere: "Law" },
+  { label: "Biology", sphere: "Medicine & Biology" },
+  { label: "Journalism", sphere: "Journalism & Media" },
+  { label: "Film", sphere: "Film & Directing" },
+  { label: "Design", sphere: "Art & Design" },
+  { label: "Startups", sphere: "Business & Economics" },
+  { label: "Research", sphere: "Science & Research" },
+  { label: "Psychology", sphere: "Psychology & Social Sciences" },
+  { label: "Languages", sphere: "Humanities & Languages" },
+  { label: "Ecology", sphere: "Environment & Sustainability" },
+  { label: "Debates", sphere: "Politics & Public Policy" },
+];
+
+function quickSearchesForHour(hour: number) {
+  const size = 4;
+  const start = (hour * size) % QUICK_SEARCH_POOL.length;
+  return Array.from({ length: size }, (_, i) => QUICK_SEARCH_POOL[(start + i) % QUICK_SEARCH_POOL.length]);
+}
 
 function Home() {
   const getOpportunities = useServerFn(fetchOpportunities);
@@ -51,7 +85,8 @@ function Home() {
     else if (data?.source === "sample") console.warn("[airtable] Показаны демо-данные вместо записей Airtable.");
   }, [data]);
 
-  const { t, tSphere, tGrade, tCost, tFormat, tDelivery, lang } = useI18n();
+  const { t, tSphere, tGrade, tCost, tFormat, tDelivery, tPlace, lang } = useI18n();
+  const { isSaved, toggle, saved: savedIds, signedIn } = useSavedOpportunities();
 
   const [query, setQuery] = useState("");
   const [sphere, setSphere] = useState<string>(ALL);
@@ -59,15 +94,29 @@ function Home() {
   const [cost, setCost] = useState<string>(ALL);
   const [format, setFormat] = useState<string>(ALL);
   const [delivery, setDelivery] = useState<string>(ALL);
+  const [country, setCountry] = useState<string>(ALL);
+  const [city, setCity] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [sort, setSort] = useState("deadlineAsc");
+  const [onlySaved, setOnlySaved] = useState(false);
   const [active, setActive] = useState<Opportunity | null>(null);
+
+  // Rotates hourly — the chip set changes without a page reload.
+  const [hour, setHour] = useState(0);
+  useEffect(() => {
+    const tick = () => setHour(new Date().getHours());
+    tick();
+    const id = window.setInterval(tick, 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+  const quickSearches = useMemo(() => quickSearchesForHour(hour), [hour]);
 
   const items = data?.items ?? [];
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return items.filter((o) => {
+    const list = items.filter((o) => {
       if (q && !`${o.title} ${o.snippet} ${o.description} ${o.sphere} ${tSphere(o.sphere)}`.toLowerCase().includes(q))
         return false;
       if (sphere !== ALL && o.sphere !== sphere) return false;
@@ -75,11 +124,25 @@ function Home() {
       if (cost !== ALL && o.cost !== cost) return false;
       if (format !== ALL && o.format !== format) return false;
       if (delivery !== ALL && o.delivery !== delivery) return false;
+      if (country !== ALL && o.country !== country) return false;
+      if (city && o.city !== city) return false;
       if (from && o.deadline && o.deadline < from) return false;
       if (to && o.deadline && o.deadline > to) return false;
+      if (onlySaved && !savedIds.includes(o.id)) return false;
       return true;
     });
-  }, [items, query, sphere, grade, cost, format, delivery, from, to, tSphere]);
+
+    const far = "9999-12-31";
+    return [...list].sort((a, b) => {
+      if (sort === "deadlineDesc") return (b.deadline || "").localeCompare(a.deadline || "");
+      if (sort === "titleAsc") return a.title.localeCompare(b.title, lang);
+      if (sort === "savedFirst") {
+        const diff = Number(savedIds.includes(b.id)) - Number(savedIds.includes(a.id));
+        if (diff !== 0) return diff;
+      }
+      return (a.deadline || far).localeCompare(b.deadline || far);
+    });
+  }, [items, query, sphere, grade, cost, format, delivery, country, city, from, to, onlySaved, savedIds, sort, lang, tSphere]);
 
   const hasFilters =
     query !== "" ||
@@ -88,6 +151,9 @@ function Home() {
     cost !== ALL ||
     format !== ALL ||
     delivery !== ALL ||
+    country !== ALL ||
+    city !== "" ||
+    onlySaved ||
     from !== "" ||
     to !== "";
 
@@ -98,6 +164,9 @@ function Home() {
     setCost(ALL);
     setFormat(ALL);
     setDelivery(ALL);
+    setCountry(ALL);
+    setCity("");
+    setOnlySaved(false);
     setFrom("");
     setTo("");
   }
@@ -105,9 +174,7 @@ function Home() {
   // Title/description follow the selected (or browser-detected) language.
   useEffect(() => {
     document.title = t("meta.title");
-    document
-      .querySelector('meta[name="description"]')
-      ?.setAttribute("content", t("meta.description"));
+    document.querySelector('meta[name="description"]')?.setAttribute("content", t("meta.description"));
   }, [t, lang]);
 
   function scrollToCatalog() {
@@ -116,7 +183,8 @@ function Home() {
 
   return (
     <main className="min-h-screen">
-      <div className="absolute top-5 right-5 z-20">
+      <div className="absolute top-5 right-5 z-20 flex items-center gap-2">
+        <AccountMenu />
         <LanguageSwitcher />
       </div>
 
@@ -146,7 +214,7 @@ function Home() {
         </p>
 
         <div
-          className="rise-in relative mt-10 flex flex-col items-center gap-4 sm:flex-row"
+          className="rise-in relative mt-10 flex flex-col items-center gap-3"
           style={{ animationDelay: "240ms" }}
         >
           <Button
@@ -157,6 +225,36 @@ function Home() {
             {t("hero.cta")}
             <ArrowDown className="size-4 animate-bounce" />
           </Button>
+
+          <p className="text-xs font-medium tracking-wide text-muted-foreground sm:text-sm">{t("hero.stats")}</p>
+
+          <Link
+            to="/share"
+            className="text-xs font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+          >
+            {t("hero.secondary")}
+          </Link>
+        </div>
+
+        <div
+          className="rise-in relative mt-10 flex flex-wrap items-center justify-center gap-2"
+          style={{ animationDelay: "300ms" }}
+        >
+          <span className="text-xs text-muted-foreground">{t("hero.popular")}</span>
+          {quickSearches.map((q) => (
+            <button
+              key={q.label}
+              type="button"
+              onClick={() => {
+                setSphere(q.sphere);
+                setQuery("");
+                scrollToCatalog();
+              }}
+              className="rounded-full border border-border/70 bg-card/70 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:text-primary"
+            >
+              {tSphere(q.sphere)}
+            </button>
+          ))}
         </div>
       </section>
 
@@ -178,46 +276,57 @@ function Home() {
         </Link>
 
         <div className="shadow-soft space-y-5 rounded-2xl border border-border/70 bg-card p-5">
-          <div className="relative">
-            <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value.slice(0, 100))}
-              placeholder={t("search.placeholder")}
-              className="h-12 rounded-xl pl-11"
-              aria-label={t("search.aria")}
-            />
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value.slice(0, 100))}
+                placeholder={t("search.placeholder")}
+                className="h-12 rounded-xl pl-11"
+                aria-label={t("search.aria")}
+              />
+            </div>
+            <FilterTourButton />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <FilterSelect
-              label={t("filter.sphere")}
-              value={sphere}
-              onChange={setSphere}
-              options={[...SPHERES]}
-              render={tSphere}
-            />
-            <FilterSelect
-              label={t("filter.grade")}
-              value={grade}
-              onChange={setGrade}
-              options={[...GRADES]}
-              render={tGrade}
-            />
-            <FilterSelect
-              label={t("filter.cost")}
-              value={cost}
-              onChange={setCost}
-              options={[...COSTS]}
-              render={tCost}
-            />
-            <FilterSelect
-              label={t("filter.format")}
-              value={format}
-              onChange={setFormat}
-              options={[...FORMATS]}
-              render={tFormat}
-            />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div data-tour="sphere">
+              <FilterSelect
+                label={t("filter.sphere")}
+                value={sphere}
+                onChange={setSphere}
+                options={[...SPHERES]}
+                render={tSphere}
+              />
+            </div>
+            <div data-tour="grade">
+              <FilterSelect
+                label={t("filter.grade")}
+                value={grade}
+                onChange={setGrade}
+                options={[...GRADES]}
+                render={tGrade}
+              />
+            </div>
+            <div data-tour="cost">
+              <FilterSelect
+                label={t("filter.cost")}
+                value={cost}
+                onChange={setCost}
+                options={[...COSTS]}
+                render={tCost}
+              />
+            </div>
+            <div data-tour="format">
+              <FilterSelect
+                label={t("filter.format")}
+                value={format}
+                onChange={setFormat}
+                options={[...FORMATS]}
+                render={tFormat}
+              />
+            </div>
             <FilterSelect
               label={t("filter.delivery")}
               value={delivery}
@@ -225,17 +334,55 @@ function Home() {
               options={[...DELIVERIES]}
               render={tDelivery}
             />
+            <FilterSelect
+              label={t("filter.country")}
+              value={country}
+              onChange={(v) => {
+                setCountry(v);
+                setCity("");
+              }}
+              options={[...COUNTRIES]}
+              render={tPlace}
+            />
+            <CityField
+              key={country}
+              label={t("filter.city")}
+              country={country === ALL ? "" : country}
+              value={city}
+              onChange={setCity}
+            />
+            <FilterSelect
+              label={t("filter.sort")}
+              value={sort}
+              onChange={setSort}
+              options={["deadlineAsc", "deadlineDesc", "titleAsc", "savedFirst"]}
+              render={(v) => t(`sort.${v}`)}
+              allowAll={false}
+            />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <DateField label={t("filter.from")} value={from} onChange={setFrom} />
-            <DateField label={t("filter.to")} value={to} onChange={setTo} />
-            <div className="flex items-end lg:col-span-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="contents" data-tour="dates">
+              <DateField label={t("filter.from")} value={from} onChange={setFrom} />
+              <DateField label={t("filter.to")} value={to} onChange={setTo} />
+            </div>
+            <div className="flex items-end">
+              <Button
+                type="button"
+                variant={onlySaved ? "default" : "outline"}
+                onClick={() => setOnlySaved((v) => !v)}
+                disabled={!signedIn}
+                className="h-11 w-full rounded-xl"
+              >
+                <Bookmark className={`size-4 ${onlySaved ? "fill-current" : ""}`} /> {t("filter.onlySaved")}
+              </Button>
+            </div>
+            <div className="flex items-end">
               <Button
                 variant="outline"
                 onClick={reset}
                 disabled={!hasFilters}
-                className="h-11 w-full rounded-xl sm:w-auto"
+                className="h-11 w-full rounded-xl"
               >
                 <RotateCcw className="size-4" /> {t("filter.reset")}
               </Button>
@@ -252,7 +399,14 @@ function Home() {
           {isPending
             ? Array.from({ length: 6 }).map((_, i) => <OpportunityCardSkeleton key={i} />)
             : filtered.map((item, i) => (
-                <OpportunityCard key={item.id} item={item} index={i} onOpen={() => setActive(item)} />
+                <OpportunityCard
+                  key={item.id}
+                  item={item}
+                  index={i}
+                  saved={isSaved(item.id)}
+                  onToggleSave={() => void toggle(item.id)}
+                  onOpen={() => setActive(item)}
+                />
               ))}
         </div>
 
@@ -280,12 +434,14 @@ function FilterSelect({
   onChange,
   options,
   render,
+  allowAll = true,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: string[];
   render?: (v: string) => string;
+  allowAll?: boolean;
 }) {
   const { t } = useI18n();
   return (
@@ -296,7 +452,7 @@ function FilterSelect({
           <SelectValue placeholder={t("filter.all")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ALL}>{t("filter.all")}</SelectItem>
+          {allowAll && <SelectItem value={ALL}>{t("filter.all")}</SelectItem>}
           {options.map((o) => (
             <SelectItem key={o} value={o}>
               {render?.(o) ?? o}
