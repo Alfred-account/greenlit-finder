@@ -62,7 +62,7 @@ export function OpportunityCard({
         </button>
       )}
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 pr-10">
         <Badge variant="secondary" className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
           {tSphere(item.sphere)}
         </Badge>
