@@ -7,6 +7,8 @@ export type Opportunity = {
   price?: string;
   format: "Individual" | "Team-based";
   delivery: "Online" | "Offline" | "Hybrid";
+  country?: string;
+  city?: string;
   deadline: string; // ISO date
   snippet: string;
   description: string;
@@ -19,19 +21,74 @@ export type Opportunity = {
 };
 
 export const SPHERES = [
-  "Computer Science",
+  "Computer Science & Technology",
   "Law",
   "International Relations",
   "Medicine & Biology",
-  "Journalism",
+  "Journalism & Media",
   "Film & Directing",
-  "Debates",
-  "Business & Economics",
   "Art & Design",
+  "Business & Economics",
+  "Science & Research",
+  "Engineering",
+  "Psychology & Social Sciences",
+  "Humanities & Languages",
+  "Environment & Sustainability",
+  "Politics & Public Policy",
 ] as const;
 
-export const GRADES = ["8 Grade", "9 Grade", "10 Grade", "11 Grade", "12 Grade", "Undergrad"] as const;
+/** Older / free-form values coming from Airtable mapped onto the canonical list. */
+const SPHERE_ALIASES: Record<string, string> = {
+  "computer science": "Computer Science & Technology",
+  cs: "Computer Science & Technology",
+  it: "Computer Science & Technology",
+  technology: "Computer Science & Technology",
+  информатика: "Computer Science & Technology",
+  journalism: "Journalism & Media",
+  media: "Journalism & Media",
+  журналистика: "Journalism & Media",
+  debates: "Politics & Public Policy",
+  дебаты: "Politics & Public Policy",
+  politics: "Politics & Public Policy",
+  law: "Law",
+  право: "Law",
+  biology: "Medicine & Biology",
+  medicine: "Medicine & Biology",
+  science: "Science & Research",
+  research: "Science & Research",
+  engineering: "Engineering",
+  psychology: "Psychology & Social Sciences",
+  ecology: "Environment & Sustainability",
+  environment: "Environment & Sustainability",
+  business: "Business & Economics",
+  economics: "Business & Economics",
+  art: "Art & Design",
+  design: "Art & Design",
+  film: "Film & Directing",
+  languages: "Humanities & Languages",
+  humanities: "Humanities & Languages",
+};
 
+export function normalizeSphere(raw: string): string {
+  const value = raw.trim();
+  if (!value) return "Science & Research";
+  const exact = SPHERES.find((s) => s.toLowerCase() === value.toLowerCase());
+  if (exact) return exact;
+  const alias = SPHERE_ALIASES[value.toLowerCase()];
+  if (alias) return alias;
+  const partial = SPHERES.find((s) => s.toLowerCase().includes(value.toLowerCase()));
+  return partial ?? value;
+}
+
+export const GRADES = [
+  "7 Grade",
+  "8 Grade",
+  "9 Grade",
+  "10 Grade",
+  "11 Grade",
+  "12 Grade",
+  "Undergrad",
+] as const;
 export function gradeOrder(g: string) {
   if (g === "Undergrad") return 99;
   return Number(g.match(/\d+/)?.[0] ?? 0);
@@ -41,16 +98,17 @@ export function sortGrades(grades: string[]) {
   return [...new Set(grades)].sort((a, b) => gradeOrder(a) - gradeOrder(b));
 }
 
-/** "9–11 класс" for a contiguous school range, otherwise a comma list. */
+/** "7–12 класс" for a school range, plus "Студент" when undergrad is included. */
 export function formatGrades(grades: string[], tGrade: (v: string) => string, suffix: string) {
   const list = sortGrades(grades);
   if (list.length === 0) return "";
-  if (list.length === 1) return tGrade(list[0]);
   const nums = list.filter((g) => g !== "Undergrad").map(gradeOrder);
   const hasUndergrad = list.includes("Undergrad");
-  const contiguous = nums.length > 1 && nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
-  if (contiguous && !hasUndergrad) return `${nums[0]}\u2013${nums[nums.length - 1]} ${suffix}`;
-  return list.map(tGrade).join(", ");
+  const parts: string[] = [];
+  if (nums.length === 1) parts.push(tGrade(`${nums[0]} Grade`));
+  else if (nums.length > 1) parts.push(`${nums[0]}\u2013${nums[nums.length - 1]} ${suffix}`);
+  if (hasUndergrad) parts.push(tGrade("Undergrad"));
+  return parts.join(", ");
 }
 
 export function parseGrades(raw: unknown): string[] {
@@ -78,7 +136,9 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
   {
     id: "s1",
     title: "Global Informatics Challenge",
-    sphere: "Computer Science",
+    sphere: "Computer Science & Technology",
+    country: "Kazakhstan",
+    city: "Almaty",
     grades: ["9 Grade", "10 Grade", "11 Grade"],
     cost: "Free",
     format: "Individual",
@@ -99,6 +159,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     id: "s2",
     title: "Model United Nations Summit",
     sphere: "International Relations",
+    country: "International",
     grades: ["10 Grade", "11 Grade", "12 Grade"],
     price: "50 000 ₸",
     cost: "Paid",
@@ -115,6 +176,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     id: "s3",
     title: "Young Filmmakers Lab",
     sphere: "Film & Directing",
+    country: "International",
     grades: ["Undergrad"],
     cost: "Free",
     format: "Team-based",
@@ -130,6 +192,8 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     id: "s4",
     title: "BioMed Research Olympiad",
     sphere: "Medicine & Biology",
+    country: "Kyrgyzstan",
+    city: "Bishkek",
     grades: ["12 Grade"],
     cost: "Free",
     format: "Individual",
@@ -144,8 +208,10 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
   {
     id: "s5",
     title: "Debate Masters Cup",
-    sphere: "Debates",
-    grades: ["8 Grade", "9 Grade", "10 Grade"],
+    sphere: "Politics & Public Policy",
+    country: "Kazakhstan",
+    city: "Shymkent",
+    grades: ["7 Grade", "8 Grade", "9 Grade", "10 Grade"],
     price: "25 000 ₸",
     cost: "Paid",
     format: "Team-based",
@@ -160,6 +226,8 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     id: "s6",
     title: "Future Lawyers Case Contest",
     sphere: "Law",
+    country: "Kazakhstan",
+    city: "Astana",
     grades: ["11 Grade"],
     cost: "Free",
     format: "Individual",
@@ -174,6 +242,8 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     id: "s7",
     title: "Startup Sprint for Teens",
     sphere: "Business & Economics",
+    country: "Uzbekistan",
+    city: "Tashkent",
     grades: ["10 Grade"],
     cost: "Free",
     format: "Team-based",
@@ -187,7 +257,9 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
   {
     id: "s8",
     title: "Student Press Award",
-    sphere: "Journalism",
+    sphere: "Journalism & Media",
+    country: "Kazakhstan",
+    city: "Astana",
     grades: ["12 Grade"],
     cost: "Free",
     format: "Individual",
@@ -202,7 +274,9 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
     id: "s9",
     title: "Digital Art Biennale (Youth)",
     sphere: "Art & Design",
-    grades: ["8 Grade"],
+    country: "Kazakhstan",
+    city: "Almaty",
+    grades: ["7 Grade", "8 Grade", "9 Grade"],
     price: "15 000 ₸",
     cost: "Paid",
     format: "Individual",
