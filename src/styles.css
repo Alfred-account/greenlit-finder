@@ -317,6 +317,13 @@
   filter: saturate(0.6) contrast(0.95);
 }
 
+/* Guided tour: dropdowns/popovers must float above the spotlight overlay. */
+.tour-active [data-radix-popper-content-wrapper] {
+  z-index: 10060 !important;
+}
+
+
+
 
 @utility ivy-halo {
   position: relative;
