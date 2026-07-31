@@ -1,4 +1,5 @@
-import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark } from "lucide-react";
+import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Share2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -11,6 +12,51 @@ export function formatDeadline(iso: string, localeTag = "ru-RU", fallback = "Ð‘Ð
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString(localeTag, { day: "numeric", month: "long", year: "numeric" });
 }
+
+export function opportunityLink(id: string) {
+  const origin = typeof window === "undefined" ? "" : window.location.origin;
+  return `${origin}/?opp=${encodeURIComponent(id)}`;
+}
+
+/** Small round button that shares a direct link to one opportunity. */
+export function ShareButton({
+  item,
+  className = "",
+}: {
+  item: Opportunity;
+  className?: string;
+}) {
+  const { t, tItem } = useI18n();
+
+  async function share(e: React.MouseEvent) {
+    e.stopPropagation();
+    const url = opportunityLink(item.id);
+    const title = tItem(item).title;
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title, text: title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success(t("toast.linkCopied"));
+    } catch {
+      /* user dismissed the native share sheet */
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={share}
+      aria-label={t("card.share")}
+      title={t("card.share")}
+      className={`grid size-8 place-items-center rounded-full border border-border/70 bg-background/80 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary ${className}`}
+    >
+      <Share2 className="size-4" />
+    </button>
+  );
+}
+
 
 export function OpportunityCard({
   item,
