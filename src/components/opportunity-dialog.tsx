@@ -1,11 +1,13 @@
-import { CalendarDays, ExternalLink, Instagram, ListChecks, MapPin, Globe, Blend, Users, User, Wallet, Ticket } from "lucide-react";
+import { CalendarDays, ExternalLink, Instagram, ListChecks, MapPin, Globe, Blend, Users, User, Wallet, Ticket, Share2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { formatDeadline } from "@/components/opportunity-card";
+import { formatDeadline, opportunityLink } from "@/components/opportunity-card";
 import { useI18n } from "@/lib/i18n";
 import type { Opportunity } from "@/lib/opportunities";
+
 
 export function OpportunityDialog({
   item,
