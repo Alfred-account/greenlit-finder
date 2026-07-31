@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/lib/i18n";
 
 export function AccountMenu() {
-  const { user } = useAuth();
+  const { user, displayName } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -25,7 +25,7 @@ export function AccountMenu() {
     return (
       <Button asChild variant="outline" size="sm" className="rounded-full border-primary/40 text-primary">
         <Link to="/auth">
-          <LogIn className="size-4" /> {t("auth.signIn")}
+          <LogIn className="size-4" /> <span className="hidden sm:inline">{t("auth.signIn")}</span>
         </Link>
       </Button>
     );
@@ -41,13 +41,15 @@ export function AccountMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="rounded-full border-primary/40">
-          <User2 className="size-4 text-primary" />
-          <span className="max-w-[9rem] truncate">{user.email ?? t("auth.account")}</span>
+        <Button variant="outline" size="sm" className="max-w-[9rem] rounded-full border-primary/40 sm:max-w-[12rem]">
+          <User2 className="size-4 shrink-0 text-primary" />
+          <span className="truncate">{displayName ?? t("auth.account")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="rounded-xl">
-        <DropdownMenuLabel className="truncate text-xs text-muted-foreground">{user.email}</DropdownMenuLabel>
+        <DropdownMenuLabel className="max-w-[14rem] truncate text-xs text-muted-foreground">
+          {user.email}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => void signOut()}>
           <LogOut className="size-4" /> {t("auth.signOut")}
