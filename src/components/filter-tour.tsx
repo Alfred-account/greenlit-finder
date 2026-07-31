@@ -96,12 +96,29 @@ export function TourOverlay({
   const vh = typeof window === "undefined" ? 0 : window.innerHeight;
 
   const cardWidth = Math.min(360, vw - 24);
-  const below = rect ? rect.top + rect.height + 14 : 0;
-  const placeBelow = !rect || below + 210 < vh;
-  const cardTop = rect ? (placeBelow ? below : Math.max(12, rect.top - 210)) : Math.max(24, vh / 2 - 110);
-  const cardLeft = rect
+  const clampTop = (v: number) => Math.min(Math.max(12, v), Math.max(12, vh - 230));
+
+  // Prefer sitting beside the highlighted filter so an auto-opened dropdown
+  // never hides the instructions; fall back to below/above on narrow screens.
+  let cardTop = rect ? rect.top + rect.height + 14 : Math.max(24, vh / 2 - 110);
+  let cardLeft = rect
     ? Math.min(Math.max(12, rect.left + rect.width / 2 - cardWidth / 2), Math.max(12, vw - cardWidth - 12))
     : Math.max(12, vw / 2 - cardWidth / 2);
+
+  if (rect && vw >= 760) {
+    if (rect.left + rect.width + cardWidth + 28 < vw) {
+      cardLeft = rect.left + rect.width + 16;
+      cardTop = clampTop(rect.top);
+    } else if (rect.left - cardWidth - 28 > 0) {
+      cardLeft = rect.left - cardWidth - 16;
+      cardTop = clampTop(rect.top);
+    } else if (cardTop + 210 > vh) {
+      cardTop = clampTop(rect.top - 220);
+    }
+  } else if (rect && cardTop + 210 > vh) {
+    cardTop = clampTop(rect.top - 220);
+  }
+
 
   const block = "fixed bg-[#04150f]/65 backdrop-blur-[1px]";
 
