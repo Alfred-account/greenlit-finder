@@ -7,7 +7,7 @@ import { ArrowDown, Bookmark, Filter, Megaphone, RotateCcw, Search, Sparkles } f
 import { AccountMenu } from "@/components/account-menu";
 import { CityField } from "@/components/city-field";
 import { DateField } from "@/components/date-field";
-import { FilterTourButton } from "@/components/filter-tour";
+import { FilterTourButton, TourOverlay } from "@/components/filter-tour";
 import { IvyBackdrop } from "@/components/ivy-backdrop";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
@@ -47,31 +47,21 @@ export const Route = createFileRoute("/")({
 const ALL = "__all__";
 
 /**
- * Quick-search chips. The visible set rotates every hour so the hero stays
- * alive; each chip pre-selects the matching field.
+ * Guided tour. Every step spotlights one filter, opens it automatically and
+ * only advances once the user actually makes a choice (optional steps expose
+ * a "skip" button). The overlay blocks the rest of the UI.
  */
-const QUICK_SEARCH_POOL: { label: string; sphere: string }[] = [
-  { label: "Computer Science", sphere: "Computer Science & Technology" },
-  { label: "MUN", sphere: "International Relations" },
-  { label: "Robotics", sphere: "Engineering" },
-  { label: "Law", sphere: "Law" },
-  { label: "Biology", sphere: "Medicine & Biology" },
-  { label: "Journalism", sphere: "Journalism & Media" },
-  { label: "Film", sphere: "Film & Directing" },
-  { label: "Design", sphere: "Art & Design" },
-  { label: "Startups", sphere: "Business & Economics" },
-  { label: "Research", sphere: "Science & Research" },
-  { label: "Psychology", sphere: "Psychology & Social Sciences" },
-  { label: "Languages", sphere: "Humanities & Languages" },
-  { label: "Ecology", sphere: "Environment & Sustainability" },
-  { label: "Debates", sphere: "Politics & Public Policy" },
-];
-
-function quickSearchesForHour(hour: number) {
-  const size = 4;
-  const start = (hour * size) % QUICK_SEARCH_POOL.length;
-  return Array.from({ length: size }, (_, i) => QUICK_SEARCH_POOL[(start + i) % QUICK_SEARCH_POOL.length]);
-}
+const TOUR_STEPS = [
+  { key: "sphere", selector: '[data-tour="sphere"]', title: "tour.s1.title", text: "tour.s1.text" },
+  { key: "grade", selector: '[data-tour="grade"]', title: "tour.s2.title", text: "tour.s2.text" },
+  { key: "cost", selector: '[data-tour="cost"]', title: "tour.s3.title", text: "tour.s3.text" },
+  { key: "format", selector: '[data-tour="format"]', title: "tour.s4.title", text: "tour.s4.text" },
+  { key: "delivery", selector: '[data-tour="delivery"]', title: "tour.s5.title", text: "tour.s5.text" },
+  { key: "country", selector: '[data-tour="country"]', title: "tour.s6.title", text: "tour.s6.text" },
+  { key: "city", selector: '[data-tour="city"]', title: "tour.s7.title", text: "tour.s7.text", optional: true },
+  { key: "dates", selector: '[data-tour="dates"]', title: "tour.s8.title", text: "tour.s8.text", optional: true },
+  { key: "done", selector: null, title: "tour.s9.title", text: "tour.s9.text", last: true },
+] as const;
 
 function Home() {
   const getOpportunities = useServerFn(fetchOpportunities);
@@ -101,18 +91,31 @@ function Home() {
   const [sort, setSort] = useState("deadlineAsc");
   const [onlySaved, setOnlySaved] = useState(false);
   const [active, setActive] = useState<Opportunity | null>(null);
-
-  // Rotates hourly — the chip set changes without a page reload.
-  const [hour, setHour] = useState(0);
-  useEffect(() => {
-    const tick = () => setHour(new Date().getHours());
-    tick();
-    const id = window.setInterval(tick, 60_000);
-    return () => window.clearInterval(id);
-  }, []);
-  const quickSearches = useMemo(() => quickSearchesForHour(hour), [hour]);
+  const [tourStep, setTourStep] = useState<number | null>(null);
 
   const items = data?.items ?? [];
+
+  // Deep link: /?opp=<id> opens that opportunity straight away.
+  const [deepLinked, setDeepLinked] = useState(false);
+  useEffect(() => {
+    if (deepLinked || items.length === 0) return;
+    const id = new URLSearchParams(window.location.search).get("opp");
+    if (!id) return;
+    const match = items.find((o) => o.id === id);
+    if (match) setActive(match);
+    setDeepLinked(true);
+  }, [items, deepLinked]);
+
+  const step = tourStep === null ? null : TOUR_STEPS[tourStep];
+
+  function startTour() {
+    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => setTourStep(0), 400);
+  }
+
+  function advance(key: string) {
+    if (step && step.key === key) setTourStep((s) => (s === null ? null : s + 1));
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -183,50 +186,45 @@ function Home() {
 
   return (
     <main className="min-h-screen">
-      <div className="absolute top-5 right-5 z-20 flex items-center gap-2">
+      <div className="absolute top-3 right-3 z-20 flex max-w-[calc(100vw-1.5rem)] items-center gap-2 sm:top-5 sm:right-5">
         <AccountMenu />
         <LanguageSwitcher />
       </div>
 
-      <section className="hero-surface relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden px-6 py-24 text-center">
+      <section className="hero-surface relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden px-4 py-20 text-center sm:px-6 sm:py-24">
         <IvyBackdrop />
-        <span className="rise-in relative inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 py-1.5 text-sm font-medium text-primary backdrop-blur">
-          <Sparkles className="size-4" />
-          {t("hero.badge")}
+        <span className="rise-in relative inline-flex max-w-full items-center gap-2 rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-xs font-medium text-primary backdrop-blur sm:px-4 sm:text-sm">
+          <Sparkles className="size-4 shrink-0" />
+          <span className="text-balance">{t("hero.badge")}</span>
         </span>
 
         <h1
-          className="rise-in relative mt-8 text-5xl font-bold sm:text-6xl md:text-7xl"
+          className="rise-in relative mt-7 text-4xl font-bold tracking-tight text-balance sm:mt-8 sm:text-6xl md:text-7xl"
           style={{ animationDelay: "80ms" }}
         >
           Green Lit&nbsp;Space
         </h1>
 
-        <p className="rise-in relative mt-4 text-lg font-medium text-primary" style={{ animationDelay: "120ms" }}>
-          {t("hero.tagline")}
-        </p>
-
         <p
-          className="rise-in relative mt-4 max-w-xl text-base text-muted-foreground sm:text-lg"
+          className="rise-in relative mt-4 max-w-xl text-sm text-balance text-muted-foreground sm:text-lg"
           style={{ animationDelay: "160ms" }}
         >
           {t("hero.subtitle")}
         </p>
 
-        <div
-          className="rise-in relative mt-10 flex flex-col items-center gap-3"
-          style={{ animationDelay: "240ms" }}
-        >
+        <div className="rise-in relative mt-9 flex w-full flex-col items-center gap-3" style={{ animationDelay: "240ms" }}>
           <Button
             size="lg"
             onClick={scrollToCatalog}
-            className="gradient-emerald shadow-lift cta-glow h-13 relative overflow-hidden rounded-xl px-8 text-base font-semibold text-primary-foreground transition-transform duration-200 hover:scale-[1.04] active:scale-[0.98]"
+            className="gradient-emerald shadow-lift cta-glow relative h-13 w-full max-w-xs overflow-hidden rounded-xl px-8 text-base font-semibold text-primary-foreground transition-transform duration-200 hover:scale-[1.04] active:scale-[0.98] sm:w-auto"
           >
             {t("hero.cta")}
             <ArrowDown className="size-4 animate-bounce" />
           </Button>
 
-          <p className="text-xs font-medium tracking-wide text-muted-foreground sm:text-sm">{t("hero.stats")}</p>
+          <p className="text-xs font-medium tracking-wide text-balance text-muted-foreground sm:text-sm">
+            {t("hero.stats")}
+          </p>
 
           <Link
             to="/share"
@@ -235,49 +233,28 @@ function Home() {
             {t("hero.secondary")}
           </Link>
         </div>
-
-        <div
-          className="rise-in relative mt-10 flex flex-wrap items-center justify-center gap-2"
-          style={{ animationDelay: "300ms" }}
-        >
-          <span className="text-xs text-muted-foreground">{t("hero.popular")}</span>
-          {quickSearches.map((q) => (
-            <button
-              key={q.label}
-              type="button"
-              onClick={() => {
-                setSphere(q.sphere);
-                setQuery("");
-                scrollToCatalog();
-              }}
-              className="rounded-full border border-border/70 bg-card/70 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:text-primary"
-            >
-              {tSphere(q.sphere)}
-            </button>
-          ))}
-        </div>
       </section>
 
-      <section id="catalog" className="mx-auto w-full max-w-6xl scroll-mt-6 px-6 pb-24">
+      <section id="catalog" className="mx-auto w-full max-w-6xl scroll-mt-4 px-4 pb-20 sm:px-6 sm:pb-24">
         <Link
           to="/share"
-          className="shadow-soft mb-10 flex flex-col items-start gap-4 rounded-2xl border border-primary/25 bg-accent/50 p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50 sm:flex-row sm:items-center"
+          className="shadow-soft mb-8 flex flex-col items-start gap-4 rounded-2xl border border-primary/25 bg-accent/50 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/50 sm:mb-10 sm:flex-row sm:items-center sm:p-5"
         >
           <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
             <Megaphone className="size-5" />
           </span>
-          <span className="flex-1">
+          <span className="min-w-0 flex-1">
             <span className="block font-semibold">{t("banner.title")}</span>
             <span className="block text-sm text-muted-foreground">{t("banner.subtitle")}</span>
           </span>
-          <span className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+          <span className="w-full rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground sm:w-auto">
             {t("banner.action")}
           </span>
         </Link>
 
-        <div className="shadow-soft space-y-5 rounded-2xl border border-border/70 bg-card p-5">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1">
+        <div className="shadow-soft space-y-4 rounded-2xl border border-border/70 bg-card p-4 sm:space-y-5 sm:p-5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative min-w-0 flex-1">
               <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={query}
@@ -287,70 +264,98 @@ function Home() {
                 aria-label={t("search.aria")}
               />
             </div>
-            <FilterTourButton />
+            <FilterTourButton onStart={startTour} />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div data-tour="sphere">
               <FilterSelect
                 label={t("filter.sphere")}
                 value={sphere}
-                onChange={setSphere}
+                onChange={(v) => {
+                  setSphere(v);
+                  advance("sphere");
+                }}
                 options={[...SPHERES]}
                 render={tSphere}
+                autoOpen={step?.key === "sphere"}
               />
             </div>
             <div data-tour="grade">
               <FilterSelect
                 label={t("filter.grade")}
                 value={grade}
-                onChange={setGrade}
+                onChange={(v) => {
+                  setGrade(v);
+                  advance("grade");
+                }}
                 options={[...GRADES]}
                 render={tGrade}
+                autoOpen={step?.key === "grade"}
               />
             </div>
             <div data-tour="cost">
               <FilterSelect
                 label={t("filter.cost")}
                 value={cost}
-                onChange={setCost}
+                onChange={(v) => {
+                  setCost(v);
+                  advance("cost");
+                }}
                 options={[...COSTS]}
                 render={tCost}
+                autoOpen={step?.key === "cost"}
               />
             </div>
             <div data-tour="format">
               <FilterSelect
                 label={t("filter.format")}
                 value={format}
-                onChange={setFormat}
+                onChange={(v) => {
+                  setFormat(v);
+                  advance("format");
+                }}
                 options={[...FORMATS]}
                 render={tFormat}
+                autoOpen={step?.key === "format"}
               />
             </div>
-            <FilterSelect
-              label={t("filter.delivery")}
-              value={delivery}
-              onChange={setDelivery}
-              options={[...DELIVERIES]}
-              render={tDelivery}
-            />
-            <FilterSelect
-              label={t("filter.country")}
-              value={country}
-              onChange={(v) => {
-                setCountry(v);
-                setCity("");
-              }}
-              options={[...COUNTRIES]}
-              render={tPlace}
-            />
-            <CityField
-              key={country}
-              label={t("filter.city")}
-              country={country === ALL ? "" : country}
-              value={city}
-              onChange={setCity}
-            />
+            <div data-tour="delivery">
+              <FilterSelect
+                label={t("filter.delivery")}
+                value={delivery}
+                onChange={(v) => {
+                  setDelivery(v);
+                  advance("delivery");
+                }}
+                options={[...DELIVERIES]}
+                render={tDelivery}
+                autoOpen={step?.key === "delivery"}
+              />
+            </div>
+            <div data-tour="country">
+              <FilterSelect
+                label={t("filter.country")}
+                value={country}
+                onChange={(v) => {
+                  setCountry(v);
+                  setCity("");
+                  advance("country");
+                }}
+                options={[...COUNTRIES]}
+                render={tPlace}
+                autoOpen={step?.key === "country"}
+              />
+            </div>
+            <div data-tour="city">
+              <CityField
+                key={country}
+                label={t("filter.city")}
+                country={country === ALL ? "" : country}
+                value={city}
+                onChange={setCity}
+              />
+            </div>
             <FilterSelect
               label={t("filter.sort")}
               value={sort}
@@ -361,8 +366,8 @@ function Home() {
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2" data-tour="dates">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2" data-tour="dates">
               <DateField label={t("filter.from")} value={from} onChange={setFrom} />
               <DateField label={t("filter.to")} value={to} onChange={setTo} />
             </div>
@@ -374,17 +379,14 @@ function Home() {
                 disabled={!signedIn}
                 className="h-11 w-full rounded-xl"
               >
-                <Bookmark className={`size-4 ${onlySaved ? "fill-current" : ""}`} /> {t("filter.onlySaved")}
+                <Bookmark className={`size-4 ${onlySaved ? "fill-current" : ""}`} />
+                <span className="truncate">{t("filter.onlySaved")}</span>
               </Button>
             </div>
             <div className="flex items-end">
-              <Button
-                variant="outline"
-                onClick={reset}
-                disabled={!hasFilters}
-                className="h-11 w-full rounded-xl"
-              >
-                <RotateCcw className="size-4" /> {t("filter.reset")}
+              <Button variant="outline" onClick={reset} disabled={!hasFilters} className="h-11 w-full rounded-xl">
+                <RotateCcw className="size-4" />
+                <span className="truncate">{t("filter.reset")}</span>
               </Button>
             </div>
           </div>
@@ -395,7 +397,7 @@ function Home() {
           {isPending ? t("list.loading") : `${t("list.found")}: ${filtered.length}`}
         </div>
 
-        <div className="mt-4 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {isPending
             ? Array.from({ length: 6 }).map((_, i) => <OpportunityCardSkeleton key={i} />)
             : filtered.map((item, i) => (
@@ -411,7 +413,7 @@ function Home() {
         </div>
 
         {!isPending && filtered.length === 0 && (
-          <div className="rise-in mt-8 flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border p-14 text-center">
+          <div className="rise-in mt-8 flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border p-10 text-center sm:p-14">
             <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
               <Search className="size-5" />
             </span>
@@ -424,6 +426,24 @@ function Home() {
       </section>
 
       <OpportunityDialog item={active} onOpenChange={(open) => !open && setActive(null)} />
+
+      {step && (
+        <TourOverlay
+          key={step.key}
+          selector={step.selector}
+          title={t(step.title)}
+          text={t(step.text)}
+          index={tourStep ?? 0}
+          total={TOUR_STEPS.length}
+          onClose={() => setTourStep(null)}
+          onNext={() => {
+            if ("last" in step && step.last) setTourStep(null);
+            else setTourStep((s) => (s === null ? null : s + 1));
+          }}
+          showNext={"optional" in step || ("last" in step && step.last)}
+          nextLabel={"last" in step && step.last ? t("tour.finish") : t("tour.skipStep")}
+        />
+      )}
     </main>
   );
 }
@@ -435,6 +455,7 @@ function FilterSelect({
   options,
   render,
   allowAll = true,
+  autoOpen = false,
 }: {
   label: string;
   value: string;
@@ -442,12 +463,22 @@ function FilterSelect({
   options: string[];
   render?: (v: string) => string;
   allowAll?: boolean;
+  autoOpen?: boolean;
 }) {
   const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+
+  // During the guided tour the current filter opens by itself.
+  useEffect(() => {
+    if (!autoOpen) return;
+    const id = window.setTimeout(() => setOpen(true), 500);
+    return () => window.clearTimeout(id);
+  }, [autoOpen]);
+
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value} onValueChange={onChange} open={open} onOpenChange={setOpen}>
         <SelectTrigger className="h-11 w-full rounded-xl">
           <SelectValue placeholder={t("filter.all")} />
         </SelectTrigger>

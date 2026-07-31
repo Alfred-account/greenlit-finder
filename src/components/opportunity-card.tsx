@@ -1,4 +1,5 @@
-import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark } from "lucide-react";
+import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Share2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -11,6 +12,51 @@ export function formatDeadline(iso: string, localeTag = "ru-RU", fallback = "Ð‘Ð
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString(localeTag, { day: "numeric", month: "long", year: "numeric" });
 }
+
+export function opportunityLink(id: string) {
+  const origin = typeof window === "undefined" ? "" : window.location.origin;
+  return `${origin}/?opp=${encodeURIComponent(id)}`;
+}
+
+/** Small round button that shares a direct link to one opportunity. */
+export function ShareButton({
+  item,
+  className = "",
+}: {
+  item: Opportunity;
+  className?: string;
+}) {
+  const { t, tItem } = useI18n();
+
+  async function share(e: React.MouseEvent) {
+    e.stopPropagation();
+    const url = opportunityLink(item.id);
+    const title = tItem(item).title;
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title, text: title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success(t("toast.linkCopied"));
+    } catch {
+      /* user dismissed the native share sheet */
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={share}
+      aria-label={t("card.share")}
+      title={t("card.share")}
+      className={`grid size-8 place-items-center rounded-full border border-border/70 bg-background/80 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary ${className}`}
+    >
+      <Share2 className="size-4" />
+    </button>
+  );
+}
+
 
 export function OpportunityCard({
   item,
@@ -43,26 +89,30 @@ export function OpportunityCard({
       style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
       className="rise-in shadow-soft hover:shadow-lift group relative flex cursor-pointer flex-col gap-4 rounded-2xl border-border/70 p-5 transition-all duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
-      {onToggleSave && (
-        <button
-          type="button"
-          aria-label={t(saved ? "card.saved" : "card.save")}
-          aria-pressed={saved}
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleSave();
-          }}
-          className={`absolute top-4 right-4 grid size-8 place-items-center rounded-full border transition-colors ${
-            saved
-              ? "border-primary bg-primary text-primary-foreground"
-              : "border-border/70 bg-background/80 text-muted-foreground hover:border-primary/50 hover:text-primary"
-          }`}
-        >
-          <Bookmark className={`size-4 ${saved ? "fill-current" : ""}`} />
-        </button>
-      )}
+      <div className="absolute top-4 right-4 flex items-center gap-1.5">
+        <ShareButton item={item} />
+        {onToggleSave && (
+          <button
+            type="button"
+            aria-label={t(saved ? "card.saved" : "card.save")}
+            aria-pressed={saved}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSave();
+            }}
+            className={`grid size-8 place-items-center rounded-full border transition-colors ${
+              saved
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border/70 bg-background/80 text-muted-foreground hover:border-primary/50 hover:text-primary"
+            }`}
+          >
+            <Bookmark className={`size-4 ${saved ? "fill-current" : ""}`} />
+          </button>
+        )}
+      </div>
 
-      <div className="flex flex-wrap items-center gap-2 pr-10">
+      <div className="flex flex-wrap items-center gap-2 pr-20">
+
         <Badge variant="secondary" className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
           {tSphere(item.sphere)}
         </Badge>
