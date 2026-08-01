@@ -124,7 +124,7 @@ function SharePage() {
                 maxLength={100}
                 value={form.contactName}
                 onChange={(e) => set("contactName", e.target.value)}
-                placeholder={t("share.namePlaceholder")}
+                placeholder={namePlaceholder}
                 className="h-11 rounded-xl"
               />
             </Field>
