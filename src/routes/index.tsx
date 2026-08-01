@@ -302,7 +302,7 @@ function Home() {
                 }}
                 options={[...SPHERES]}
                 render={tSphere}
-                autoOpen={step?.key === "sphere"}
+                autoOpen={activeKey === "sphere"}
               />
             </div>
             <div data-tour="grade">
@@ -315,7 +315,7 @@ function Home() {
                 }}
                 options={[...GRADES]}
                 render={tGrade}
-                autoOpen={step?.key === "grade"}
+                autoOpen={activeKey === "grade"}
               />
             </div>
             <div data-tour="cost">
@@ -328,7 +328,7 @@ function Home() {
                 }}
                 options={[...COSTS]}
                 render={tCost}
-                autoOpen={step?.key === "cost"}
+                autoOpen={activeKey === "cost"}
               />
             </div>
             <div data-tour="format">
@@ -341,7 +341,7 @@ function Home() {
                 }}
                 options={[...FORMATS]}
                 render={tFormat}
-                autoOpen={step?.key === "format"}
+                autoOpen={activeKey === "format"}
               />
             </div>
             <div data-tour="delivery">
@@ -354,7 +354,7 @@ function Home() {
                 }}
                 options={[...DELIVERIES]}
                 render={tDelivery}
-                autoOpen={step?.key === "delivery"}
+                autoOpen={activeKey === "delivery"}
               />
             </div>
             <div data-tour="country">
@@ -368,7 +368,7 @@ function Home() {
                 }}
                 options={[...COUNTRIES]}
                 render={tPlace}
-                autoOpen={step?.key === "country"}
+                autoOpen={activeKey === "country"}
               />
             </div>
             <div data-tour="city">
