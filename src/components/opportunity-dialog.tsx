@@ -20,20 +20,8 @@ export function OpportunityDialog({
   const local = item ? tItem(item) : null;
   const place = item ? [tPlace(item.city), tPlace(item.country)].filter(Boolean).join(", ") : "";
 
-  async function share(target: Opportunity) {
-    const url = opportunityLink(target.id);
-    const title = tItem(target).title;
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title, text: title, url });
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      toast.success(t("toast.linkCopied"));
-    } catch {
-      /* user dismissed the native share sheet */
-    }
-  }
+
+
 
 
 
