@@ -93,6 +93,8 @@ function Home() {
   const [onlySaved, setOnlySaved] = useState(false);
   const [active, setActive] = useState<Opportunity | null>(null);
   const [tourStep, setTourStep] = useState<number | null>(null);
+  const [tourPhase, setTourPhase] = useState<TourPhase>("explain");
+
 
   const items = data?.items ?? [];
 
