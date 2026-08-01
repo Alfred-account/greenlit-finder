@@ -47,9 +47,9 @@ export const Route = createFileRoute("/")({
 const ALL = "__all__";
 
 /**
- * Guided tour. Every step spotlights one filter, opens it automatically and
- * only advances once the user actually makes a choice (optional steps expose
- * a "skip" button). The overlay blocks the rest of the UI.
+ * Guided tour. Every filter runs the same two-phase flow: explanation →
+ * "Понятно!" → the control opens by itself → the user makes a real choice →
+ * a short confirmation → the spotlight glides to the next filter.
  */
 const TOUR_STEPS = [
   { key: "sphere", selector: '[data-tour="sphere"]', title: "tour.s1.title", text: "tour.s1.text" },
@@ -62,6 +62,7 @@ const TOUR_STEPS = [
   { key: "dates", selector: '[data-tour="dates"]', title: "tour.s8.title", text: "tour.s8.text", optional: true },
   { key: "done", selector: null, title: "tour.s9.title", text: "tour.s9.text", last: true },
 ] as const;
+
 
 function Home() {
   const getOpportunities = useServerFn(fetchOpportunities);
