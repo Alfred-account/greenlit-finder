@@ -467,20 +467,21 @@ function Home() {
 
       {step && (
         <TourOverlay
+        <TourOverlay
           key={step.key}
           selector={step.selector}
           title={t(step.title)}
           text={t(step.text)}
+          phase={tourPhase}
           index={tourStep ?? 0}
           total={TOUR_STEPS.length}
           onClose={() => setTourStep(null)}
-          onNext={() => {
-            if ("last" in step && step.last) setTourStep(null);
-            else setTourStep((s) => (s === null ? null : s + 1));
-          }}
-          showNext={"optional" in step || ("last" in step && step.last)}
-          nextLabel={"last" in step && step.last ? t("tour.finish") : t("tour.skipStep")}
+          onGotIt={() => setTourPhase("act")}
+          onSkip={() => goToStep((tourStep ?? 0) + 1)}
+          showSkip={"optional" in step}
+          isLast={"last" in step && step.last}
         />
+
       )}
     </main>
   );
