@@ -178,30 +178,63 @@ function AuthPage() {
 
               <form onSubmit={onSubmit} className="space-y-4">
                 {mode === "up" && (
+                  <>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">{t("auth.name")}</Label>
+                      <Input
+                        required
+                        maxLength={80}
+                        autoComplete="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder={namePlaceholder}
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">{t("auth.username")}</Label>
+                      <div className="relative">
+                        <AtSign className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          required
+                          maxLength={20}
+                          autoComplete="username"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
+                          placeholder={t("auth.usernamePlaceholder")}
+                          className="h-11 rounded-xl pl-9"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{t("auth.usernameHint")}</p>
+                    </div>
+                  </>
+                )}
+                {mode === "up" ? (
                   <div className="space-y-1.5">
-                    <Label className="text-sm">{t("auth.name")}</Label>
+                    <Label className="text-sm">{t("auth.email")}</Label>
                     <Input
                       required
-                      maxLength={80}
-                      autoComplete="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder={t("auth.namePlaceholder")}
+                      type="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-11 rounded-xl"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">{t("auth.identifier")}</Label>
+                    <Input
+                      required
+                      autoComplete="username"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      placeholder="you@mail.com"
                       className="h-11 rounded-xl"
                     />
                   </div>
                 )}
-                <div className="space-y-1.5">
-                  <Label className="text-sm">{t("auth.email")}</Label>
-                  <Input
-                    required
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="h-11 rounded-xl"
-                  />
-                </div>
+
                 <div className="space-y-1.5">
                   <Label className="text-sm">{t("auth.password")}</Label>
                   <Input
