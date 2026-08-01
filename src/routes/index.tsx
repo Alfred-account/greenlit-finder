@@ -467,7 +467,7 @@ function Home() {
 
       {step && (
         <TourOverlay
-        <TourOverlay
+
           key={step.key}
           selector={step.selector}
           title={t(step.title)}
