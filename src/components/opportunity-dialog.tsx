@@ -148,7 +148,7 @@ export function OpportunityDialog({
               )}
             </div>
 
-            </div>
+
 
           </>
         )}
