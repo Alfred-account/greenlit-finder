@@ -146,15 +146,8 @@ export function OpportunityDialog({
                   )}
                 </div>
               )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="lg"
-                onClick={() => void share(item)}
-                className="w-full rounded-xl text-muted-foreground hover:text-primary"
-              >
-                <Share2 className="size-4" /> {t("card.share")}
-              </Button>
+            </div>
+
             </div>
 
           </>
