@@ -4,7 +4,7 @@ import { CalendarDays, ExternalLink, Instagram, ListChecks, MapPin, Globe, Blend
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { formatDeadline, opportunityLink } from "@/components/opportunity-card";
+import { formatDeadline } from "@/components/opportunity-card";
 import { useI18n } from "@/lib/i18n";
 import type { Opportunity } from "@/lib/opportunities";
 
