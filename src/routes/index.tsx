@@ -7,7 +7,7 @@ import { ArrowDown, Bookmark, Filter, Megaphone, RotateCcw, Search, Sparkles } f
 import { AccountMenu } from "@/components/account-menu";
 import { CityField } from "@/components/city-field";
 import { DateField } from "@/components/date-field";
-import { FilterTourButton, TourOverlay } from "@/components/filter-tour";
+import { FilterTourButton, TourOverlay, type TourPhase } from "@/components/filter-tour";
 import { IvyBackdrop } from "@/components/ivy-backdrop";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
@@ -110,15 +110,36 @@ function Home() {
   }, [items, deepLinked]);
 
   const step = tourStep === null ? null : TOUR_STEPS[tourStep];
+  /** The control of the current step only unfolds during the action phase. */
+  const activeKey = step && tourPhase === "act" ? step.key : null;
 
   function startTour() {
     document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.setTimeout(() => setTourStep(0), 400);
+    window.setTimeout(() => {
+      setTourPhase("explain");
+      setTourStep(0);
+    }, 400);
   }
 
-  function advance(key: string) {
-    if (step && step.key === key) setTourStep((s) => (s === null ? null : s + 1));
+  function goToStep(next: number) {
+    setTourPhase("explain");
+    setTourStep(next);
   }
+
+  /** A real user choice ends the action phase: confirm, pause, move on. */
+  function advance(key: string) {
+    if (!step || step.key !== key || tourPhase !== "act") return;
+    setTourPhase("success");
+    window.setTimeout(() => {
+      setTourStep((s) => {
+        if (s === null) return null;
+        setTourPhase("explain");
+        return s + 1;
+      });
+    }, 1500);
+  }
+
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
