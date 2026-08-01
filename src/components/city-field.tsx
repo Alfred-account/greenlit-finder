@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -16,16 +16,19 @@ export function CityField({
   value,
   onChange,
   hint,
+  autoOpen = false,
 }: {
   label: string;
   country: string;
   value: string;
   onChange: (city: string) => void;
   hint?: string;
+  autoOpen?: boolean;
 }) {
   const { lang, t } = useI18n();
   const [text, setText] = useState(() => localizePlace(value, lang));
   const [open, setOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const options = useMemo(() => CITIES[country] ?? [], [country]);
   const matches = useMemo(() => {
@@ -36,12 +39,23 @@ export function CityField({
 
   const disabled = options.length === 0;
 
+  // During the guided tour the suggestion list unfolds by itself.
+  useEffect(() => {
+    if (!autoOpen || disabled) return;
+    const id = window.setTimeout(() => {
+      inputRef.current?.focus();
+      setOpen(true);
+    }, 350);
+    return () => window.clearTimeout(id);
+  }, [autoOpen, disabled]);
+
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
       <div className="relative">
         <MapPin className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
+          ref={inputRef}
           value={text}
           disabled={disabled}
           onChange={(e) => {
@@ -54,6 +68,7 @@ export function CityField({
           placeholder={t("filter.cityPlaceholder")}
           className="h-11 rounded-xl pl-9"
         />
+
         {open && !disabled && matches.length > 0 && (
           <ul className="shadow-lift absolute z-30 mt-1 w-full overflow-hidden rounded-xl border border-border/70 bg-popover py-1">
             {matches.map((c) => (
