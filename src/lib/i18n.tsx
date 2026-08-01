@@ -575,7 +575,92 @@ Object.assign(en, {
   "tour.finish": "Got it",
 });
 
+/* ---- Guided tour phrasing + username auth (added last so they win) ---- */
+Object.assign(ru, {
+  "tour.gotIt": "Понятно!",
+  "tour.pickBelow": "Выбери подходящий вариант",
+  "tour.great": "Отлично!",
+  "tour.showResults": "Показать результаты",
+  "tour.close": "Закрыть подсказку",
+  "tour.skipStep": "Пропустить шаг",
+  "tour.s3.text":
+    "Бесплатно или платно. Если выбрать «Платно», точная цена участия будет видна прямо рядом с названием на карточке.",
+  "tour.s8.title": "Шаг 8: Дедлайн / даты",
+  "tour.s8.text":
+    "Задай диапазон дат приёма заявок — так ты не пропустишь закрытие регистрации на интересные конкурсы.",
+  "tour.s9.title": "Готово!",
+  "tour.s9.text": "Все настройки применены, и сайт подстроился под твои интересы. Удачи в победах!",
+  "auth.username": "Юзернейм",
+  "auth.usernameHint": "Латиница, цифры и «_», от 3 до 20 символов",
+  "auth.usernamePlaceholder": "aigerim_k",
+  "auth.identifier": "Email или юзернейм",
+  "auth.needUsername": "Укажите юзернейм",
+  "auth.badUsername": "Юзернейм: 3–20 символов, латиница, цифры и «_»",
+  "auth.usernameTaken": "Этот юзернейм уже занят",
+  "auth.badCredentials": "Неверный email/юзернейм или пароль",
+});
+
+Object.assign(kk, {
+  "tour.gotIt": "Түсінікті!",
+  "tour.pickBelow": "Қолайлы нұсқаны таңда",
+  "tour.great": "Тамаша!",
+  "tour.showResults": "Нәтижелерді көрсету",
+  "tour.close": "Жабу",
+  "tour.skipStep": "Қадамды өткізу",
+  "tour.s3.text":
+    "Тегін немесе ақылы. «Ақылы» таңдасаң, нақты бағасы карточкадағы атаудың жанында бірден көрінеді.",
+  "tour.s8.title": "8-қадам: Мерзім / күндер",
+  "tour.s8.text": "Өтінім қабылдау күндерін көрсет — тіркелудің жабылуын өткізіп алмайсың.",
+  "tour.s9.title": "Дайын!",
+  "tour.s9.text": "Барлық баптау қолданылды, сайт сенің қызығушылығыңа бейімделді. Жеңістер тілейміз!",
+  "auth.username": "Юзернейм",
+  "auth.usernameHint": "Латын әріптері, сандар және «_», 3–20 таңба",
+  "auth.usernamePlaceholder": "aigerim_k",
+  "auth.identifier": "Email немесе юзернейм",
+  "auth.needUsername": "Юзернейм енгізіңіз",
+  "auth.badUsername": "Юзернейм: 3–20 таңба, латын әрпі, сан және «_»",
+  "auth.usernameTaken": "Бұл юзернейм бос емес",
+  "auth.badCredentials": "Email/юзернейм немесе құпиясөз қате",
+});
+
+Object.assign(en, {
+  "tour.gotIt": "Got it!",
+  "tour.pickBelow": "Pick an option below",
+  "tour.great": "Nice one!",
+  "tour.showResults": "Show results",
+  "tour.close": "Close the tip",
+  "tour.skipStep": "Skip this step",
+  "tour.s3.text":
+    "Free or paid. If you pick “Paid”, the exact price is shown right next to the title on the card.",
+  "tour.s8.title": "Step 8: Deadline / dates",
+  "tour.s8.text": "Set a date range for applications so you never miss a closing deadline.",
+  "tour.s9.title": "All set!",
+  "tour.s9.text": "Your settings are applied and the catalog now matches your interests. Good luck out there!",
+  "auth.username": "Username",
+  "auth.usernameHint": "Latin letters, digits and “_”, 3–20 characters",
+  "auth.usernamePlaceholder": "aigerim_k",
+  "auth.identifier": "Email or username",
+  "auth.needUsername": "Choose a username",
+  "auth.badUsername": "Username: 3–20 characters, latin letters, digits and “_”",
+  "auth.usernameTaken": "That username is already taken",
+  "auth.badCredentials": "Wrong email/username or password",
+});
+
+/** Sample first names shown as a placeholder — rotated so it is never always "Айгерим". */
+const NAME_SAMPLES: Record<Lang, string[]> = {
+  ru: ["Айгерим", "Данияр", "Алина", "Тимур", "Мадина", "Арман", "Камила", "Ерасыл", "София", "Нурислам"],
+  kk: ["Айгерім", "Данияр", "Әлия", "Темірлан", "Мәдина", "Арман", "Камила", "Ерасыл", "Аружан", "Нұрислам"],
+  en: ["Aigerim", "Daniyar", "Alina", "Timur", "Madina", "Arman", "Kamila", "Yerassyl", "Sofia", "Nurislam"],
+};
+
+/** Deterministic per-mount pick, so the field does not flicker while typing. */
+export function sampleName(lang: Lang, seed = Math.floor(Math.random() * 100)) {
+  const list = NAME_SAMPLES[lang];
+  return list[seed % list.length];
+}
+
 const DICTS: Record<Lang, Dict> = { ru, kk, en };
+
 
 const SPHERE_LABELS: Record<Lang, Dict> = {
   en: {},

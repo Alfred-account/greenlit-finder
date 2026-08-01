@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitOpportunity, type SubmissionInput } from "@/lib/airtable.functions";
-import { useI18n } from "@/lib/i18n";
+import { sampleName, useI18n } from "@/lib/i18n";
 import { COSTS, DELIVERIES, FORMATS, GRADES, SPHERES, sortGrades } from "@/lib/opportunities";
 import { COUNTRIES } from "@/lib/locations";
 import { CityField } from "@/components/city-field";
@@ -60,7 +60,9 @@ function SharePage() {
   const router = useRouter();
   const submit = useServerFn(submitOpportunity);
   const [form, setForm] = useState<SubmissionInput>(empty);
-  const { t, tSphere, tGrade, tGrades, tCost, tFormat, tDelivery, tPlace } = useI18n();
+  const { t, tSphere, tGrade, tGrades, tCost, tFormat, tDelivery, tPlace, lang } = useI18n();
+  const namePlaceholder = useMemo(() => sampleName(lang), [lang]);
+
 
   const mutation = useMutation({
     mutationFn: (data: SubmissionInput) => submit({ data }),
@@ -124,7 +126,7 @@ function SharePage() {
                 maxLength={100}
                 value={form.contactName}
                 onChange={(e) => set("contactName", e.target.value)}
-                placeholder={t("share.namePlaceholder")}
+                placeholder={namePlaceholder}
                 className="h-11 rounded-xl"
               />
             </Field>

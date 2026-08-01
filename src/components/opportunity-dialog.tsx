@@ -1,10 +1,10 @@
-import { CalendarDays, ExternalLink, Instagram, ListChecks, MapPin, Globe, Blend, Users, User, Wallet, Ticket, Share2 } from "lucide-react";
-import { toast } from "sonner";
+import { CalendarDays, ExternalLink, Instagram, ListChecks, MapPin, Globe, Blend, Users, User, Wallet, Ticket } from "lucide-react";
+
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { formatDeadline, opportunityLink } from "@/components/opportunity-card";
+import { formatDeadline } from "@/components/opportunity-card";
 import { useI18n } from "@/lib/i18n";
 import type { Opportunity } from "@/lib/opportunities";
 
@@ -20,20 +20,8 @@ export function OpportunityDialog({
   const local = item ? tItem(item) : null;
   const place = item ? [tPlace(item.city), tPlace(item.country)].filter(Boolean).join(", ") : "";
 
-  async function share(target: Opportunity) {
-    const url = opportunityLink(target.id);
-    const title = tItem(target).title;
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title, text: title, url });
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      toast.success(t("toast.linkCopied"));
-    } catch {
-      /* user dismissed the native share sheet */
-    }
-  }
+
+
 
 
 
@@ -146,16 +134,9 @@ export function OpportunityDialog({
                   )}
                 </div>
               )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="lg"
-                onClick={() => void share(item)}
-                className="w-full rounded-xl text-muted-foreground hover:text-primary"
-              >
-                <Share2 className="size-4" /> {t("card.share")}
-              </Button>
             </div>
+
+
 
           </>
         )}

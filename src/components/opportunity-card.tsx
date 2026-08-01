@@ -1,5 +1,7 @@
-import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Share2 } from "lucide-react";
+import { useState } from "react";
+import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Check, Share2 } from "lucide-react";
 import { toast } from "sonner";
+
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -27,6 +29,7 @@ export function ShareButton({
   className?: string;
 }) {
   const { t, tItem } = useI18n();
+  const [done, setDone] = useState(false);
 
   async function share(e: React.MouseEvent) {
     e.stopPropagation();
@@ -38,6 +41,8 @@ export function ShareButton({
         return;
       }
       await navigator.clipboard.writeText(url);
+      setDone(true);
+      window.setTimeout(() => setDone(false), 1400);
       toast.success(t("toast.linkCopied"));
     } catch {
       /* user dismissed the native share sheet */
@@ -50,12 +55,17 @@ export function ShareButton({
       onClick={share}
       aria-label={t("card.share")}
       title={t("card.share")}
-      className={`grid size-8 place-items-center rounded-full border border-border/70 bg-background/80 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary ${className}`}
+      className={`grid size-8 place-items-center rounded-full border transition-all duration-200 hover:scale-110 hover:shadow-[0_0_12px_rgba(16,185,129,0.45)] active:scale-95 ${
+        done
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border/70 bg-background/80 text-muted-foreground hover:border-primary/60 hover:text-primary"
+      } ${className}`}
     >
-      <Share2 className="size-4" />
+      {done ? <Check className="size-4" /> : <Share2 className="size-4" />}
     </button>
   );
 }
+
 
 
 export function OpportunityCard({

@@ -7,7 +7,7 @@ import { ArrowDown, Bookmark, Filter, Megaphone, RotateCcw, Search, Sparkles } f
 import { AccountMenu } from "@/components/account-menu";
 import { CityField } from "@/components/city-field";
 import { DateField } from "@/components/date-field";
-import { FilterTourButton, TourOverlay } from "@/components/filter-tour";
+import { FilterTourButton, TourOverlay, type TourPhase } from "@/components/filter-tour";
 import { IvyBackdrop } from "@/components/ivy-backdrop";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
@@ -47,9 +47,9 @@ export const Route = createFileRoute("/")({
 const ALL = "__all__";
 
 /**
- * Guided tour. Every step spotlights one filter, opens it automatically and
- * only advances once the user actually makes a choice (optional steps expose
- * a "skip" button). The overlay blocks the rest of the UI.
+ * Guided tour. Every filter runs the same two-phase flow: explanation →
+ * "Понятно!" → the control opens by itself → the user makes a real choice →
+ * a short confirmation → the spotlight glides to the next filter.
  */
 const TOUR_STEPS = [
   { key: "sphere", selector: '[data-tour="sphere"]', title: "tour.s1.title", text: "tour.s1.text" },
@@ -62,6 +62,7 @@ const TOUR_STEPS = [
   { key: "dates", selector: '[data-tour="dates"]', title: "tour.s8.title", text: "tour.s8.text", optional: true },
   { key: "done", selector: null, title: "tour.s9.title", text: "tour.s9.text", last: true },
 ] as const;
+
 
 function Home() {
   const getOpportunities = useServerFn(fetchOpportunities);
@@ -92,6 +93,8 @@ function Home() {
   const [onlySaved, setOnlySaved] = useState(false);
   const [active, setActive] = useState<Opportunity | null>(null);
   const [tourStep, setTourStep] = useState<number | null>(null);
+  const [tourPhase, setTourPhase] = useState<TourPhase>("explain");
+
 
   const items = data?.items ?? [];
 
@@ -107,15 +110,36 @@ function Home() {
   }, [items, deepLinked]);
 
   const step = tourStep === null ? null : TOUR_STEPS[tourStep];
+  /** The control of the current step only unfolds during the action phase. */
+  const activeKey = step && tourPhase === "act" ? step.key : null;
 
   function startTour() {
     document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.setTimeout(() => setTourStep(0), 400);
+    window.setTimeout(() => {
+      setTourPhase("explain");
+      setTourStep(0);
+    }, 400);
   }
 
-  function advance(key: string) {
-    if (step && step.key === key) setTourStep((s) => (s === null ? null : s + 1));
+  function goToStep(next: number) {
+    setTourPhase("explain");
+    setTourStep(next);
   }
+
+  /** A real user choice ends the action phase: confirm, pause, move on. */
+  function advance(key: string) {
+    if (!step || step.key !== key || tourPhase !== "act") return;
+    setTourPhase("success");
+    window.setTimeout(() => {
+      setTourStep((s) => {
+        if (s === null) return null;
+        setTourPhase("explain");
+        return s + 1;
+      });
+    }, 1500);
+  }
+
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -278,7 +302,7 @@ function Home() {
                 }}
                 options={[...SPHERES]}
                 render={tSphere}
-                autoOpen={step?.key === "sphere"}
+                autoOpen={activeKey === "sphere"}
               />
             </div>
             <div data-tour="grade">
@@ -291,7 +315,7 @@ function Home() {
                 }}
                 options={[...GRADES]}
                 render={tGrade}
-                autoOpen={step?.key === "grade"}
+                autoOpen={activeKey === "grade"}
               />
             </div>
             <div data-tour="cost">
@@ -304,7 +328,7 @@ function Home() {
                 }}
                 options={[...COSTS]}
                 render={tCost}
-                autoOpen={step?.key === "cost"}
+                autoOpen={activeKey === "cost"}
               />
             </div>
             <div data-tour="format">
@@ -317,7 +341,7 @@ function Home() {
                 }}
                 options={[...FORMATS]}
                 render={tFormat}
-                autoOpen={step?.key === "format"}
+                autoOpen={activeKey === "format"}
               />
             </div>
             <div data-tour="delivery">
@@ -330,7 +354,7 @@ function Home() {
                 }}
                 options={[...DELIVERIES]}
                 render={tDelivery}
-                autoOpen={step?.key === "delivery"}
+                autoOpen={activeKey === "delivery"}
               />
             </div>
             <div data-tour="country">
@@ -344,7 +368,7 @@ function Home() {
                 }}
                 options={[...COUNTRIES]}
                 render={tPlace}
-                autoOpen={step?.key === "country"}
+                autoOpen={activeKey === "country"}
               />
             </div>
             <div data-tour="city">
@@ -353,9 +377,14 @@ function Home() {
                 label={t("filter.city")}
                 country={country === ALL ? "" : country}
                 value={city}
-                onChange={setCity}
+                onChange={(v) => {
+                  setCity(v);
+                  if (v) advance("city");
+                }}
+                autoOpen={activeKey === "city"}
               />
             </div>
+
             <FilterSelect
               label={t("filter.sort")}
               value={sort}
@@ -368,9 +397,18 @@ function Home() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2" data-tour="dates">
-              <DateField label={t("filter.from")} value={from} onChange={setFrom} />
+              <DateField
+                label={t("filter.from")}
+                value={from}
+                onChange={(v) => {
+                  setFrom(v);
+                  if (v) advance("dates");
+                }}
+                autoOpen={activeKey === "dates"}
+              />
               <DateField label={t("filter.to")} value={to} onChange={setTo} />
             </div>
+
             <div className="flex items-end">
               <Button
                 type="button"
@@ -429,20 +467,21 @@ function Home() {
 
       {step && (
         <TourOverlay
+
           key={step.key}
           selector={step.selector}
           title={t(step.title)}
           text={t(step.text)}
+          phase={tourPhase}
           index={tourStep ?? 0}
           total={TOUR_STEPS.length}
           onClose={() => setTourStep(null)}
-          onNext={() => {
-            if ("last" in step && step.last) setTourStep(null);
-            else setTourStep((s) => (s === null ? null : s + 1));
-          }}
-          showNext={"optional" in step || ("last" in step && step.last)}
-          nextLabel={"last" in step && step.last ? t("tour.finish") : t("tour.skipStep")}
+          onGotIt={() => setTourPhase("act")}
+          onSkip={() => goToStep((tourStep ?? 0) + 1)}
+          showSkip={"optional" in step}
+          isLast={"last" in step && step.last}
         />
+
       )}
     </main>
   );

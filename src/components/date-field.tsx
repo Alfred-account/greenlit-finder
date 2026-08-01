@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { CalendarDays, X } from "lucide-react";
+
 import { enUS, kk, ru } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
@@ -17,21 +19,32 @@ export function DateField({
   label,
   value,
   onChange,
+  autoOpen = false,
 }: {
   label: string;
   value: string;
   onChange: (iso: string) => void;
+  autoOpen?: boolean;
 }) {
   const { lang, localeTag, t } = useI18n();
   const locale = lang === "ru" ? ru : lang === "kk" ? kk : enUS;
   const selected = value ? new Date(`${value}T00:00:00`) : undefined;
+  const [open, setOpen] = useState(false);
+
+  // During the guided tour the calendar unfolds by itself.
+  useEffect(() => {
+    if (!autoOpen) return;
+    const id = window.setTimeout(() => setOpen(true), 400);
+    return () => window.clearTimeout(id);
+  }, [autoOpen]);
 
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
+
             variant="outline"
             className={cn(
               "h-11 w-full justify-start rounded-xl font-normal",
