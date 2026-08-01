@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, LogIn, Mail, UserPlus } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { AtSign, ArrowLeft, LogIn, Mail, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -10,7 +11,9 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/use-auth";
-import { useI18n } from "@/lib/i18n";
+import { checkUsername, signInWithIdentifier, USERNAME_RE } from "@/lib/auth.functions";
+import { sampleName, useI18n } from "@/lib/i18n";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -30,15 +33,20 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const signIn = useServerFn(signInWithIdentifier);
+  const checkName = useServerFn(checkUsername);
   const [mode, setMode] = useState<"in" | "up">("in");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const namePlaceholder = useMemo(() => sampleName(lang), [lang]);
 
   useEffect(() => {
     if (user) navigate({ to: "/", replace: true });
@@ -48,30 +56,44 @@ function AuthPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (mode === "up") {
-      if (!name.trim()) {
-        toast.error(t("auth.needName"));
-        return;
-      }
-      if (password.length < 8) {
-        toast.error(t("auth.passwordShort"));
-        return;
-      }
-    }
     setBusy(true);
     try {
       if (mode === "in") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success(t("auth.welcome"));
-        navigate({ to: "/", replace: true });
+        const res = await signIn({ data: { identifier, password } });
+        if ("error" in res && res.error) {
+          toast.error(t("auth.badCredentials"));
+          return;
+        }
+        if ("session" in res && res.session) {
+          const { error } = await supabase.auth.setSession(res.session);
+          if (error) throw error;
+          toast.success(t("auth.welcome"));
+          navigate({ to: "/", replace: true });
+        }
       } else {
+        if (!name.trim()) {
+          toast.error(t("auth.needName"));
+          return;
+        }
+        if (!USERNAME_RE.test(username.trim())) {
+          toast.error(t("auth.badUsername"));
+          return;
+        }
+        if (password.length < 8) {
+          toast.error(t("auth.passwordShort"));
+          return;
+        }
+        const check = await checkName({ data: { username: username.trim() } });
+        if (!check.available) {
+          toast.error(t("auth.usernameTaken"));
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/welcome`,
-            data: { full_name: name.trim() },
+            data: { full_name: name.trim(), username: username.trim().toLowerCase() },
           },
         });
         if (error) throw error;
@@ -94,6 +116,7 @@ function AuthPage() {
     if (result.redirected) return;
     navigate({ to: "/", replace: true });
   }
+
 
   return (
     <main className="hero-surface flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
