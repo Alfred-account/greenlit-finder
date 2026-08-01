@@ -4,56 +4,79 @@ const logo = (name: string) => `/assets/logos/${name}.png`;
 
 type Mark = {
   name: string;
-  src: string;
-  top: string;
+  /** Edge anchor — logos never enter the central area with the headline/CTA. */
+  top?: string;
+  bottom?: string;
+  left?: string;
+  right?: string;
   size: number;
-  delay: string;
+  /** Drift axis and amplitude, kept small so marks stay near their edge. */
+  axis: "x" | "y";
+  dx: number;
+  dy: number;
   dur: string;
+  delay: string;
   tilt: number;
-  reverse?: boolean;
+  /** Hidden on small screens where there is no free edge space. */
+  desktopOnly?: boolean;
 };
 
-/** Olympiad, contest and programme logos drifting across the hero. */
+/** Olympiad, contest and programme logos drifting along the hero edges. */
 const MARKS: Mark[] = [
-  { name: "uwc", src: logo("uwc"), top: "6%", size: 104, delay: "0s", dur: "62s", tilt: -5 },
-  { name: "icpc", src: logo("icpc"), top: "14%", size: 92, delay: "-24s", dur: "78s", tilt: 6, reverse: true },
-  { name: "ioi", src: logo("ioi"), top: "24%", size: 108, delay: "-9s", dur: "66s", tilt: 4 },
-  { name: "igem", src: logo("igem"), top: "33%", size: 100, delay: "-40s", dur: "84s", tilt: -7, reverse: true },
-  { name: "erasmus", src: logo("erasmus"), top: "42%", size: 132, delay: "-15s", dur: "72s", tilt: 3 },
-  { name: "conrad", src: logo("conrad"), top: "51%", size: 128, delay: "-55s", dur: "88s", tilt: -3, reverse: true },
-  { name: "flex", src: logo("flex"), top: "60%", size: 104, delay: "-31s", dur: "68s", tilt: 5 },
-  { name: "daad", src: logo("daad"), top: "69%", size: 118, delay: "-12s", dur: "80s", tilt: -4, reverse: true },
-  { name: "cern-openlab", src: logo("cern-openlab"), top: "78%", size: 126, delay: "-47s", dur: "74s", tilt: 4 },
-  { name: "yale-ygs", src: logo("yale-ygs"), top: "87%", size: 116, delay: "-20s", dur: "90s", tilt: -6, reverse: true },
-  { name: "yes", src: logo("yes"), top: "18%", size: 74, delay: "-63s", dur: "94s", tilt: 8 },
-  { name: "space-settlement", src: logo("space-settlement"), top: "47%", size: 120, delay: "-70s", dur: "86s", tilt: -5, reverse: true },
-  { name: "daryn", src: logo("daryn"), top: "64%", size: 124, delay: "-38s", dur: "96s", tilt: 3 },
-  { name: "hansen", src: logo("hansen"), top: "82%", size: 84, delay: "-58s", dur: "82s", tilt: -8, reverse: true },
-  { name: "gcc", src: logo("gcc"), top: "29%", size: 76, delay: "-75s", dur: "70s", tilt: 6 },
-  { name: "ibo", src: logo("ibo"), top: "56%", size: 82, delay: "-27s", dur: "92s", tilt: -4, reverse: true },
+  // top band
+  { name: "uwc", top: "5%", left: "4%", size: 84, axis: "x", dx: 54, dy: 10, dur: "24s", delay: "0s", tilt: -5 },
+  { name: "icpc", top: "3%", left: "26%", size: 72, axis: "x", dx: -46, dy: 14, dur: "29s", delay: "-6s", tilt: 6, desktopOnly: true },
+  { name: "ioi", top: "6%", right: "24%", size: 78, axis: "x", dx: 48, dy: -12, dur: "27s", delay: "-11s", tilt: 4, desktopOnly: true },
+  { name: "igem", top: "4%", right: "4%", size: 80, axis: "x", dx: -50, dy: 12, dur: "31s", delay: "-3s", tilt: -7 },
+  // left edge
+  { name: "erasmus", top: "26%", left: "2%", size: 88, axis: "y", dx: 14, dy: 70, dur: "30s", delay: "-8s", tilt: 3 },
+  { name: "flex", top: "50%", left: "5%", size: 72, axis: "y", dx: -12, dy: -64, dur: "26s", delay: "-14s", tilt: 5, desktopOnly: true },
+  { name: "daryn", top: "70%", left: "3%", size: 82, axis: "y", dx: 16, dy: -58, dur: "33s", delay: "-2s", tilt: -4 },
+  // right edge
+  { name: "conrad", top: "28%", right: "3%", size: 86, axis: "y", dx: -14, dy: 66, dur: "32s", delay: "-17s", tilt: -3 },
+  { name: "daad", top: "52%", right: "5%", size: 76, axis: "y", dx: 12, dy: -60, dur: "28s", delay: "-5s", tilt: 4, desktopOnly: true },
+  { name: "cern-openlab", top: "72%", right: "2%", size: 84, axis: "y", dx: -16, dy: -54, dur: "35s", delay: "-21s", tilt: 6 },
+  // bottom band
+  { name: "yale-ygs", bottom: "4%", left: "6%", size: 78, axis: "x", dx: 52, dy: -12, dur: "29s", delay: "-9s", tilt: -6 },
+  { name: "space-settlement", bottom: "3%", left: "28%", size: 74, axis: "x", dx: -44, dy: -14, dur: "34s", delay: "-13s", tilt: -5, desktopOnly: true },
+  { name: "ibo", bottom: "6%", right: "26%", size: 68, axis: "x", dx: 46, dy: 12, dur: "27s", delay: "-19s", tilt: -4, desktopOnly: true },
+  { name: "gcc", bottom: "4%", right: "5%", size: 70, axis: "x", dx: -48, dy: -10, dur: "31s", delay: "-7s", tilt: 6 },
+  { name: "hansen", top: "14%", left: "14%", size: 58, axis: "y", dx: 18, dy: 46, dur: "36s", delay: "-25s", tilt: -8, desktopOnly: true },
+  { name: "yes", bottom: "14%", right: "14%", size: 56, axis: "y", dx: -18, dy: -44, dur: "38s", delay: "-15s", tilt: 8, desktopOnly: true },
 ];
 
 export function IvyBackdrop() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div className="ivy-veil absolute inset-0" />
-      {MARKS.map((c) => (
+      {MARKS.map((m) => (
         <div
-          key={c.name}
-          className={c.reverse ? "ivy-track ivy-track-reverse absolute" : "ivy-track absolute"}
-          style={{ top: c.top, animationDelay: c.delay, animationDuration: c.dur }}
+          key={m.name}
+          className={`absolute ${m.axis === "x" ? "ivy-drift-x" : "ivy-drift-y"} ${
+            m.desktopOnly ? "hidden lg:block" : ""
+          }`}
+          style={
+            {
+              top: m.top,
+              bottom: m.bottom,
+              left: m.left,
+              right: m.right,
+              "--ivy-x": `${m.dx}px`,
+              "--ivy-y": `${m.dy}px`,
+              "--ivy-dur": m.dur,
+              animationDelay: m.delay,
+            } as React.CSSProperties
+          }
         >
-          <span className="ivy-bob block" style={{ animationDelay: c.delay }}>
-            <img
-              src={c.src}
-              alt=""
-              loading="lazy"
-              width={c.size}
-              height={c.size}
-              style={{ width: c.size, height: "auto", transform: `rotate(${c.tilt}deg)` }}
-              className="ivy-crest object-contain"
-            />
-          </span>
+          <img
+            src={logo(m.name)}
+            alt=""
+            loading="lazy"
+            width={m.size}
+            height={m.size}
+            style={{ width: m.size, height: "auto", transform: `rotate(${m.tilt}deg)` }}
+            className="ivy-crest object-contain"
+          />
         </div>
       ))}
     </div>

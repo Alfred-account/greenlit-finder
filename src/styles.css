@@ -380,8 +380,10 @@
 @media (prefers-reduced-motion: reduce) {
   .cta-glow,
   .cta-glow::after,
-  .ivy-track,
-  .ivy-bob {
+  .ivy-drift-x,
+  .ivy-drift-y,
+  .tour-spotlight {
+
     animation: none;
   }
 }
