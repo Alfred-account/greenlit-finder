@@ -270,52 +270,68 @@
   }
 }
 
-@keyframes ivy-slide {
-  from {
-    transform: translateX(-20vw);
-  }
-  to {
-    transform: translateX(110vw);
-  }
-}
-
-@keyframes ivy-slide-reverse {
-  from {
-    transform: translateX(110vw);
-  }
-  to {
-    transform: translateX(-20vw);
-  }
-}
-
-@keyframes ivy-bob {
+/* Logos drift only inside the screen edges, never across the central copy. */
+@keyframes ivy-drift-x {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translateY(-18px);
+    transform: translate3d(var(--ivy-x, 60px), var(--ivy-y, 12px), 0);
   }
 }
 
-@utility ivy-track {
-  left: 0;
+@keyframes ivy-drift-y {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(var(--ivy-x, 14px), var(--ivy-y, 70px), 0);
+  }
+}
+
+@utility ivy-drift-x {
   will-change: transform;
-  animation: ivy-slide 60s linear infinite;
+  animation: ivy-drift-x var(--ivy-dur, 26s) ease-in-out infinite;
 }
 
-@utility ivy-track-reverse {
-  animation-name: ivy-slide-reverse;
-}
-
-@utility ivy-bob {
-  animation: ivy-bob 11s ease-in-out infinite;
+@utility ivy-drift-y {
+  will-change: transform;
+  animation: ivy-drift-y var(--ivy-dur, 30s) ease-in-out infinite;
 }
 
 .ivy-crest {
   opacity: 0.15;
   filter: saturate(0.6) contrast(0.95);
 }
+
+/* Neon spotlight used by the guided tour */
+@keyframes tour-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 22px rgba(16, 185, 129, 0.5),
+      inset 0 0 10px rgba(16, 185, 129, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 34px rgba(16, 185, 129, 0.75),
+      inset 0 0 14px rgba(16, 185, 129, 0.28);
+  }
+}
+
+.tour-spotlight {
+  border: 2px solid #10b981;
+  border-radius: 1rem;
+  animation: tour-glow 1.8s ease-in-out infinite;
+  transition:
+    top 0.4s ease-in-out,
+    left 0.4s ease-in-out,
+    width 0.4s ease-in-out,
+    height 0.4s ease-in-out;
+}
+
 
 /* Guided tour: dropdowns/popovers must float above the spotlight overlay. */
 .tour-active [data-radix-popper-content-wrapper] {
