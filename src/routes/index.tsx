@@ -128,15 +128,17 @@ function Home() {
   /** A real user choice ends the action phase: confirm, pause, move on. */
   function advance(key: string) {
     if (!step || step.key !== key || tourPhase !== "act") return;
+    const next = (tourStep ?? 0) + 1;
     setTourPhase("success");
     window.setTimeout(() => {
-      setTourStep((s) => {
-        if (s === null) return null;
-        setTourPhase("explain");
-        return s + 1;
-      });
-    }, 1500);
+      // Radix can leave the page pointer-locked when the dropdown closes at
+      // the same moment the tour advances — release it before the next step.
+      document.body.style.pointerEvents = "";
+      setTourPhase("explain");
+      setTourStep(next < TOUR_STEPS.length ? next : null);
+    }, 1100);
   }
+
 
 
 
