@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, HelpCircle, MousePointerClick, Sparkles, X } from "lucide-react";
 
@@ -31,8 +31,8 @@ const CARD_H = 220;
 export type TourPhase = "explain" | "act" | "success";
 
 /**
- * Spotlight overlay with a neon emerald highlight. The backdrop never closes
- * the tour — only the ✕ button, Esc, or finishing all steps do.
+ * Spotlight overlay with a soft, rounded emerald highlight. The backdrop never
+ * closes the tour — only the ✕ button, Esc, or finishing all steps do.
  * The card is placed in the largest free area so it can never sit on top of
  * the highlighted control or its opened dropdown.
  */
@@ -63,9 +63,25 @@ export function TourOverlay({
 }) {
   const { t } = useI18n();
   const [rect, setRect] = useState<Rect | null>(null);
+  const [popRect, setPopRect] = useState<Rect | null>(null);
   const [mounted, setMounted] = useState(false);
+  const frame = useRef(0);
 
   useEffect(() => setMounted(true), []);
+
+  // Radix locks `body { pointer-events: none }` while a dropdown is open; if
+  // the tour advances in the same tick the lock can outlive the dropdown and
+  // freeze the page. Clearing it on every phase change keeps the UI alive.
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      document.body.style.pointerEvents = "";
+    }, 60);
+    return () => window.clearTimeout(id);
+  }, [phase, selector]);
+
+  useEffect(() => () => {
+    document.body.style.pointerEvents = "";
+  }, []);
 
   // Esc is one of the two allowed exits.
   useEffect(() => {
@@ -77,32 +93,49 @@ export function TourOverlay({
   }, [onClose]);
 
   const measure = useCallback(() => {
-    if (!selector) {
-      setRect(null);
-      return;
+    const el = selector ? document.querySelector(selector) : null;
+    if (!el) setRect(null);
+    else {
+      const r = el.getBoundingClientRect();
+      setRect((prev) => {
+        const next = { top: r.top - PAD, left: r.left - PAD, width: r.width + PAD * 2, height: r.height + PAD * 2 };
+        if (
+          prev &&
+          Math.abs(prev.top - next.top) < 0.5 &&
+          Math.abs(prev.left - next.left) < 0.5 &&
+          Math.abs(prev.width - next.width) < 0.5 &&
+          Math.abs(prev.height - next.height) < 0.5
+        )
+          return prev;
+        return next;
+      });
     }
-    const el = document.querySelector(selector);
-    if (!el) {
-      setRect(null);
-      return;
+
+    // Track an open dropdown / popover so the card never covers it.
+    const pop = document.querySelector("[data-radix-popper-content-wrapper]");
+    if (!pop) setPopRect(null);
+    else {
+      const p = (pop.firstElementChild ?? pop).getBoundingClientRect();
+      setPopRect(
+        p.width === 0 && p.height === 0 ? null : { top: p.top, left: p.left, width: p.width, height: p.height },
+      );
     }
-    const r = el.getBoundingClientRect();
-    setRect({ top: r.top - PAD, left: r.left - PAD, width: r.width + PAD * 2, height: r.height + PAD * 2 });
   }, [selector]);
 
+  // Measuring every animation frame keeps the highlight glued to the element
+  // while it scrolls or the layout shifts — no visible lag.
   useLayoutEffect(() => {
     if (selector) {
       document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-    measure();
-    const id = window.setInterval(measure, 150);
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, true);
+    const loop = () => {
+      measure();
+      frame.current = window.requestAnimationFrame(loop);
+    };
+    loop();
     document.documentElement.classList.add("tour-active");
     return () => {
-      window.clearInterval(id);
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure, true);
+      window.cancelAnimationFrame(frame.current);
       document.documentElement.classList.remove("tour-active");
     };
   }, [measure, selector]);
@@ -114,57 +147,64 @@ export function TourOverlay({
   const cardWidth = Math.min(360, vw - 24);
   const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), Math.max(min, max));
 
-  // Free space on each side of the highlighted control. During the "act"
-  // phase a dropdown usually opens downwards, so below-space is discounted.
+  // Area the card must avoid: the highlighted control plus any dropdown that
+  // is currently open on top of it.
+  let avoid: Rect | null = rect;
+  if (rect && popRect) {
+    const top = Math.min(rect.top, popRect.top);
+    const left = Math.min(rect.left, popRect.left);
+    avoid = {
+      top,
+      left,
+      width: Math.max(rect.left + rect.width, popRect.left + popRect.width) - left,
+      height: Math.max(rect.top + rect.height, popRect.top + popRect.height) - top,
+    };
+  }
+
   let cardTop = Math.max(24, vh / 2 - CARD_H / 2);
   let cardLeft = Math.max(12, vw / 2 - cardWidth / 2);
 
-  if (rect) {
-    const spaceRight = vw - (rect.left + rect.width);
-    const spaceLeft = rect.left;
-    const spaceAbove = rect.top;
-    const spaceBelow = vh - (rect.top + rect.height) - (phase === "act" ? 300 : 0);
+  if (avoid) {
+    const spaceRight = vw - (avoid.left + avoid.width);
+    const spaceLeft = avoid.left;
+    const spaceAbove = avoid.top;
+    const spaceBelow = vh - (avoid.top + avoid.height);
 
     if (spaceRight >= cardWidth + 28) {
-      cardLeft = rect.left + rect.width + 16;
-      cardTop = clamp(rect.top, 12, vh - CARD_H - 12);
+      cardLeft = avoid.left + avoid.width + 16;
+      cardTop = clamp(avoid.top, 12, vh - CARD_H - 12);
     } else if (spaceLeft >= cardWidth + 28) {
-      cardLeft = rect.left - cardWidth - 16;
-      cardTop = clamp(rect.top, 12, vh - CARD_H - 12);
+      cardLeft = avoid.left - cardWidth - 16;
+      cardTop = clamp(avoid.top, 12, vh - CARD_H - 12);
     } else if (spaceAbove >= CARD_H + 20) {
-      cardTop = rect.top - CARD_H - 14;
-      cardLeft = clamp(rect.left + rect.width / 2 - cardWidth / 2, 12, vw - cardWidth - 12);
+      cardTop = avoid.top - CARD_H - 14;
+      cardLeft = clamp(avoid.left + avoid.width / 2 - cardWidth / 2, 12, vw - cardWidth - 12);
     } else if (spaceBelow >= CARD_H + 20) {
-      cardTop = rect.top + rect.height + 14;
-      cardLeft = clamp(rect.left + rect.width / 2 - cardWidth / 2, 12, vw - cardWidth - 12);
+      cardTop = avoid.top + avoid.height + 14;
+      cardLeft = clamp(avoid.left + avoid.width / 2 - cardWidth / 2, 12, vw - cardWidth - 12);
     } else {
       // Nothing fits comfortably: pin to whichever half has more room.
-      cardTop = spaceAbove > vh - spaceAbove ? 12 : clamp(vh - CARD_H - 12, 12, vh);
-      cardLeft = clamp(rect.left + rect.width / 2 - cardWidth / 2, 12, vw - cardWidth - 12);
+      cardTop = spaceAbove > spaceBelow ? 12 : clamp(vh - CARD_H - 12, 12, vh);
+      cardLeft = clamp(avoid.left + avoid.width / 2 - cardWidth / 2, 12, vw - cardWidth - 12);
     }
   }
-
-  const block = "fixed bg-black/45 backdrop-blur-[2px]";
 
   return createPortal(
     <div className="fixed inset-0 z-[9990]" role="dialog" aria-modal="true" aria-label={title}>
       {rect ? (
-        <>
-          <div className={block} style={{ top: 0, left: 0, right: 0, height: Math.max(0, rect.top) }} />
-          <div className={block} style={{ top: rect.top + rect.height, left: 0, right: 0, bottom: 0 }} />
-          <div className={block} style={{ top: rect.top, left: 0, width: Math.max(0, rect.left), height: rect.height }} />
-          <div className={block} style={{ top: rect.top, left: rect.left + rect.width, right: 0, height: rect.height }} />
-          <div
-            className="tour-spotlight pointer-events-none fixed"
-            style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
-          />
-        </>
+        // One single element: the dimmed backdrop is painted by a huge soft
+        // shadow around a rounded cut-out, so the edges stay smooth and the
+        // whole thing glides in one piece — no seams, no lag.
+        <div
+          className="tour-spotlight pointer-events-none fixed"
+          style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
+        />
       ) : (
-        <div className={`${block} inset-0`} />
+        <div className="fixed inset-0 bg-black/45 backdrop-blur-[2px] transition-opacity duration-300" />
       )}
 
       <div
-        className="shadow-lift fixed z-[10050] rounded-2xl border border-primary/40 bg-card p-4 text-left transition-all duration-300 ease-in-out"
+        className="tour-card shadow-lift fixed z-[10050] rounded-2xl border border-primary/40 bg-card p-4 text-left"
         style={{ top: cardTop, left: cardLeft, width: cardWidth }}
       >
         <button
