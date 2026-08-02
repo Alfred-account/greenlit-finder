@@ -21,6 +21,10 @@ const ru: Dict = {
   "delivery.online": "Онлайн",
   "delivery.offline": "Офлайн",
   "delivery.hybrid": "Гибрид",
+  "delivery.hybridHelpTitle": "Что такое гибрид?",
+  "delivery.hybridHelpText":
+    "Гибрид — часть этапов проходит онлайн (отбор, тесты), а часть очно (финал, защита). Уточняйте детали у организатора.",
+
   "dialog.delivery": "Участие",
   "dialog.instagram": "Instagram",
   "dialog.register": "Регистрация",
