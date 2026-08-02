@@ -194,20 +194,18 @@ function AuthPage() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-sm">{t("auth.username")}</Label>
-                      <div className="relative">
-                        <AtSign className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                          required
-                          maxLength={20}
-                          autoComplete="username"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
-                          placeholder={t("auth.usernamePlaceholder")}
-                          className="h-11 rounded-xl pl-9"
-                        />
-                      </div>
+                      <Input
+                        required
+                        maxLength={20}
+                        autoComplete="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
+                        placeholder={t("auth.usernamePlaceholder")}
+                        className="h-11 rounded-xl"
+                      />
                       <p className="text-xs text-muted-foreground">{t("auth.usernameHint")}</p>
                     </div>
+
                   </>
                 )}
                 {mode === "up" ? (
