@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { AtSign, ArrowLeft, LogIn, Mail, UserPlus } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, LogIn, Mail, UserPlus } from "lucide-react";
+
 import { toast } from "sonner";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -44,6 +45,8 @@ function AuthPage() {
   const [identifier, setIdentifier] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const namePlaceholder = useMemo(() => sampleName(lang), [lang]);
@@ -88,7 +91,7 @@ function AuthPage() {
           toast.error(t("auth.usernameTaken"));
           return;
         }
-        const { error } = await supabase.auth.signUp({
+        const { data: signed, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -97,8 +100,22 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        // Accounts are confirmed instantly — no email code step.
+        if (signed.session) {
+          toast.success(t("auth.welcome"));
+          navigate({ to: "/", replace: true });
+          return;
+        }
+        const res = await signIn({ data: { identifier: email, password } });
+        if ("session" in res && res.session) {
+          await supabase.auth.setSession(res.session);
+          toast.success(t("auth.welcome"));
+          navigate({ to: "/", replace: true });
+          return;
+        }
         setSent(true);
         toast.success(t("auth.checkEmail"));
+
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -193,20 +210,18 @@ function AuthPage() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-sm">{t("auth.username")}</Label>
-                      <div className="relative">
-                        <AtSign className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                          required
-                          maxLength={20}
-                          autoComplete="username"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
-                          placeholder={t("auth.usernamePlaceholder")}
-                          className="h-11 rounded-xl pl-9"
-                        />
-                      </div>
+                      <Input
+                        required
+                        maxLength={20}
+                        autoComplete="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
+                        placeholder={t("auth.usernamePlaceholder")}
+                        className="h-11 rounded-xl"
+                      />
                       <p className="text-xs text-muted-foreground">{t("auth.usernameHint")}</p>
                     </div>
+
                   </>
                 )}
                 {mode === "up" ? (
@@ -237,21 +252,33 @@ function AuthPage() {
 
                 <div className="space-y-1.5">
                   <Label className="text-sm">{t("auth.password")}</Label>
-                  <Input
-                    required
-                    minLength={mode === "up" ? 8 : 6}
-                    type="password"
-                    autoComplete={mode === "in" ? "current-password" : "new-password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-xl"
-                  />
+                  <div className="relative">
+                    <Input
+                      required
+                      minLength={mode === "up" ? 8 : 6}
+                      type={showPassword ? "text" : "password"}
+                      autoComplete={mode === "in" ? "current-password" : "new-password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-11 rounded-xl pr-11"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
+                      title={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
+                      className="absolute top-1/2 right-2 grid size-8 -translate-y-1/2 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
                   {mode === "up" && (
                     <p className={`text-xs ${passwordTooShort ? "text-destructive" : "text-muted-foreground"}`}>
                       {passwordTooShort ? t("auth.passwordShort") : t("auth.passwordHint")}
                     </p>
                   )}
                 </div>
+
                 <Button
                   type="submit"
                   disabled={busy}

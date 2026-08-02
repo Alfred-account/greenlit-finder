@@ -21,6 +21,10 @@ const ru: Dict = {
   "delivery.online": "Онлайн",
   "delivery.offline": "Офлайн",
   "delivery.hybrid": "Гибрид",
+  "delivery.hybridHelpTitle": "Что такое гибрид?",
+  "delivery.hybridHelpText":
+    "Гибрид — часть этапов проходит онлайн (отбор, тесты), а часть очно (финал, защита). Уточняйте детали у организатора.",
+
   "dialog.delivery": "Участие",
   "dialog.instagram": "Instagram",
   "dialog.register": "Регистрация",
@@ -103,6 +107,10 @@ const kk: Dict = {
   "delivery.online": "Онлайн",
   "delivery.offline": "Офлайн",
   "delivery.hybrid": "Аралас",
+  "delivery.hybridHelpTitle": "Аралас деген не?",
+  "delivery.hybridHelpText":
+    "Аралас — кезеңдердің бір бөлігі онлайн (іріктеу, тест), бір бөлігі оффлайн (финал, қорғау) өтеді. Нақтысын ұйымдастырушыдан сұраңыз.",
+
   "dialog.delivery": "Қатысу",
   "dialog.instagram": "Instagram",
   "dialog.register": "Тіркелу",
@@ -185,6 +193,10 @@ const en: Dict = {
   "delivery.online": "Online",
   "delivery.offline": "Offline",
   "delivery.hybrid": "Hybrid",
+  "delivery.hybridHelpTitle": "What is hybrid?",
+  "delivery.hybridHelpText":
+    "Hybrid means some stages run online (screening, tests) and others in person (final, defence). Check the details with the organiser.",
+
   "dialog.delivery": "Participation",
   "dialog.instagram": "Instagram",
   "dialog.register": "Registration",
@@ -453,6 +465,8 @@ Object.assign(ru, {
   "auth.name": "Имя",
   "auth.namePlaceholder": "Айгерим",
   "auth.passwordHint": "Минимум 8 символов",
+  "auth.showPassword": "Показать пароль",
+  "auth.hidePassword": "Скрыть пароль",
   "auth.passwordShort": "Пароль должен содержать минимум 8 символов",
   "auth.tabIn": "Вход",
   "auth.tabUp": "Регистрация",
@@ -496,6 +510,8 @@ Object.assign(kk, {
   "auth.name": "Аты",
   "auth.namePlaceholder": "Айгерім",
   "auth.passwordHint": "Кемінде 8 таңба",
+  "auth.showPassword": "Құпиясөзді көрсету",
+  "auth.hidePassword": "Құпиясөзді жасыру",
   "auth.passwordShort": "Құпиясөз кемінде 8 таңбадан тұруы керек",
   "auth.tabIn": "Кіру",
   "auth.tabUp": "Тіркелу",
@@ -539,6 +555,8 @@ Object.assign(en, {
   "auth.name": "Name",
   "auth.namePlaceholder": "Aigerim",
   "auth.passwordHint": "At least 8 characters",
+  "auth.showPassword": "Show password",
+  "auth.hidePassword": "Hide password",
   "auth.passwordShort": "Password must be at least 8 characters",
   "auth.tabIn": "Sign in",
   "auth.tabUp": "Sign up",

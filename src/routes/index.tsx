@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowDown, Bookmark, Filter, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
+import { ArrowDown, Bookmark, Filter, Info, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
 
 import { AccountMenu } from "@/components/account-menu";
 import { CityField } from "@/components/city-field";
@@ -16,6 +16,8 @@ import { OpportunityDialog } from "@/components/opportunity-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSavedOpportunities } from "@/hooks/use-saved";
 import { fetchOpportunities } from "@/lib/airtable.functions";
@@ -58,10 +60,9 @@ const TOUR_STEPS = [
   { key: "format", selector: '[data-tour="format"]', title: "tour.s4.title", text: "tour.s4.text" },
   { key: "delivery", selector: '[data-tour="delivery"]', title: "tour.s5.title", text: "tour.s5.text" },
   { key: "country", selector: '[data-tour="country"]', title: "tour.s6.title", text: "tour.s6.text" },
-  { key: "city", selector: '[data-tour="city"]', title: "tour.s7.title", text: "tour.s7.text", optional: true },
-  { key: "dates", selector: '[data-tour="dates"]', title: "tour.s8.title", text: "tour.s8.text", optional: true },
   { key: "done", selector: null, title: "tour.s9.title", text: "tour.s9.text", last: true },
 ] as const;
+
 
 
 function Home() {
@@ -129,15 +130,17 @@ function Home() {
   /** A real user choice ends the action phase: confirm, pause, move on. */
   function advance(key: string) {
     if (!step || step.key !== key || tourPhase !== "act") return;
+    const next = (tourStep ?? 0) + 1;
     setTourPhase("success");
     window.setTimeout(() => {
-      setTourStep((s) => {
-        if (s === null) return null;
-        setTourPhase("explain");
-        return s + 1;
-      });
-    }, 1500);
+      // Radix can leave the page pointer-locked when the dropdown closes at
+      // the same moment the tour advances — release it before the next step.
+      document.body.style.pointerEvents = "";
+      setTourPhase("explain");
+      setTourStep(next < TOUR_STEPS.length ? next : null);
+    }, 1100);
   }
+
 
 
 
@@ -347,6 +350,7 @@ function Home() {
             <div data-tour="delivery">
               <FilterSelect
                 label={t("filter.delivery")}
+                info={<HybridHelp />}
                 value={delivery}
                 onChange={(v) => {
                   setDelivery(v);
@@ -357,6 +361,7 @@ function Home() {
                 autoOpen={activeKey === "delivery"}
               />
             </div>
+
             <div data-tour="country">
               <FilterSelect
                 label={t("filter.country")}
@@ -377,13 +382,10 @@ function Home() {
                 label={t("filter.city")}
                 country={country === ALL ? "" : country}
                 value={city}
-                onChange={(v) => {
-                  setCity(v);
-                  if (v) advance("city");
-                }}
-                autoOpen={activeKey === "city"}
+                onChange={setCity}
               />
             </div>
+
 
             <FilterSelect
               label={t("filter.sort")}
@@ -397,17 +399,11 @@ function Home() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2" data-tour="dates">
-              <DateField
-                label={t("filter.from")}
-                value={from}
-                onChange={(v) => {
-                  setFrom(v);
-                  if (v) advance("dates");
-                }}
-                autoOpen={activeKey === "dates"}
-              />
+              <DateField label={t("filter.from")} value={from} onChange={setFrom} />
               <DateField label={t("filter.to")} value={to} onChange={setTo} />
             </div>
+
+
 
             <div className="flex items-end">
               <Button
@@ -487,8 +483,31 @@ function Home() {
   );
 }
 
+/** Small "?" bubble explaining what the hybrid participation format means. */
+function HybridHelp() {
+  const { t } = useI18n();
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label={t("delivery.hybridHelpTitle")}
+          className="grid size-4 shrink-0 place-items-center rounded-full border border-primary/40 text-primary transition-transform hover:scale-110"
+        >
+          <Info className="size-3" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64 rounded-xl text-sm">
+        <p className="font-semibold text-primary">{t("delivery.hybridHelpTitle")}</p>
+        <p className="mt-1 text-muted-foreground">{t("delivery.hybridHelpText")}</p>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function FilterSelect({
   label,
+  info,
   value,
   onChange,
   options,
@@ -497,6 +516,7 @@ function FilterSelect({
   autoOpen = false,
 }: {
   label: string;
+  info?: React.ReactNode;
   value: string;
   onChange: (v: string) => void;
   options: string[];
@@ -516,7 +536,11 @@ function FilterSelect({
 
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <div className="flex items-center gap-1.5">
+        <Label className="text-xs text-muted-foreground">{label}</Label>
+        {info}
+      </div>
+
       <Select value={value} onValueChange={onChange} open={open} onOpenChange={setOpen}>
         <SelectTrigger className="h-11 w-full rounded-xl">
           <SelectValue placeholder={t("filter.all")} />
