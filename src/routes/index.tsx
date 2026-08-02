@@ -58,10 +58,9 @@ const TOUR_STEPS = [
   { key: "format", selector: '[data-tour="format"]', title: "tour.s4.title", text: "tour.s4.text" },
   { key: "delivery", selector: '[data-tour="delivery"]', title: "tour.s5.title", text: "tour.s5.text" },
   { key: "country", selector: '[data-tour="country"]', title: "tour.s6.title", text: "tour.s6.text" },
-  { key: "city", selector: '[data-tour="city"]', title: "tour.s7.title", text: "tour.s7.text", optional: true },
-  { key: "dates", selector: '[data-tour="dates"]', title: "tour.s8.title", text: "tour.s8.text", optional: true },
   { key: "done", selector: null, title: "tour.s9.title", text: "tour.s9.text", last: true },
 ] as const;
+
 
 
 function Home() {
