@@ -238,21 +238,33 @@ function AuthPage() {
 
                 <div className="space-y-1.5">
                   <Label className="text-sm">{t("auth.password")}</Label>
-                  <Input
-                    required
-                    minLength={mode === "up" ? 8 : 6}
-                    type="password"
-                    autoComplete={mode === "in" ? "current-password" : "new-password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-xl"
-                  />
+                  <div className="relative">
+                    <Input
+                      required
+                      minLength={mode === "up" ? 8 : 6}
+                      type={showPassword ? "text" : "password"}
+                      autoComplete={mode === "in" ? "current-password" : "new-password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-11 rounded-xl pr-11"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
+                      title={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
+                      className="absolute top-1/2 right-2 grid size-8 -translate-y-1/2 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
                   {mode === "up" && (
                     <p className={`text-xs ${passwordTooShort ? "text-destructive" : "text-muted-foreground"}`}>
                       {passwordTooShort ? t("auth.passwordShort") : t("auth.passwordHint")}
                     </p>
                   )}
                 </div>
+
                 <Button
                   type="submit"
                   disabled={busy}
