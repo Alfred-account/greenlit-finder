@@ -193,6 +193,10 @@ const en: Dict = {
   "delivery.online": "Online",
   "delivery.offline": "Offline",
   "delivery.hybrid": "Hybrid",
+  "delivery.hybridHelpTitle": "What is hybrid?",
+  "delivery.hybridHelpText":
+    "Hybrid means some stages run online (screening, tests) and others in person (final, defence). Check the details with the organiser.",
+
   "dialog.delivery": "Participation",
   "dialog.instagram": "Instagram",
   "dialog.register": "Registration",
