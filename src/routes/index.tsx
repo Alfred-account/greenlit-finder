@@ -16,6 +16,8 @@ import { OpportunityDialog } from "@/components/opportunity-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSavedOpportunities } from "@/hooks/use-saved";
 import { fetchOpportunities } from "@/lib/airtable.functions";
