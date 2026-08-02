@@ -481,8 +481,31 @@ function Home() {
   );
 }
 
+/** Small "?" bubble explaining what the hybrid participation format means. */
+function HybridHelp() {
+  const { t } = useI18n();
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label={t("delivery.hybridHelpTitle")}
+          className="grid size-4 shrink-0 place-items-center rounded-full border border-primary/40 text-primary transition-transform hover:scale-110"
+        >
+          <Info className="size-3" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64 rounded-xl text-sm">
+        <p className="font-semibold text-primary">{t("delivery.hybridHelpTitle")}</p>
+        <p className="mt-1 text-muted-foreground">{t("delivery.hybridHelpText")}</p>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function FilterSelect({
   label,
+  info,
   value,
   onChange,
   options,
@@ -491,6 +514,7 @@ function FilterSelect({
   autoOpen = false,
 }: {
   label: string;
+  info?: React.ReactNode;
   value: string;
   onChange: (v: string) => void;
   options: string[];
@@ -510,7 +534,11 @@ function FilterSelect({
 
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <div className="flex items-center gap-1.5">
+        <Label className="text-xs text-muted-foreground">{label}</Label>
+        {info}
+      </div>
+
       <Select value={value} onValueChange={onChange} open={open} onOpenChange={setOpen}>
         <SelectTrigger className="h-11 w-full rounded-xl">
           <SelectValue placeholder={t("filter.all")} />
