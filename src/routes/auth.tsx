@@ -89,7 +89,7 @@ function AuthPage() {
           toast.error(t("auth.usernameTaken"));
           return;
         }
-        const { error } = await supabase.auth.signUp({
+        const { data: signed, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -98,8 +98,22 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        // Accounts are confirmed instantly — no email code step.
+        if (signed.session) {
+          toast.success(t("auth.welcome"));
+          navigate({ to: "/", replace: true });
+          return;
+        }
+        const res = await signIn({ data: { identifier: email, password } });
+        if ("session" in res && res.session) {
+          await supabase.auth.setSession(res.session);
+          toast.success(t("auth.welcome"));
+          navigate({ to: "/", replace: true });
+          return;
+        }
         setSent(true);
         toast.success(t("auth.checkEmail"));
+
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
