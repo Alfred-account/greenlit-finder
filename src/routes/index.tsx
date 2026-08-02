@@ -348,6 +348,7 @@ function Home() {
             <div data-tour="delivery">
               <FilterSelect
                 label={t("filter.delivery")}
+                info={<HybridHelp />}
                 value={delivery}
                 onChange={(v) => {
                   setDelivery(v);
@@ -358,6 +359,7 @@ function Home() {
                 autoOpen={activeKey === "delivery"}
               />
             </div>
+
             <div data-tour="country">
               <FilterSelect
                 label={t("filter.country")}
