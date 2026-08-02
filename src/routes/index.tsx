@@ -376,13 +376,10 @@ function Home() {
                 label={t("filter.city")}
                 country={country === ALL ? "" : country}
                 value={city}
-                onChange={(v) => {
-                  setCity(v);
-                  if (v) advance("city");
-                }}
-                autoOpen={activeKey === "city"}
+                onChange={setCity}
               />
             </div>
+
 
             <FilterSelect
               label={t("filter.sort")}
