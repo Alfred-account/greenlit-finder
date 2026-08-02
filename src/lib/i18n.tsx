@@ -107,6 +107,10 @@ const kk: Dict = {
   "delivery.online": "Онлайн",
   "delivery.offline": "Офлайн",
   "delivery.hybrid": "Аралас",
+  "delivery.hybridHelpTitle": "Аралас деген не?",
+  "delivery.hybridHelpText":
+    "Аралас — кезеңдердің бір бөлігі онлайн (іріктеу, тест), бір бөлігі оффлайн (финал, қорғау) өтеді. Нақтысын ұйымдастырушыдан сұраңыз.",
+
   "dialog.delivery": "Қатысу",
   "dialog.instagram": "Instagram",
   "dialog.register": "Тіркелу",
