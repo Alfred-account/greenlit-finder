@@ -397,8 +397,7 @@ function Home() {
               <DateField label={t("filter.to")} value={to} onChange={setTo} />
             </div>
 
-              <DateField label={t("filter.to")} value={to} onChange={setTo} />
-            </div>
+
 
             <div className="flex items-end">
               <Button
