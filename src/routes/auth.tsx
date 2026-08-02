@@ -45,6 +45,8 @@ function AuthPage() {
   const [identifier, setIdentifier] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const namePlaceholder = useMemo(() => sampleName(lang), [lang]);
