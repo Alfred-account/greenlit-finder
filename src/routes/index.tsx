@@ -393,15 +393,10 @@ function Home() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2" data-tour="dates">
-              <DateField
-                label={t("filter.from")}
-                value={from}
-                onChange={(v) => {
-                  setFrom(v);
-                  if (v) advance("dates");
-                }}
-                autoOpen={activeKey === "dates"}
-              />
+              <DateField label={t("filter.from")} value={from} onChange={setFrom} />
+              <DateField label={t("filter.to")} value={to} onChange={setTo} />
+            </div>
+
               <DateField label={t("filter.to")} value={to} onChange={setTo} />
             </div>
 
