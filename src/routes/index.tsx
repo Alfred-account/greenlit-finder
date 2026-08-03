@@ -474,7 +474,7 @@ function Home() {
           onClose={() => setTourStep(null)}
           onGotIt={() => setTourPhase("act")}
           onSkip={() => goToStep((tourStep ?? 0) + 1)}
-          showSkip={"optional" in step}
+          showSkip
           isLast={"last" in step && step.last}
         />
 
