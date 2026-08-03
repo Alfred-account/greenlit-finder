@@ -274,13 +274,15 @@ function Home() {
             <Megaphone className="size-5" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-semibold">{t("banner.title")}</span>
+            <h2 className="block font-semibold">{t("banner.title")}</h2>
             <span className="block text-sm text-muted-foreground">{t("banner.subtitle")}</span>
           </span>
           <span className="w-full rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground sm:w-auto">
             {t("banner.action")}
           </span>
         </Link>
+
+        <h2 className="sr-only">{t("catalog.heading")}</h2>
 
         <div className="shadow-soft space-y-4 rounded-2xl border border-border/70 bg-card p-4 sm:space-y-5 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
