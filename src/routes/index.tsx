@@ -230,7 +230,10 @@ function Home() {
           style={{ animationDelay: "80ms" }}
         >
           Green Lit&nbsp;Space
+          <span className="sr-only"> — {t("hero.descriptor")}</span>
         </h1>
+
+        <h2 className="sr-only">{t("hero.h2")}</h2>
 
         <p
           className="rise-in relative mt-4 max-w-xl text-sm text-balance text-muted-foreground sm:text-lg"
