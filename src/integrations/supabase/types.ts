@@ -65,7 +65,10 @@ export type Database = {
     }
     Functions: {
       username_available: { Args: { _username: string }; Returns: boolean }
-      username_login_email: { Args: { _username: string }; Returns: string }
+      username_login_email: {
+        Args: { _password: string; _username: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
