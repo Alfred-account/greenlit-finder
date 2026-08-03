@@ -207,6 +207,9 @@ const en: Dict = {
   "hero.subtitle":
     "Olympiads, contests and programs that open doors. Find the right one by field, grade, format and deadline.",
   "hero.cta": "Start searching",
+  "hero.tagline": "catalog of olympiads and opportunities",
+  "hero.h2": "Discover opportunities that fit you",
+  "catalog.heading": "Opportunities catalog",
   "banner.title": "Share your opportunity for free!",
   "banner.subtitle": "Organizing an olympiad or contest? We'll publish it after a quick review.",
   "banner.action": "Fill the form",
