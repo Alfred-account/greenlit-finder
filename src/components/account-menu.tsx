@@ -24,7 +24,7 @@ export function AccountMenu() {
   if (!user) {
     return (
       <Button asChild variant="outline" size="sm" className="rounded-full border-primary/40 text-primary">
-        <Link to="/auth">
+        <Link to="/auth" aria-label={t("auth.signIn")}>
           <LogIn className="size-4" /> <span className="hidden sm:inline">{t("auth.signIn")}</span>
         </Link>
       </Button>

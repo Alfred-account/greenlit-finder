@@ -35,6 +35,9 @@ const ru: Dict = {
   "hero.subtitle":
     "Олимпиады, конкурсы и программы, которые открывают двери. Найди то, что подходит именно тебе — по направлению, классу, формату и дедлайну.",
   "hero.cta": "Начать поиск",
+  "hero.descriptor": "каталог олимпиад и возможностей",
+  "hero.h2": "Найди возможности, которые подходят именно тебе",
+  "catalog.heading": "Каталог возможностей",
   "banner.title": "Поделись своей возможностью бесплатно!",
   "banner.subtitle": "Организуешь олимпиаду или конкурс? Разместим после быстрой модерации.",
   "banner.action": "Заполнить форму",
@@ -121,6 +124,9 @@ const kk: Dict = {
   "hero.subtitle":
     "Есік ашатын олимпиадалар, байқаулар мен бағдарламалар. Бағыт, сынып, формат және мерзім бойынша өзіңе қолайлысын тап.",
   "hero.cta": "Іздеуді бастау",
+  "hero.descriptor": "олимпиадалар мен мүмкіндіктер каталогы",
+  "hero.h2": "Өзіңе қолайлы мүмкіндіктерді тап",
+  "catalog.heading": "Мүмкіндіктер каталогы",
   "banner.title": "Өз мүмкіндігіңмен тегін бөліс!",
   "banner.subtitle": "Олимпиада не байқау ұйымдастырасың ба? Жылдам модерациядан кейін жариялаймыз.",
   "banner.action": "Форманы толтыру",
@@ -207,6 +213,9 @@ const en: Dict = {
   "hero.subtitle":
     "Olympiads, contests and programs that open doors. Find the right one by field, grade, format and deadline.",
   "hero.cta": "Start searching",
+  "hero.descriptor": "catalog of olympiads and opportunities",
+  "hero.h2": "Discover opportunities that fit you",
+  "catalog.heading": "Opportunities catalog",
   "banner.title": "Share your opportunity for free!",
   "banner.subtitle": "Organizing an olympiad or contest? We'll publish it after a quick review.",
   "banner.action": "Fill the form",
