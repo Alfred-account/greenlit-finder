@@ -3,9 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 
 export const USERNAME_RE = /^[a-zA-Z0-9_]{3,20}$/;
 
+/**
+ * Publishable-key client. Deliberately avoids the service-role key so the app
+ * works on any host (Vercel included) with only the public env vars set.
+ */
 function serverAuthClient() {
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  return createClient(process.env["SUPABASE_URL"]!, key, {
+  const url = process.env["SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"]!;
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_PUBLISHABLE_KEY"]!;
+  return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {
       fetch: (input: RequestInfo | URL, init?: RequestInit) => {
@@ -24,19 +29,17 @@ export const checkUsername = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const username = data.username.trim().toLowerCase();
     if (!USERNAME_RE.test(username)) return { available: false, invalid: true };
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq("username", username)
-      .maybeSingle();
-    return { available: !row, invalid: false };
+    const { data: free, error } = await serverAuthClient().rpc("username_available", { _username: username });
+    // On an unexpected backend error don't block sign-up: the unique index
+    // on profiles.username is the real guard.
+    if (error) return { available: true, invalid: false };
+    return { available: free !== false, invalid: false };
   });
 
 /**
- * Sign in with either an email or a username. The username → email lookup
- * happens server-side only, so no email address is ever exposed to the client;
- * a session comes back only when the password is correct.
+ * Sign in with either an email or a username. The username → email lookup runs
+ * inside a database function that only answers when the password is correct,
+ * so no email address can ever be discovered from a username.
  */
 export const signInWithIdentifier = createServerFn({ method: "POST" })
   .inputValidator((data: { identifier: string; password: string }) => data)
@@ -44,24 +47,18 @@ export const signInWithIdentifier = createServerFn({ method: "POST" })
     const identifier = data.identifier.trim();
     if (!identifier || !data.password) return { error: "invalid" as const };
 
+    const client = serverAuthClient();
     let email = identifier;
     if (!identifier.includes("@")) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: row } = await supabaseAdmin
-        .from("profiles")
-        .select("id")
-        .eq("username", identifier.toLowerCase())
-        .maybeSingle();
-      if (!row) return { error: "invalid" as const };
-      const { data: userRes } = await supabaseAdmin.auth.admin.getUserById(row.id);
-      if (!userRes?.user?.email) return { error: "invalid" as const };
-      email = userRes.user.email;
+      const { data: found } = await client.rpc("username_login_email", {
+        _username: identifier.toLowerCase(),
+        _password: data.password,
+      });
+      if (!found) return { error: "invalid" as const };
+      email = found as string;
     }
 
-    const { data: signed, error } = await serverAuthClient().auth.signInWithPassword({
-      email,
-      password: data.password,
-    });
+    const { data: signed, error } = await client.auth.signInWithPassword({ email, password: data.password });
     if (error || !signed.session) {
       return { error: error?.message === "Email not confirmed" ? ("unconfirmed" as const) : ("invalid" as const) };
     }

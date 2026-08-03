@@ -474,7 +474,7 @@ function Home() {
           onClose={() => setTourStep(null)}
           onGotIt={() => setTourPhase("act")}
           onSkip={() => goToStep((tourStep ?? 0) + 1)}
-          showSkip={"optional" in step}
+          showSkip
           isLast={"last" in step && step.last}
         />
 
@@ -527,12 +527,14 @@ function FilterSelect({
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
 
-  // During the guided tour the current filter opens by itself.
+  // During the guided tour the current filter opens by itself. If the user
+  // closes it (or picks the value it already had) it opens again shortly
+  // after, so the tour can never get stuck on a closed dropdown.
   useEffect(() => {
     if (!autoOpen) return;
-    const id = window.setTimeout(() => setOpen(true), 500);
+    const id = window.setTimeout(() => setOpen(true), open ? 900 : 500);
     return () => window.clearTimeout(id);
-  }, [autoOpen]);
+  }, [autoOpen, open]);
 
   return (
     <div className="space-y-1.5">
