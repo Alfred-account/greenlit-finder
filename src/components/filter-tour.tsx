@@ -190,7 +190,12 @@ export function TourOverlay({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[9990]" role="dialog" aria-modal="true" aria-label={title}>
+    <div
+      className={`fixed inset-0 z-[9990] ${phase === "act" ? "pointer-events-none" : ""}`}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
       {rect ? (
         // One single element: the dimmed backdrop is painted by a huge soft
         // shadow around a rounded cut-out, so the edges stay smooth and the
@@ -200,11 +205,15 @@ export function TourOverlay({
           style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
         />
       ) : (
-        <div className="fixed inset-0 bg-black/45 backdrop-blur-[2px] transition-opacity duration-300" />
+        <div
+          className={`fixed inset-0 bg-black/45 backdrop-blur-[2px] transition-opacity duration-300 ${
+            phase === "act" ? "pointer-events-none" : ""
+          }`}
+        />
       )}
 
       <div
-        className="tour-card shadow-lift fixed z-[10050] rounded-2xl border border-primary/40 bg-card p-4 text-left"
+        className="tour-card shadow-lift pointer-events-auto fixed z-[10050] rounded-2xl border border-primary/40 bg-card p-4 text-left"
         style={{ top: cardTop, left: cardLeft, width: cardWidth }}
       >
         <button
