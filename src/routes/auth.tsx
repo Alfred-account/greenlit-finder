@@ -125,6 +125,19 @@ function AuthPage() {
   }
 
   async function onGoogle() {
+    // The Lovable OAuth broker (/~oauth/*) only exists on *.lovable.app hosts.
+    // On any other host (Vercel, custom domain) it 404s — go straight to Supabase.
+    const onLovableHost = /(^|\.)lovable\.app$/.test(window.location.hostname);
+
+    if (!onLovableHost) {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin },
+      });
+      if (error) toast.error(error.message);
+      return;
+    }
+
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
     if (result.error) {
       toast.error(result.error.message);
@@ -133,6 +146,7 @@ function AuthPage() {
     if (result.redirected) return;
     navigate({ to: "/", replace: true });
   }
+
 
 
   return (
