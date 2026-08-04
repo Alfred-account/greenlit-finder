@@ -431,10 +431,18 @@ function Home() {
           </div>
         </div>
 
+        {!isPending && data?.source === "sample" && (
+          <div className="mt-6 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-foreground">
+            <p className="font-medium">Показаны демо-данные — Airtable недоступен.</p>
+            {data.error && <p className="mt-1 break-words font-mono text-xs text-muted-foreground">{data.error}</p>}
+          </div>
+        )}
+
         <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="size-4" />
           {isPending ? t("list.loading") : `${t("list.found")}: ${filtered.length}`}
         </div>
+
 
         <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {isPending

@@ -131,9 +131,28 @@ export const fetchOpportunities = createServerFn({ method: "GET" }).handler(asyn
       return { items: SAMPLE_OPPORTUNITIES, source: "sample", error: message };
     }
 
-    const data = (await res.json()) as { records?: { id: string; fields: Fields }[] };
-    const records = data.records ?? [];
+    let data = (await res.json()) as { records?: { id: string; fields: Fields }[] };
+    let records = data.records ?? [];
+
+    // A table where nobody ticked {Published} returns 0 rows — show the real
+    // rows instead of demo data.
+    if (records.length === 0) {
+      console.warn(`[airtable] Filtered query returned 0 records — retrying without filterByFormula`);
+      const retry = await request(false);
+      if (retry.res.ok) {
+        data = (await retry.res.json()) as { records?: { id: string; fields: Fields }[] };
+        records = data.records ?? [];
+      }
+    }
+
     console.log(`[airtable] Loaded ${records.length} records from table "${config.table}"`);
+    if (records.length === 0) {
+      return {
+        items: [],
+        source: "airtable",
+        error: `[airtable] Table "${config.table}" in base "${config.baseId}" returned 0 records.`,
+      };
+    }
     return { items: records.map(mapRecord), source: "airtable" };
   } catch (e) {
     const message = `[airtable] Network error: ${e instanceof Error ? `${e.name}: ${e.message}` : String(e)}`;
