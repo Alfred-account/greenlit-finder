@@ -117,7 +117,13 @@ export function OpportunityDialog({
                 </Button>
               )}
               {(item.registerUrl || item.instagram) && (
-                <div className="grid gap-2 sm:grid-cols-2">
+                <div
+                  className={
+                    item.registerUrl && item.instagram
+                      ? "grid gap-2 sm:grid-cols-2"
+                      : "grid gap-2 grid-cols-1"
+                  }
+                >
                   {item.registerUrl && (
                     <Button asChild variant="outline" size="lg" className="w-full rounded-xl border-primary/40 text-primary">
                       <a href={item.registerUrl} target="_blank" rel="noopener noreferrer">
