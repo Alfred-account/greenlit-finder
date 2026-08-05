@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -49,6 +50,7 @@ function AuthPage() {
 
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [code, setCode] = useState("");
   const namePlaceholder = useMemo(() => sampleName(lang), [lang]);
 
   useEffect(() => {
@@ -91,28 +93,14 @@ function AuthPage() {
           toast.error(t("auth.usernameTaken"));
           return;
         }
-        const { data: signed, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/welcome`,
             data: { full_name: name.trim(), username: username.trim().toLowerCase() },
           },
         });
         if (error) throw error;
-        // Accounts are confirmed instantly — no email code step.
-        if (signed.session) {
-          toast.success(t("auth.welcome"));
-          navigate({ to: "/", replace: true });
-          return;
-        }
-        const res = await signIn({ data: { identifier: email, password } });
-        if ("session" in res && res.session) {
-          await supabase.auth.setSession(res.session);
-          toast.success(t("auth.welcome"));
-          navigate({ to: "/", replace: true });
-          return;
-        }
         setSent(true);
         toast.success(t("auth.checkEmail"));
 
@@ -125,19 +113,6 @@ function AuthPage() {
   }
 
   async function onGoogle() {
-    // The Lovable OAuth broker (/~oauth/*) only exists on *.lovable.app hosts.
-    // On any other host (Vercel, custom domain) it 404s — go straight to Supabase.
-    const onLovableHost = /(^|\.)lovable\.app$/.test(window.location.hostname);
-
-    if (!onLovableHost) {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.origin },
-      });
-      if (error) toast.error(error.message);
-      return;
-    }
-
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
     if (result.error) {
       toast.error(result.error.message);
@@ -145,6 +120,30 @@ function AuthPage() {
     }
     if (result.redirected) return;
     navigate({ to: "/", replace: true });
+  }
+
+  async function verifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    if (code.length !== 6) return;
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "signup" });
+      if (error) throw error;
+      toast.success(t("auth.codeVerified"));
+      navigate({ to: "/welcome", replace: true });
+    } catch {
+      toast.error(t("auth.badCode"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function resendCode() {
+    setBusy(true);
+    const { error } = await supabase.auth.resend({ type: "signup", email });
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else toast.success(t("auth.codeResent"));
   }
 
 
@@ -186,10 +185,34 @@ function AuthPage() {
           </p>
 
           {sent ? (
-            <div className="mt-6 rounded-xl border border-primary/30 bg-accent/50 p-4 text-sm">
-              <Mail className="mb-2 size-5 text-primary" />
-              {t("auth.checkEmail")}
-            </div>
+            <form onSubmit={verifyCode} className="mt-6 space-y-5">
+              <div className="rounded-xl border border-primary/30 bg-accent/50 p-4 text-sm">
+                <Mail className="mb-2 size-5 text-primary" />
+                <p className="font-semibold">{t("auth.codeTitle")}</p>
+                <p className="mt-1 text-muted-foreground">{t("auth.checkEmail")} <span className="font-medium text-foreground">{email}</span></p>
+              </div>
+              <InputOTP
+                maxLength={6}
+                value={code}
+                onChange={setCode}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                containerClassName="justify-center"
+                aria-label={t("auth.codeLabel")}
+              >
+                <InputOTPGroup>
+                  {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <InputOTPSlot key={index} index={index} className="h-12 w-11 text-lg sm:w-12" />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+              <Button type="submit" disabled={busy || code.length !== 6} className="gradient-emerald h-11 w-full rounded-xl text-primary-foreground">
+                {t("auth.verifyCode")}
+              </Button>
+              <Button type="button" variant="ghost" disabled={busy} onClick={() => void resendCode()} className="w-full">
+                {t("auth.resendCode")}
+              </Button>
+            </form>
           ) : (
             <>
               <Button
