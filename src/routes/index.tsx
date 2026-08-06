@@ -13,6 +13,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 
 import { OpportunityCard, OpportunityCardSkeleton } from "@/components/opportunity-card";
 import { OpportunityDialog } from "@/components/opportunity-dialog";
+import { ShareBanner } from "@/components/share-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
