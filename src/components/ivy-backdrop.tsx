@@ -4,81 +4,84 @@ const logo = (name: string) => `/assets/logos/${name}.png`;
 
 type Mark = {
   name: string;
-  /** Edge anchor — logos never enter the central area with the headline/CTA. */
-  top?: string;
-  bottom?: string;
-  left?: string;
-  right?: string;
+  /** Logo width in px (scaled down on small screens by the wrapper). */
   size: number;
-  /** Drift axis and amplitude, kept small so marks stay near their edge. */
-  axis: "x" | "y";
-  dx: number;
-  dy: number;
-  dur: string;
-  delay: string;
-  tilt: number;
-  /** Hidden on small screens where there is no free edge space. */
+  /** Orbit radius as a multiple of the responsive ring radius. */
+  ring: number;
+  /** Starting angle on the ring, in degrees. */
+  angle: number;
+  /** Seconds for a full revolution. */
+  dur: number;
+  /** Counter-clockwise when true. */
+  reverse?: boolean;
+  /** Hidden on small screens, where the ring has less room. */
   desktopOnly?: boolean;
 };
 
-/** Olympiad, contest and programme logos drifting along the hero edges. */
+/** Olympiad, contest and programme logos orbiting around the hero copy. */
 const MARKS: Mark[] = [
-  // top band
-  { name: "uwc", top: "5%", left: "4%", size: 84, axis: "x", dx: 54, dy: 10, dur: "24s", delay: "0s", tilt: -5 },
-  { name: "icpc", top: "3%", left: "26%", size: 72, axis: "x", dx: -46, dy: 14, dur: "29s", delay: "-6s", tilt: 6, desktopOnly: true },
-  { name: "ioi", top: "6%", right: "24%", size: 78, axis: "x", dx: 48, dy: -12, dur: "27s", delay: "-11s", tilt: 4, desktopOnly: true },
-  { name: "igem", top: "4%", right: "4%", size: 80, axis: "x", dx: -50, dy: 12, dur: "31s", delay: "-3s", tilt: -7 },
-  // left edge
-  { name: "erasmus", top: "26%", left: "2%", size: 88, axis: "y", dx: 14, dy: 70, dur: "30s", delay: "-8s", tilt: 3 },
-  { name: "flex", top: "50%", left: "5%", size: 72, axis: "y", dx: -12, dy: -64, dur: "26s", delay: "-14s", tilt: 5, desktopOnly: true },
-  { name: "daryn", top: "70%", left: "3%", size: 82, axis: "y", dx: 16, dy: -58, dur: "33s", delay: "-2s", tilt: -4 },
-  // right edge
-  { name: "conrad", top: "28%", right: "3%", size: 86, axis: "y", dx: -14, dy: 66, dur: "32s", delay: "-17s", tilt: -3 },
-  { name: "daad", top: "52%", right: "5%", size: 76, axis: "y", dx: 12, dy: -60, dur: "28s", delay: "-5s", tilt: 4, desktopOnly: true },
-  { name: "cern-openlab", top: "72%", right: "2%", size: 84, axis: "y", dx: -16, dy: -54, dur: "35s", delay: "-21s", tilt: 6 },
-  // bottom band
-  { name: "yale-ygs", bottom: "4%", left: "6%", size: 78, axis: "x", dx: 52, dy: -12, dur: "29s", delay: "-9s", tilt: -6 },
-  { name: "space-settlement", bottom: "3%", left: "28%", size: 74, axis: "x", dx: -44, dy: -14, dur: "34s", delay: "-13s", tilt: -5, desktopOnly: true },
-  { name: "ibo", bottom: "6%", right: "26%", size: 68, axis: "x", dx: 46, dy: 12, dur: "27s", delay: "-19s", tilt: -4, desktopOnly: true },
-  { name: "gcc", bottom: "4%", right: "5%", size: 70, axis: "x", dx: -48, dy: -10, dur: "31s", delay: "-7s", tilt: 6 },
-  { name: "hansen", top: "14%", left: "14%", size: 58, axis: "y", dx: 18, dy: 46, dur: "36s", delay: "-25s", tilt: -8, desktopOnly: true },
-  { name: "yes", bottom: "14%", right: "14%", size: 56, axis: "y", dx: -18, dy: -44, dur: "38s", delay: "-15s", tilt: 8, desktopOnly: true },
+  { name: "uwc", size: 84, ring: 1, angle: 0, dur: 76 },
+  { name: "icpc", size: 72, ring: 1.16, angle: 40, dur: 92, reverse: true, desktopOnly: true },
+  { name: "ioi", size: 78, ring: 1, angle: 72, dur: 84 },
+  { name: "igem", size: 80, ring: 1.2, angle: 110, dur: 100, reverse: true },
+  { name: "erasmus", size: 88, ring: 1, angle: 145, dur: 78 },
+  { name: "flex", size: 72, ring: 1.18, angle: 180, dur: 96, reverse: true, desktopOnly: true },
+  { name: "daryn", size: 82, ring: 1, angle: 214, dur: 88 },
+  { name: "conrad", size: 86, ring: 1.22, angle: 250, dur: 104, reverse: true },
+  { name: "daad", size: 76, ring: 1, angle: 288, dur: 80, desktopOnly: true },
+  { name: "cern-openlab", size: 84, ring: 1.14, angle: 320, dur: 94, reverse: true },
+  { name: "yale-ygs", size: 78, ring: 1.34, angle: 20, dur: 112, desktopOnly: true },
+  { name: "space-settlement", size: 74, ring: 1.34, angle: 130, dur: 118, reverse: true, desktopOnly: true },
+  { name: "ibo", size: 68, ring: 1.34, angle: 205, dur: 108, desktopOnly: true },
+  { name: "gcc", size: 70, ring: 1.34, angle: 300, dur: 122, reverse: true, desktopOnly: true },
 ];
 
 export function IvyBackdrop() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div className="ivy-veil absolute inset-0" />
-      {MARKS.map((m) => (
-        <div
-          key={m.name}
-          className={`absolute ${m.axis === "x" ? "ivy-drift-x" : "ivy-drift-y"} ${
-            m.desktopOnly ? "hidden lg:block" : ""
-          }`}
-          style={
-            {
-              top: m.top,
-              bottom: m.bottom,
-              left: m.left,
-              right: m.right,
-              "--ivy-x": `${m.dx}px`,
-              "--ivy-y": `${m.dy}px`,
-              "--ivy-dur": m.dur,
-              animationDelay: m.delay,
-            } as React.CSSProperties
-          }
-        >
-          <img
-            src={logo(m.name)}
-            alt=""
-            loading="lazy"
-            width={m.size}
-            height={m.size}
-            style={{ width: m.size, height: "auto", transform: `rotate(${m.tilt}deg)` }}
-            className="ivy-crest object-contain"
-          />
-        </div>
-      ))}
+      <div
+        className="ivy-orbit-field [--ivy-ellipse:1.1] [--ivy-ring:clamp(170px,42vw,240px)] sm:[--ivy-ellipse:1.35] sm:[--ivy-ring:clamp(210px,34vw,300px)] lg:[--ivy-ellipse:1.6] lg:[--ivy-ring:clamp(240px,26vw,340px)]"
+      >
+        {MARKS.map((m) => {
+          // Negative delay offsets the start angle without extra keyframes.
+          const delay = `${-(m.angle / 360) * m.dur}s`;
+          return (
+            <div
+              key={m.name}
+              className={`ivy-orbit ${m.desktopOnly ? "hidden lg:block" : ""}`}
+              style={
+                {
+                  "--ivy-dur": `${m.dur}s`,
+                  "--ivy-dir": m.reverse ? "reverse" : "normal",
+                  "--ivy-dir-counter": m.reverse ? "normal" : "reverse",
+                  animationDelay: delay,
+                } as React.CSSProperties
+              }
+            >
+              <div
+                className="ivy-orbit-mark"
+                style={
+                  {
+                    "--ivy-r": `calc(var(--ivy-ring) * ${m.ring})`,
+                    animationDelay: delay,
+                  } as React.CSSProperties
+                }
+              >
+                <img
+                  src={logo(m.name)}
+                  alt=""
+                  loading="lazy"
+                  width={m.size}
+                  height={m.size}
+                  style={{ width: m.size, height: "auto", marginLeft: -m.size / 2 }}
+                  className="ivy-crest max-w-[18vw] object-contain sm:max-w-none"
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
