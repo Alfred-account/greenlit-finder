@@ -250,18 +250,13 @@ function AuthPage() {
                     </>
                   )}
                 </Button>
-              </form>
-            </>
-          )}
+          </form>
 
           <p className="mt-5 text-center text-sm text-muted-foreground">
             {mode === "in" ? t("auth.noAccount") : t("auth.haveAccount")}{" "}
             <button
               type="button"
-              onClick={() => {
-                setMode(mode === "in" ? "up" : "in");
-                setSent(false);
-              }}
+              onClick={() => setMode(mode === "in" ? "up" : "in")}
               className="font-medium text-primary hover:underline"
             >
               {mode === "in" ? t("auth.tabUp") : t("auth.tabIn")}
