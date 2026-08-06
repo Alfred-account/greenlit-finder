@@ -270,41 +270,57 @@
   }
 }
 
-/* Logos drift only inside the screen edges, never across the central copy. */
-@keyframes ivy-drift-x {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
+/* Logos orbit around the hero on an ellipse, so the central copy and the
+   buttons always stay inside the empty middle of the ring. */
+@keyframes ivy-orbit {
+  from {
+    transform: rotate(0deg);
   }
-  50% {
-    transform: translate3d(var(--ivy-x, 60px), var(--ivy-y, 12px), 0);
-  }
-}
-
-@keyframes ivy-drift-y {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(var(--ivy-x, 14px), var(--ivy-y, 70px), 0);
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@utility ivy-drift-x {
+@utility ivy-orbit-field {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 0;
+  width: 0;
+  transform: scaleX(var(--ivy-ellipse, 1.5));
+}
+
+@utility ivy-orbit {
+  position: absolute;
+  height: 0;
+  width: 0;
   will-change: transform;
-  animation: ivy-drift-x var(--ivy-dur, 26s) ease-in-out infinite;
+  animation: ivy-orbit var(--ivy-dur, 60s) linear infinite;
+  animation-direction: var(--ivy-dir, normal);
 }
 
-@utility ivy-drift-y {
+/* Counter-rotation keeps each logo upright while its orbit spins. */
+@utility ivy-orbit-mark {
+  position: absolute;
+  translate: var(--ivy-r, 300px) 0;
   will-change: transform;
-  animation: ivy-drift-y var(--ivy-dur, 30s) ease-in-out infinite;
+  animation: ivy-orbit var(--ivy-dur, 60s) linear infinite;
+  animation-direction: var(--ivy-dir-counter, reverse);
 }
 
 .ivy-crest {
   opacity: 0.15;
   filter: saturate(0.6) contrast(0.95);
+  transform: scaleX(calc(1 / var(--ivy-ellipse, 1.5)));
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .ivy-orbit,
+  .ivy-orbit-mark {
+    animation: none;
+  }
+}
+
 
 /* Neon spotlight used by the guided tour. The dim backdrop is a huge soft
    shadow around the rounded cut-out, so edges stay smooth and everything
