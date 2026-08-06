@@ -1,17 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Eye, EyeOff, LogIn, Mail, UserPlus } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 
 import { toast } from "sonner";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/use-auth";
 import { checkUsername, signInWithIdentifier, USERNAME_RE } from "@/lib/auth.functions";
 import { sampleName, useI18n } from "@/lib/i18n";
