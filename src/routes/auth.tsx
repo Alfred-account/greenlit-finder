@@ -47,8 +47,6 @@ function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [code, setCode] = useState("");
   const namePlaceholder = useMemo(() => sampleName(lang), [lang]);
 
   useEffect(() => {
@@ -99,8 +97,8 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        setSent(true);
-        toast.success(t("auth.checkEmail"));
+        toast.success(t("auth.welcome"));
+        navigate({ to: "/welcome", replace: true });
 
       }
     } catch (error) {
