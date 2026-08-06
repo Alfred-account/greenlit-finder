@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowDown, Bookmark, Filter, Info, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
+import { ArrowDown, Bookmark, Filter, Info, RotateCcw, Search, Sparkles } from "lucide-react";
 
 import { AccountMenu } from "@/components/account-menu";
 import { CityField } from "@/components/city-field";
