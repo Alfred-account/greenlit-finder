@@ -129,10 +129,7 @@ function AuthPage() {
               <button
                 key={m}
                 type="button"
-                onClick={() => {
-                  setMode(m);
-                  setSent(false);
-                }}
+                onClick={() => setMode(m)}
                 className={`rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
                   mode === m ? "bg-card text-primary shadow-soft" : "text-muted-foreground hover:text-foreground"
                 }`}
