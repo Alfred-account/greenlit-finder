@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowDown, Bookmark, Filter, Info, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
+import { ArrowDown, Bookmark, Filter, Info, RotateCcw, Search, Sparkles } from "lucide-react";
 
 import { AccountMenu } from "@/components/account-menu";
 import { CityField } from "@/components/city-field";
@@ -13,6 +13,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 
 import { OpportunityCard, OpportunityCardSkeleton } from "@/components/opportunity-card";
 import { OpportunityDialog } from "@/components/opportunity-dialog";
+import { ShareBanner } from "@/components/share-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -266,21 +267,7 @@ function Home() {
       </section>
 
       <section id="catalog" className="mx-auto w-full max-w-6xl scroll-mt-4 px-4 pb-20 sm:px-6 sm:pb-24">
-        <Link
-          to="/share"
-          className="shadow-soft mb-8 flex flex-col items-start gap-4 rounded-2xl border border-primary/25 bg-accent/50 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/50 sm:mb-10 sm:flex-row sm:items-center sm:p-5"
-        >
-          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Megaphone className="size-5" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <h2 className="block font-semibold">{t("banner.title")}</h2>
-            <span className="block text-sm text-muted-foreground">{t("banner.subtitle")}</span>
-          </span>
-          <span className="w-full rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground sm:w-auto">
-            {t("banner.action")}
-          </span>
-        </Link>
+        <ShareBanner />
 
         <h2 className="sr-only">{t("catalog.heading")}</h2>
 
