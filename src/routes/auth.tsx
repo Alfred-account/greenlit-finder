@@ -1,17 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Eye, EyeOff, LogIn, Mail, UserPlus } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 
 import { toast } from "sonner";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/use-auth";
 import { checkUsername, signInWithIdentifier, USERNAME_RE } from "@/lib/auth.functions";
 import { sampleName, useI18n } from "@/lib/i18n";
@@ -49,8 +47,6 @@ function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [code, setCode] = useState("");
   const namePlaceholder = useMemo(() => sampleName(lang), [lang]);
 
   useEffect(() => {
@@ -101,8 +97,8 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        setSent(true);
-        toast.success(t("auth.checkEmail"));
+        toast.success(t("auth.welcome"));
+        navigate({ to: "/welcome", replace: true });
 
       }
     } catch (error) {
@@ -112,39 +108,6 @@ function AuthPage() {
     }
   }
 
-  async function onGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) {
-      toast.error(result.error.message);
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ to: "/", replace: true });
-  }
-
-  async function verifyCode(e: React.FormEvent) {
-    e.preventDefault();
-    if (code.length !== 6) return;
-    setBusy(true);
-    try {
-      const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "signup" });
-      if (error) throw error;
-      toast.success(t("auth.codeVerified"));
-      navigate({ to: "/welcome", replace: true });
-    } catch {
-      toast.error(t("auth.badCode"));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function resendCode() {
-    setBusy(true);
-    const { error } = await supabase.auth.resend({ type: "signup", email });
-    setBusy(false);
-    if (error) toast.error(error.message);
-    else toast.success(t("auth.codeResent"));
-  }
 
 
 
@@ -166,10 +129,7 @@ function AuthPage() {
               <button
                 key={m}
                 type="button"
-                onClick={() => {
-                  setMode(m);
-                  setSent(false);
-                }}
+                onClick={() => setMode(m)}
                 className={`rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
                   mode === m ? "bg-card text-primary shadow-soft" : "text-muted-foreground hover:text-foreground"
                 }`}
@@ -184,53 +144,7 @@ function AuthPage() {
             {mode === "in" ? t("auth.subtitleIn") : t("auth.subtitleUp")}
           </p>
 
-          {sent ? (
-            <form onSubmit={verifyCode} className="mt-6 space-y-5">
-              <div className="rounded-xl border border-primary/30 bg-accent/50 p-4 text-sm">
-                <Mail className="mb-2 size-5 text-primary" />
-                <p className="font-semibold">{t("auth.codeTitle")}</p>
-                <p className="mt-1 text-muted-foreground">{t("auth.checkEmail")} <span className="font-medium text-foreground">{email}</span></p>
-              </div>
-              <InputOTP
-                maxLength={6}
-                value={code}
-                onChange={setCode}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                containerClassName="justify-center"
-                aria-label={t("auth.codeLabel")}
-              >
-                <InputOTPGroup>
-                  {[0, 1, 2, 3, 4, 5].map((index) => (
-                    <InputOTPSlot key={index} index={index} className="h-12 w-11 text-lg sm:w-12" />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-              <Button type="submit" disabled={busy || code.length !== 6} className="gradient-emerald h-11 w-full rounded-xl text-primary-foreground">
-                {t("auth.verifyCode")}
-              </Button>
-              <Button type="button" variant="ghost" disabled={busy} onClick={() => void resendCode()} className="w-full">
-                {t("auth.resendCode")}
-              </Button>
-            </form>
-          ) : (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onGoogle}
-                className="mt-6 h-11 w-full rounded-xl border-primary/40"
-              >
-                <LogIn className="size-4" /> {t("auth.google")}
-              </Button>
-
-              <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="h-px flex-1 bg-border" />
-                <Mail className="size-3.5" />
-                <span className="h-px flex-1 bg-border" />
-              </div>
-
-              <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={onSubmit} className="mt-6 space-y-4">
                 {mode === "up" && (
                   <>
                     <div className="space-y-1.5">
@@ -331,18 +245,13 @@ function AuthPage() {
                     </>
                   )}
                 </Button>
-              </form>
-            </>
-          )}
+          </form>
 
           <p className="mt-5 text-center text-sm text-muted-foreground">
             {mode === "in" ? t("auth.noAccount") : t("auth.haveAccount")}{" "}
             <button
               type="button"
-              onClick={() => {
-                setMode(mode === "in" ? "up" : "in");
-                setSent(false);
-              }}
+              onClick={() => setMode(mode === "in" ? "up" : "in")}
               className="font-medium text-primary hover:underline"
             >
               {mode === "in" ? t("auth.tabUp") : t("auth.tabIn")}
