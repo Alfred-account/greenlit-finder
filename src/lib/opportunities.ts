@@ -137,6 +137,62 @@ export const COSTS = ["Free", "Paid"] as const;
 export const FORMATS = ["Individual", "Team-based"] as const;
 export const DELIVERIES = ["Online", "Offline", "Hybrid"] as const;
 
+/** Age buckets used by the catalog filter and the card badge. */
+export const AGE_RANGES = ["11-13", "14-15", "16-17", "18+"] as const;
+
+function ageBucket(age: number): string | null {
+  if (age >= 18) return "18+";
+  if (age >= 16) return "16-17";
+  if (age >= 14) return "14-15";
+  if (age >= 11) return "11-13";
+  return null;
+}
+
+/** Grades map onto approximate ages (7th grade ≈ 13 years old). */
+export function agesFromGrades(grades: string[]): string[] {
+  const buckets = new Set<string>();
+  for (const g of grades) {
+    if (g === "Undergrad") {
+      buckets.add("18+");
+      continue;
+    }
+    const b = ageBucket(gradeOrder(g) + 6);
+    if (b) buckets.add(b);
+  }
+  return AGE_RANGES.filter((r) => buckets.has(r));
+}
+
+/** Reads an Airtable "Age" value: "14-17", "16+", ["11-13"], "от 15 лет". */
+export function parseAges(raw: unknown): string[] {
+  const text = Array.isArray(raw) ? raw.map((v) => String(v)).join(", ") : String(raw ?? "");
+  if (!text.trim()) return [];
+  const exact = AGE_RANGES.filter((r) => text.includes(r));
+  if (exact.length) return [...exact];
+  const nums = (text.match(/\d+/g) ?? []).map(Number).filter((n) => n > 0 && n < 100);
+  if (nums.length === 0) return [];
+  const min = Math.min(...nums);
+  const max = /\+/.test(text) ? 30 : Math.max(...nums);
+  return AGE_RANGES.filter((r) => {
+    const lo = Number(r.replace("+", "").split("-")[0]);
+    const hi = r === "18+" ? 99 : Number(r.split("-")[1]);
+    return hi >= min && lo <= max;
+  });
+}
+
+/** "14–17 лет" / "18+" for the card badge. */
+export function formatAges(ages: string[], suffix: string) {
+  if (!ages.length) return "";
+  const ordered = AGE_RANGES.filter((r) => ages.includes(r));
+  if (!ordered.length) return "";
+  const first = ordered[0];
+  const last = ordered[ordered.length - 1];
+  const lo = first.replace("+", "").split("-")[0];
+  if (last === "18+") return ordered.length === 1 ? `18+ ${suffix}` : `${lo}+ ${suffix}`;
+  const hi = last.split("-")[1];
+  return `${lo}\u2013${hi} ${suffix}`;
+}
+
+
 export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
   {
     id: "s1",
