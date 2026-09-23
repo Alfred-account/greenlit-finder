@@ -45,11 +45,6 @@ function WelcomePage() {
                 {t("welcome.cta")} <ArrowRight className="size-4" />
               </Link>
             </Button>
-            {!user && (
-              <Button asChild variant="outline" size="lg" className="h-12 rounded-xl border-primary/40">
-                <Link to="/auth">{t("welcome.signIn")}</Link>
-              </Button>
-            )}
           </div>
         </div>
       </div>
