@@ -3,7 +3,6 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/welcome")({
