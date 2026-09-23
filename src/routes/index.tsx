@@ -155,6 +155,7 @@ function Home() {
         return false;
       if (sphere !== ALL && o.sphere !== sphere) return false;
       if (grade !== ALL && !o.grades.includes(grade)) return false;
+      if (age !== ALL && !(o.ages ?? agesFromGrades(o.grades)).includes(age)) return false;
       if (cost !== ALL && o.cost !== cost) return false;
       if (format !== ALL && o.format !== format) return false;
       if (delivery !== ALL && o.delivery !== delivery) return false;
@@ -168,6 +169,9 @@ function Home() {
 
     const far = "9999-12-31";
     return [...list].sort((a, b) => {
+      // Items promoted in Airtable always stay on top.
+      const pinned = Number(Boolean(b.promoted)) - Number(Boolean(a.promoted));
+      if (pinned !== 0) return pinned;
       if (sort === "deadlineDesc") return (b.deadline || "").localeCompare(a.deadline || "");
       if (sort === "titleAsc") return a.title.localeCompare(b.title, lang);
       if (sort === "savedFirst") {
@@ -176,12 +180,29 @@ function Home() {
       }
       return (a.deadline || far).localeCompare(b.deadline || far);
     });
-  }, [items, query, sphere, grade, cost, format, delivery, country, city, from, to, onlySaved, savedIds, sort, lang, tSphere]);
+  }, [items, query, sphere, grade, age, cost, format, delivery, country, city, from, to, onlySaved, savedIds, sort, lang, tSphere]);
+
+  /** Spheres actually present in the data, so the filter grows with Airtable. */
+  const sphereOptions = useMemo(() => {
+    const present = new Set(items.map((o) => o.sphere));
+    const extra = [...present].filter((s) => !SPHERES.includes(s as (typeof SPHERES)[number])).sort();
+    return [...SPHERES.filter((s) => present.has(s) || items.length === 0), ...extra];
+  }, [items]);
+
+  /** 22 → "20+", 57 → "55+", 121 → "120+" */
+  const stats = useMemo(() => {
+    const total = items.length;
+    const rounded = total < 5 ? total : Math.floor(total / 5) * 5;
+    return t("hero.stats")
+      .replace("{count}", total < 5 ? String(total) : `${rounded}+`)
+      .replace("{spheres}", String(new Set(items.map((o) => o.sphere)).size));
+  }, [items, t]);
 
   const hasFilters =
     query !== "" ||
     sphere !== ALL ||
     grade !== ALL ||
+    age !== ALL ||
     cost !== ALL ||
     format !== ALL ||
     delivery !== ALL ||
@@ -195,6 +216,7 @@ function Home() {
     setQuery("");
     setSphere(ALL);
     setGrade(ALL);
+    setAge(ALL);
     setCost(ALL);
     setFormat(ALL);
     setDelivery(ALL);
@@ -204,6 +226,7 @@ function Home() {
     setFrom("");
     setTo("");
   }
+
 
   // Title/description follow the selected (or browser-detected) language.
   useEffect(() => {
