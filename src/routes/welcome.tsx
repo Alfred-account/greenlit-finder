@@ -21,10 +21,8 @@ export const Route = createFileRoute("/welcome")({
   }),
   component: WelcomePage,
 });
-
 function WelcomePage() {
   const { t } = useI18n();
-  const { user } = useAuth();
 
   return (
     <main className="hero-surface flex min-h-screen items-center justify-center px-4 py-12 sm:px-6">
