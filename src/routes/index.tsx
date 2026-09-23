@@ -22,7 +22,7 @@ import { useSavedOpportunities } from "@/hooks/use-saved";
 import { fetchOpportunities } from "@/lib/airtable.functions";
 import { useI18n } from "@/lib/i18n";
 import { COUNTRIES } from "@/lib/locations";
-import { COSTS, DELIVERIES, FORMATS, GRADES, SPHERES, type Opportunity } from "@/lib/opportunities";
+import { AGE_RANGES, COSTS, DELIVERIES, FORMATS, GRADES, SPHERES, agesFromGrades, type Opportunity } from "@/lib/opportunities";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -69,6 +69,10 @@ function Home() {
   const { data, isPending } = useQuery({
     queryKey: ["opportunities"],
     queryFn: () => getOpportunities(),
+    // Airtable answers slowly; keep the catalog instant on repeat visits.
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
