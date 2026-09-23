@@ -4,7 +4,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowDown, Bookmark, Filter, Info, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
 
-import { AccountMenu } from "@/components/account-menu";
 import { CityField } from "@/components/city-field";
 import { DateField } from "@/components/date-field";
 import { FilterTourButton, TourOverlay, type TourPhase } from "@/components/filter-tour";
