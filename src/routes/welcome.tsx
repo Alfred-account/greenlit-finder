@@ -3,7 +3,6 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/welcome")({
@@ -22,10 +21,8 @@ export const Route = createFileRoute("/welcome")({
   }),
   component: WelcomePage,
 });
-
 function WelcomePage() {
   const { t } = useI18n();
-  const { user } = useAuth();
 
   return (
     <main className="hero-surface flex min-h-screen items-center justify-center px-4 py-12 sm:px-6">
@@ -45,11 +42,6 @@ function WelcomePage() {
                 {t("welcome.cta")} <ArrowRight className="size-4" />
               </Link>
             </Button>
-            {!user && (
-              <Button asChild variant="outline" size="lg" className="h-12 rounded-xl border-primary/40">
-                <Link to="/auth">{t("welcome.signIn")}</Link>
-              </Button>
-            )}
           </div>
         </div>
       </div>

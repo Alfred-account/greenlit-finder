@@ -3,7 +3,9 @@ import { z } from "zod";
 
 import {
   SAMPLE_OPPORTUNITIES,
+  agesFromGrades,
   normalizeSphere,
+  parseAges,
   parseGrades,
   sortGrades,
   type LocalizedContent,
@@ -68,12 +70,16 @@ function mapRecord(rec: { id: string; fields: Fields }): Opportunity {
   const steps = toSteps(f.Steps);
   const en = localized(f, "EN");
   const kk = localized(f, "KK");
+  const grades = parseGrades(f.Grade ?? f.Grades);
+  const ages = parseAges(f.Age ?? f.Ages ?? f.Age_Range);
 
   return {
     id: rec.id,
     title: str(f.Title, "Без названия"),
     sphere: normalizeSphere(str(f.Sphere ?? f.Profession ?? f.Field)),
-    grades: parseGrades(f.Grade ?? f.Grades),
+    grades,
+    ages: ages.length ? ages : agesFromGrades(grades),
+    promoted: Boolean(f.Promoted ?? f.Top ?? f.Featured ?? f.Pinned),
     cost: str(f.Cost) === "Paid" ? "Paid" : "Free",
     price: str(f.Price ?? f.Cost_Amount) || undefined,
     format: str(f.Format) === "Team-based" ? "Team-based" : "Individual",

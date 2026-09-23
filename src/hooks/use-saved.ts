@@ -1,67 +1,46 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/lib/i18n";
 
-/** Per-user bookmarks, persisted in Lovable Cloud (row-level secured). */
+const STORAGE_KEY = "greenlit_saved_opportunities";
+
+function read(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed) ? parsed.map((v) => String(v)) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Bookmarks kept on the current device — no account required. */
 export function useSavedOpportunities() {
-  const { user } = useAuth();
   const { t } = useI18n();
   const [saved, setSaved] = useState<string[]>([]);
 
   useEffect(() => {
-    let cancelled = false;
-    if (!user) {
-      setSaved([]);
-      return;
-    }
-    supabase
-      .from("saved_opportunities")
-      .select("opportunity_id")
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (error) {
-          console.error("[saved] load failed:", error.message);
-          return;
-        }
-        setSaved((data ?? []).map((r) => r.opportunity_id));
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [user]);
+    setSaved(read());
+  }, []);
 
   const toggle = useCallback(
-    async (opportunityId: string) => {
-      if (!user) {
-        toast.error(t("toast.saveNeedsAuth"));
-        return;
-      }
-      const isSaved = saved.includes(opportunityId);
-      setSaved((prev) => (isSaved ? prev.filter((id) => id !== opportunityId) : [...prev, opportunityId]));
-
-      const { error } = isSaved
-        ? await supabase
-            .from("saved_opportunities")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("opportunity_id", opportunityId)
-        : await supabase
-            .from("saved_opportunities")
-            .insert({ user_id: user.id, opportunity_id: opportunityId });
-
-      if (error) {
-        console.error("[saved] toggle failed:", error.message);
-        setSaved((prev) => (isSaved ? [...prev, opportunityId] : prev.filter((id) => id !== opportunityId)));
-        toast.error(error.message);
-        return;
-      }
-      toast.success(t(isSaved ? "toast.unsaved" : "toast.saved"));
+    (opportunityId: string) => {
+      setSaved((prev) => {
+        const isSaved = prev.includes(opportunityId);
+        const next = isSaved ? prev.filter((id) => id !== opportunityId) : [...prev, opportunityId];
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        } catch {
+          /* storage may be unavailable in private mode */
+        }
+        toast.success(t(isSaved ? "toast.unsaved" : "toast.saved"));
+        return next;
+      });
     },
-    [saved, t, user],
+    [t],
   );
 
-  return { saved, toggle, isSaved: (id: string) => saved.includes(id), signedIn: !!user };
+  return { saved, toggle, isSaved: (id: string) => saved.includes(id), signedIn: true };
 }
