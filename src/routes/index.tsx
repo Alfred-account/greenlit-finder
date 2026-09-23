@@ -81,11 +81,12 @@ function Home() {
   }, [data]);
 
   const { t, tSphere, tGrade, tCost, tFormat, tDelivery, tPlace, lang } = useI18n();
-  const { isSaved, toggle, saved: savedIds, signedIn } = useSavedOpportunities();
+  const { isSaved, toggle, saved: savedIds } = useSavedOpportunities();
 
   const [query, setQuery] = useState("");
   const [sphere, setSphere] = useState<string>(ALL);
   const [grade, setGrade] = useState<string>(ALL);
+  const [age, setAge] = useState<string>(ALL);
   const [cost, setCost] = useState<string>(ALL);
   const [format, setFormat] = useState<string>(ALL);
   const [delivery, setDelivery] = useState<string>(ALL);
