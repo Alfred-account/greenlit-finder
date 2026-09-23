@@ -3,6 +3,10 @@ export type Opportunity = {
   title: string;
   sphere: string;
   grades: string[];
+  /** Age buckets (see AGE_RANGES); derived from grades when not provided. */
+  ages?: string[];
+  /** Pinned to the top of the catalog from the data source. */
+  promoted?: boolean;
   cost: "Free" | "Paid";
   price?: string;
   format: "Individual" | "Team-based";
@@ -19,6 +23,7 @@ export type Opportunity = {
   /** Per-language content coming straight from the data source (Airtable). */
   i18n?: Partial<Record<"kk" | "en", LocalizedContent>>;
 };
+
 
 export const SPHERES = [
   "Computer Science & Technology",
