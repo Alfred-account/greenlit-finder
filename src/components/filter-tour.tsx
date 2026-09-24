@@ -253,6 +253,17 @@ export function TourOverlay({
                 >
                   {isLast ? t("tour.showResults") : t("tour.gotIt")}
                 </Button>
+                {showSkip && !isLast && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={onSkip}
+                    className="mt-1 w-full rounded-xl text-muted-foreground"
+                  >
+                    {t("tour.skipStep")}
+                  </Button>
+                )}
               </>
             ) : (
               <>

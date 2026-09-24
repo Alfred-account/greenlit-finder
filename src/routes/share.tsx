@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { submitOpportunity, type SubmissionInput } from "@/lib/airtable.functions";
 import { sampleName, useI18n } from "@/lib/i18n";
-import { COSTS, DELIVERIES, FORMATS, GRADES, SPHERES, sortGrades } from "@/lib/opportunities";
+import { AGE_RANGES, COSTS, DELIVERIES, FORMATS, GRADES, SPHERES, sortGrades } from "@/lib/opportunities";
 import { COUNTRIES } from "@/lib/locations";
 import { CityField } from "@/components/city-field";
 import { DateField } from "@/components/date-field";
@@ -43,6 +43,7 @@ const empty: SubmissionInput = {
   title: "",
   sphere: "",
   grades: [],
+  ages: [],
   cost: "Free",
   price: "",
   format: "Individual",
@@ -160,6 +161,7 @@ function SharePage() {
                 onChange={(v) => set("sphere", v)}
                 options={[...SPHERES]}
                 render={tSphere}
+                hint={tSphereHint}
               />
             </Field>
             <div className="sm:col-span-2">
@@ -192,6 +194,36 @@ function SharePage() {
                 <p className="mt-2 text-xs text-muted-foreground">
                   {form.grades.length > 0 ? `${t("share.gradesSelected")}: ${tGrades(form.grades)}` : t("share.gradesHint")}
                 </p>
+              </Field>
+            </div>
+            <div className="sm:col-span-2">
+              <Field label={t("share.ageLabel")}>
+                <div className="flex flex-wrap gap-2">
+                  {AGE_RANGES.map((a) => {
+                    const on = (form.ages ?? []).includes(a);
+                    return (
+                      <button
+                        key={a}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() =>
+                          set(
+                            "ages",
+                            AGE_RANGES.filter((x) => (x === a ? !on : (form.ages ?? []).includes(x))),
+                          )
+                        }
+                        className={`rounded-full border px-4 py-2 text-sm transition-all ${
+                          on
+                            ? "border-primary bg-primary text-primary-foreground shadow-soft"
+                            : "border-border/70 bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                        }`}
+                      >
+                        {a.replace("-", "–")} {t("age.suffix")}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">{t("share.ageHint")}</p>
               </Field>
             </div>
             <Field label={t("filter.cost")} required>
@@ -345,11 +377,13 @@ function Selector({
   onChange,
   options,
   render,
+  hint,
 }: {
   value: string;
   onChange: (v: string) => void;
   options: string[];
   render?: (v: string) => string;
+  hint?: (v: string) => string;
 }) {
   const { t } = useI18n();
   return (
@@ -359,7 +393,7 @@ function Selector({
       </SelectTrigger>
       <SelectContent>
         {options.map((o) => (
-          <SelectItem key={o} value={o}>
+          <SelectItem key={o} value={o} hint={hint?.(o)}>
             {render?.(o) ?? o}
           </SelectItem>
         ))}

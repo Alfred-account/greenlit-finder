@@ -54,11 +54,12 @@ const ALL = "__all__";
  */
 const TOUR_STEPS = [
   { key: "sphere", selector: '[data-tour="sphere"]', title: "tour.s1.title", text: "tour.s1.text" },
-  { key: "grade", selector: '[data-tour="grade"]', title: "tour.s2.title", text: "tour.s2.text" },
+  { key: "grade", selector: '[data-tour="grade"]', title: "tour.s2.title", text: "tour.s2.text", skippable: true },
+  { key: "age", selector: '[data-tour="age"]', title: "tour.age.title", text: "tour.age.text", skippable: true },
   { key: "cost", selector: '[data-tour="cost"]', title: "tour.s3.title", text: "tour.s3.text" },
   { key: "format", selector: '[data-tour="format"]', title: "tour.s4.title", text: "tour.s4.text" },
   { key: "delivery", selector: '[data-tour="delivery"]', title: "tour.s5.title", text: "tour.s5.text" },
-  { key: "country", selector: '[data-tour="country"]', title: "tour.s6.title", text: "tour.s6.text" },
+  { key: "country", selector: '[data-tour="country"]', title: "tour.s6.title", text: "tour.s6.text", skippable: true },
   { key: "done", selector: null, title: "tour.s9.title", text: "tour.s9.text", last: true },
 ] as const;
 
@@ -80,7 +81,7 @@ function Home() {
     else if (data?.source === "sample") console.warn("[airtable] Показаны демо-данные вместо записей Airtable.");
   }, [data]);
 
-  const { t, tSphere, tGrade, tCost, tFormat, tDelivery, tPlace, lang } = useI18n();
+  const { t, tSphere, tSphereHint, tGrade, tCost, tFormat, tDelivery, tPlace, lang } = useI18n();
   const { isSaved, toggle, saved: savedIds } = useSavedOpportunities();
 
   const [query, setQuery] = useState("");
@@ -336,6 +337,7 @@ function Home() {
                 }}
                 options={sphereOptions}
                 render={tSphere}
+                hint={tSphereHint}
                 autoOpen={activeKey === "sphere"}
               />
             </div>
@@ -356,7 +358,11 @@ function Home() {
               <FilterSelect
                 label={t("filter.age")}
                 value={age}
-                onChange={setAge}
+                onChange={(v) => {
+                  setAge(v);
+                  advance("age");
+                }}
+                autoOpen={activeKey === "age"}
                 options={[...AGE_RANGES]}
                 render={(v) => `${v.replace("-", "–")} ${t("age.suffix")}`}
               />
@@ -521,7 +527,7 @@ function Home() {
           onClose={() => setTourStep(null)}
           onGotIt={() => setTourPhase("act")}
           onSkip={() => goToStep((tourStep ?? 0) + 1)}
-          showSkip
+          showSkip={"skippable" in step && step.skippable}
           isLast={"last" in step && step.last}
         />
 
@@ -559,6 +565,7 @@ function FilterSelect({
   onChange,
   options,
   render,
+  hint,
   allowAll = true,
   autoOpen = false,
 }: {
@@ -568,6 +575,7 @@ function FilterSelect({
   onChange: (v: string) => void;
   options: string[];
   render?: (v: string) => string;
+  hint?: (v: string) => string;
   allowAll?: boolean;
   autoOpen?: boolean;
 }) {
@@ -597,7 +605,7 @@ function FilterSelect({
         <SelectContent>
           {allowAll && <SelectItem value={ALL}>{t("filter.all")}</SelectItem>}
           {options.map((o) => (
-            <SelectItem key={o} value={o}>
+            <SelectItem key={o} value={o} hint={hint?.(o)}>
               {render?.(o) ?? o}
             </SelectItem>
           ))}
