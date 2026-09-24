@@ -241,7 +241,6 @@ function Home() {
   return (
     <main className="min-h-screen">
       <div className="absolute top-3 right-3 z-20 flex max-w-[calc(100vw-1.5rem)] items-center gap-2 sm:top-5 sm:right-5">
-        <AccountMenu />
         <LanguageSwitcher />
       </div>
 
@@ -280,7 +279,7 @@ function Home() {
           </Button>
 
           <p className="text-xs font-medium tracking-wide text-balance text-muted-foreground sm:text-sm">
-            {t("hero.stats")}
+            {stats}
           </p>
 
           <Link
@@ -326,7 +325,7 @@ function Home() {
             <FilterTourButton onStart={startTour} />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-3 sm:gap-4 lg:grid-cols-4">
             <div data-tour="sphere">
               <FilterSelect
                 label={t("filter.sphere")}
@@ -335,7 +334,7 @@ function Home() {
                   setSphere(v);
                   advance("sphere");
                 }}
-                options={[...SPHERES]}
+                options={sphereOptions}
                 render={tSphere}
                 autoOpen={activeKey === "sphere"}
               />
@@ -351,6 +350,15 @@ function Home() {
                 options={[...GRADES]}
                 render={tGrade}
                 autoOpen={activeKey === "grade"}
+              />
+            </div>
+            <div data-tour="age">
+              <FilterSelect
+                label={t("filter.age")}
+                value={age}
+                onChange={setAge}
+                options={[...AGE_RANGES]}
+                render={(v) => `${v.replace("-", "–")} ${t("age.suffix")}`}
               />
             </div>
             <div data-tour="cost">
@@ -442,7 +450,6 @@ function Home() {
                 type="button"
                 variant={onlySaved ? "default" : "outline"}
                 onClick={() => setOnlySaved((v) => !v)}
-                disabled={!signedIn}
                 className="h-11 w-full rounded-xl"
               >
                 <Bookmark className={`size-4 ${onlySaved ? "fill-current" : ""}`} />
