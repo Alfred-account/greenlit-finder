@@ -635,6 +635,10 @@ Object.assign(en, {
 /* ---- Guided tour phrasing + username auth (added last so they win) ---- */
 Object.assign(ru, {
   "tour.gotIt": "Понятно!",
+  "tour.age.title": "Возраст",
+  "tour.age.text": "Выберите свой возраст — останутся возможности, куда вас возьмут.",
+  "share.ageLabel": "Возраст участников",
+  "share.ageHint": "Необязательно — если не выбрать, посчитаем по классам.",
   "tour.pickBelow": "Выбери подходящий вариант",
   "tour.great": "Отлично!",
   "tour.showResults": "Показать результаты",
@@ -659,6 +663,10 @@ Object.assign(ru, {
 
 Object.assign(kk, {
   "tour.gotIt": "Түсінікті!",
+  "tour.age.title": "Жасы",
+  "tour.age.text": "Жасыңызды таңдаңыз — сізді қабылдайтын мүмкіндіктер қалады.",
+  "share.ageLabel": "Қатысушылардың жасы",
+  "share.ageHint": "Міндетті емес — таңдалмаса, сынып бойынша есептейміз.",
   "tour.pickBelow": "Қолайлы нұсқаны таңда",
   "tour.great": "Тамаша!",
   "tour.showResults": "Нәтижелерді көрсету",
@@ -682,6 +690,10 @@ Object.assign(kk, {
 
 Object.assign(en, {
   "tour.gotIt": "Got it!",
+  "tour.age.title": "Age",
+  "tour.age.text": "Pick your age — we keep only programmes that accept you.",
+  "share.ageLabel": "Participant age",
+  "share.ageHint": "Optional — if left empty, we derive it from grades.",
   "tour.pickBelow": "Pick an option below",
   "tour.great": "Nice one!",
   "tour.showResults": "Show results",
@@ -718,6 +730,57 @@ export function sampleName(lang: Lang, seed = Math.floor(Math.random() * 100)) {
 
 const DICTS: Record<Lang, Dict> = { ru, kk, en };
 
+
+const SPHERE_HINTS: Record<Lang, Dict> = {
+  "ru": {
+    "Computer Science & Technology": "олимпиады по информатике, хакатоны, IT-кэмпы",
+    "Law": "судебные дебаты, мут-корты, правовые конкурсы",
+    "International Relations": "МУН (Model UN), дипломатические школы, обмены",
+    "Medicine & Biology": "олимпиады по биологии, медшколы, iGEM",
+    "Journalism & Media": "школьные СМИ, конкурсы эссе, блогинг",
+    "Film & Directing": "кинофестивали, конкурсы короткометражек",
+    "Art & Design": "выставки, конкурсы рисунка и дизайна",
+    "Business & Economics": "бизнес-кейсы, стартап-конкурсы, олимпиады по экономике",
+    "Science & Research": "научные проекты, олимпиады по физике и химии",
+    "Engineering": "робототехника, инженерные турниры",
+    "Psychology & Social Sciences": "исследования общества, волонтёрство, соцпроекты",
+    "Humanities & Languages": "олимпиады по языкам и истории, литературные конкурсы",
+    "Environment & Sustainability": "эко-проекты, климатические форумы",
+    "Politics & Public Policy": "дебаты, молодёжные парламенты, форумы лидеров"
+  },
+  "kk": {
+    "Computer Science & Technology": "информатика олимпиадалары, хакатондар, IT-кэмптер",
+    "Law": "сот дебаттары, мут-корттар, құқық байқаулары",
+    "International Relations": "MUN (Model UN), дипломатия мектептері, алмасу",
+    "Medicine & Biology": "биология олимпиадалары, медицина мектептері, iGEM",
+    "Journalism & Media": "мектеп БАҚ-ы, эссе байқаулары, блогинг",
+    "Film & Directing": "кинофестивальдер, қысқаметражды фильм байқаулары",
+    "Art & Design": "көрмелер, сурет және дизайн байқаулары",
+    "Business & Economics": "бизнес-кейстер, стартап байқаулары, экономика олимпиадалары",
+    "Science & Research": "ғылыми жобалар, физика мен химия олимпиадалары",
+    "Engineering": "робототехника, инженерлік турнирлер",
+    "Psychology & Social Sciences": "қоғамды зерттеу, волонтерлік, әлеуметтік жобалар",
+    "Humanities & Languages": "тіл мен тарих олимпиадалары, әдеби байқаулар",
+    "Environment & Sustainability": "эко-жобалар, климат форумдары",
+    "Politics & Public Policy": "дебаттар, жастар парламенттері, көшбасшылар форумдары"
+  },
+  "en": {
+    "Computer Science & Technology": "coding olympiads, hackathons, IT camps",
+    "Law": "moot courts, mock trials, law contests",
+    "International Relations": "Model UN (MUN), diplomacy schools, exchanges",
+    "Medicine & Biology": "biology olympiads, med schools, iGEM",
+    "Journalism & Media": "school media, essay contests, blogging",
+    "Film & Directing": "film festivals, short-film contests",
+    "Art & Design": "exhibitions, drawing & design contests",
+    "Business & Economics": "business cases, startup contests, economics olympiads",
+    "Science & Research": "research projects, physics & chemistry olympiads",
+    "Engineering": "robotics, engineering tournaments",
+    "Psychology & Social Sciences": "social research, volunteering, social projects",
+    "Humanities & Languages": "language & history olympiads, literary contests",
+    "Environment & Sustainability": "eco projects, climate forums",
+    "Politics & Public Policy": "debates, youth parliaments, leadership forums"
+  }
+};
 
 const SPHERE_LABELS: Record<Lang, Dict> = {
   en: {},
@@ -777,6 +840,7 @@ type Ctx = {
   setLang: (l: Lang) => void;
   t: (key: string) => string;
   tSphere: (value: string) => string;
+  tSphereHint: (value: string) => string;
   tGrade: (value: string) => string;
   tGrades: (values: string[]) => string;
   tCost: (value: string) => string;
@@ -820,6 +884,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       t,
       localeTag: LOCALE_TAG[lang],
       tSphere: (v: string) => SPHERE_LABELS[lang][v] ?? v,
+      tSphereHint: (v: string) => SPHERE_HINTS[lang][v] ?? "",
       tGrade: (v: string) => {
         if (v === "Undergrad") return t("grade.undergrad");
         const num = v.match(/\d+/)?.[0];
