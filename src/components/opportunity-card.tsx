@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Check, Share2 } from "lucide-react";
+import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Check, Share2, Cake, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { useI18n } from "@/lib/i18n";
-import type { Opportunity } from "@/lib/opportunities";
+import { agesFromGrades, formatAges, type Opportunity } from "@/lib/opportunities";
 
 export function formatDeadline(iso: string, localeTag = "ru-RU", fallback = "Без дедлайна") {
   if (!iso) return fallback;
@@ -84,6 +84,7 @@ export function OpportunityCard({
   const { t, tSphere, tGrades, tFormat, tDelivery, tItem, tPlace, localeTag } = useI18n();
   const local = tItem(item);
   const place = [tPlace(item.city), tPlace(item.country)].filter(Boolean).join(", ");
+  const ages = formatAges(item.ages ?? agesFromGrades(item.grades), t("age.suffix"));
 
   return (
     <Card
@@ -97,7 +98,7 @@ export function OpportunityCard({
         }
       }}
       style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
-      className="rise-in shadow-soft hover:shadow-lift group relative flex cursor-pointer flex-col gap-4 rounded-2xl border-border/70 p-5 transition-all duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      className={`rise-in shadow-soft hover:shadow-lift group relative flex cursor-pointer flex-col gap-4 rounded-2xl border-border/70 p-5 transition-all duration-300 hover:-translate-y-1 ${item.promoted ? "border-primary/50 bg-primary/5 ring-1 ring-primary/30" : ""} focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none`}
     >
       <div className="absolute top-4 right-4 flex items-center gap-1.5">
         <ShareButton item={item} />
@@ -122,7 +123,11 @@ export function OpportunityCard({
       </div>
 
       <div className="flex flex-wrap items-center gap-2 pr-20">
-
+        {item.promoted && (
+          <Badge className="rounded-full bg-primary px-3 py-1 text-primary-foreground">
+            <Sparkles className="size-3.5" /> {t("card.top")}
+          </Badge>
+        )}
         <Badge variant="secondary" className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
           {tSphere(item.sphere)}
         </Badge>
@@ -170,6 +175,12 @@ export function OpportunityCard({
           )}
           {tDelivery(item.delivery)}
         </span>
+        {ages && (
+          <span className="inline-flex items-center gap-1.5">
+            <Cake className="size-3.5" />
+            {ages}
+          </span>
+        )}
         {place && (
           <span className="inline-flex items-center gap-1.5">
             <MapPin className="size-3.5 text-primary" />
