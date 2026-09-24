@@ -591,7 +591,7 @@ function FilterSelect({
       </div>
 
       <Select value={value} onValueChange={onChange} open={open} onOpenChange={setOpen}>
-        <SelectTrigger className="h-11 w-full rounded-xl">
+        <SelectTrigger className="h-10 w-full rounded-xl text-sm sm:h-11">
           <SelectValue placeholder={t("filter.all")} />
         </SelectTrigger>
         <SelectContent>
