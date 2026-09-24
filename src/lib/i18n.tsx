@@ -283,7 +283,10 @@ const en: Dict = {
 // ---- Additions: fields, locations, accounts, guided tour ----
 Object.assign(ru, {
   "hero.badge": "\u2726 Возможности, которые подходят именно тебе",
-  "hero.stats": "500+ возможностей · 14 направлений · Обновляется регулярно",
+  "hero.stats": "{count} возможностей · {spheres} направлений · Обновляется регулярно",
+  "filter.age": "Возраст",
+  "age.suffix": "лет",
+  "card.top": "В топе",
   "hero.popular": "Популярные запросы:",
   "hero.secondary": "Поделиться своей",
   "filter.location": "Локация",
@@ -345,7 +348,10 @@ Object.assign(ru, {
 
 Object.assign(kk, {
   "hero.badge": "\u2726 Саған сай мүмкіндіктерді тап",
-  "hero.stats": "500+ мүмкіндік · 14 бағыт · Тұрақты жаңарады",
+  "hero.stats": "{count} мүмкіндік · {spheres} бағыт · Тұрақты жаңарады",
+  "filter.age": "Жасы",
+  "age.suffix": "жас",
+  "card.top": "Топта",
   "hero.popular": "Танымал сұраныстар:",
   "hero.secondary": "Өз мүмкіндігіңмен бөліс",
   "filter.location": "Орналасуы",
@@ -407,7 +413,10 @@ Object.assign(kk, {
 
 Object.assign(en, {
   "hero.badge": "\u2726 Discover opportunities that fit you",
-  "hero.stats": "500+ opportunities · 14 fields · Updated regularly",
+  "hero.stats": "{count} opportunities · {spheres} fields · Updated regularly",
+  "filter.age": "Age",
+  "age.suffix": "y.o.",
+  "card.top": "Top pick",
   "hero.popular": "Popular searches:",
   "hero.secondary": "Share yours",
   "filter.location": "Location",
