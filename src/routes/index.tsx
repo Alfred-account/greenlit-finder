@@ -473,7 +473,7 @@ function Home() {
 
         {!isPending && data?.source === "sample" && (
           <div className="mt-6 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-foreground">
-            <p className="font-medium">Показаны демо-данные — Airtable недоступен.</p>
+            <p className="font-medium">{t("banner.demo")}</p>
             {data.error && <p className="mt-1 break-words font-mono text-xs text-muted-foreground">{data.error}</p>}
           </div>
         )}

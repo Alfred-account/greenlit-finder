@@ -172,7 +172,7 @@ const submissionSchema = z.object({
   contactInfo: z.string().trim().min(3).max(200),
   title: z.string().trim().min(1).max(200),
   sphere: z.string().trim().min(1).max(100),
-  grades: z.array(z.string().trim().min(1).max(50)).min(1).max(12),
+  grades: z.array(z.string().trim().min(1).max(50)).max(12),
   ages: z.array(z.enum(["11-13", "14-15", "16-17", "18+"])).max(4).optional(),
   cost: z.enum(["Free", "Paid"]),
   price: z.string().trim().max(100).optional(),
