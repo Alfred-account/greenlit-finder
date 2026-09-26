@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Check, Share2, Cake, Sparkles } from "lucide-react";
+import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Check, Share2, Cake, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 
@@ -98,8 +98,16 @@ export function OpportunityCard({
         }
       }}
       style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
-      className={`rise-in shadow-soft hover:shadow-lift group relative flex cursor-pointer flex-col gap-4 rounded-2xl border-border/70 p-5 transition-all duration-300 hover:-translate-y-1 ${item.promoted ? "border-primary/50 bg-primary/5 ring-1 ring-primary/30" : ""} focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none`}
+      className={`rise-in shadow-soft hover:shadow-lift group relative flex cursor-pointer flex-col gap-4 rounded-2xl border-border/70 p-5 transition-all duration-300 hover:-translate-y-1 ${item.promoted ? "overflow-hidden border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card pl-6" : ""} focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none`}
     >
+      {item.promoted && (
+        <>
+          <span aria-hidden className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-primary via-primary/70 to-primary/10" />
+          <span className="-mt-5 -ml-1 inline-flex w-fit items-center gap-1.5 rounded-b-md bg-primary px-2.5 py-1 text-[11px] font-semibold tracking-wider text-primary-foreground uppercase">
+            <TrendingUp className="size-3" /> {t("card.top")}
+          </span>
+        </>
+      )}
       <div className="absolute top-4 right-4 flex items-center gap-1.5">
         <ShareButton item={item} />
         {onToggleSave && (
@@ -123,11 +131,6 @@ export function OpportunityCard({
       </div>
 
       <div className="flex flex-wrap items-center gap-2 pr-20">
-        {item.promoted && (
-          <Badge className="rounded-full bg-primary px-3 py-1 text-primary-foreground">
-            <Sparkles className="size-3.5" /> {t("card.top")}
-          </Badge>
-        )}
         <Badge variant="secondary" className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
           {tSphere(item.sphere)}
         </Badge>
