@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowDown, Bookmark, Filter, Info, Megaphone, RotateCcw, Search, Sparkles } from "lucide-react";
 
 import { CityField } from "@/components/city-field";
-import { DateField } from "@/components/date-field";
+import { DateRangeField } from "@/components/date-range-field";
 import { FilterTourButton, TourOverlay, type TourPhase } from "@/components/filter-tour";
 import { IvyBackdrop } from "@/components/ivy-backdrop";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -53,12 +53,12 @@ const ALL = "__all__";
  * a short confirmation → the spotlight glides to the next filter.
  */
 const TOUR_STEPS = [
-  { key: "sphere", selector: '[data-tour="sphere"]', title: "tour.s1.title", text: "tour.s1.text" },
+  { key: "sphere", selector: '[data-tour="sphere"]', title: "tour.s1.title", text: "tour.s1.text", skippable: true },
   { key: "grade", selector: '[data-tour="grade"]', title: "tour.s2.title", text: "tour.s2.text", skippable: true },
   { key: "age", selector: '[data-tour="age"]', title: "tour.age.title", text: "tour.age.text", skippable: true },
-  { key: "cost", selector: '[data-tour="cost"]', title: "tour.s3.title", text: "tour.s3.text" },
-  { key: "format", selector: '[data-tour="format"]', title: "tour.s4.title", text: "tour.s4.text" },
-  { key: "delivery", selector: '[data-tour="delivery"]', title: "tour.s5.title", text: "tour.s5.text" },
+  { key: "cost", selector: '[data-tour="cost"]', title: "tour.s3.title", text: "tour.s3.text", skippable: true },
+  { key: "format", selector: '[data-tour="format"]', title: "tour.s4.title", text: "tour.s4.text", skippable: true },
+  { key: "delivery", selector: '[data-tour="delivery"]', title: "tour.s5.title", text: "tour.s5.text", skippable: true },
   { key: "country", selector: '[data-tour="country"]', title: "tour.s6.title", text: "tour.s6.text", skippable: true },
   { key: "done", selector: null, title: "tour.s9.title", text: "tour.s9.text", last: true },
 ] as const;
@@ -444,9 +444,16 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2" data-tour="dates">
-              <DateField label={t("filter.from")} value={from} onChange={setFrom} />
-              <DateField label={t("filter.to")} value={to} onChange={setTo} />
+            <div className="sm:col-span-2" data-tour="dates">
+              <DateRangeField
+                label={t("filter.range")}
+                from={from}
+                to={to}
+                onChange={(f, t2) => {
+                  setFrom(f);
+                  setTo(t2);
+                }}
+              />
             </div>
 
 
