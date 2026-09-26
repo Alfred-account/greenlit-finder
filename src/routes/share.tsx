@@ -61,7 +61,7 @@ function SharePage() {
   const router = useRouter();
   const submit = useServerFn(submitOpportunity);
   const [form, setForm] = useState<SubmissionInput>(empty);
-  const { t, tSphere, tGrade, tGrades, tCost, tFormat, tDelivery, tPlace, lang } = useI18n();
+  const { t, tSphere, tSphereHint, tGrade, tGrades, tCost, tFormat, tDelivery, tPlace, lang } = useI18n();
   const namePlaceholder = useMemo(() => sampleName(lang), [lang]);
 
 
@@ -84,7 +84,7 @@ function SharePage() {
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.sphere || form.grades.length === 0) {
+    if (!form.sphere) {
       toast.error(t("toast.needSphere"));
       return;
     }
@@ -104,7 +104,7 @@ function SharePage() {
   }
 
   return (
-    <main className="hero-surface min-h-screen px-6 py-14">
+    <main className="hero-surface min-h-screen px-4 py-8 sm:px-6 sm:py-14">
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
           <Button variant="ghost" onClick={() => router.history.back()} className="-ml-2 rounded-xl">
@@ -113,12 +113,12 @@ function SharePage() {
           <LanguageSwitcher />
         </div>
 
-        <h1 className="text-4xl font-bold">{t("share.title")}</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">{t("share.title")}</h1>
         <p className="mt-3 text-muted-foreground">{t("share.subtitle")}</p>
 
         <form
           onSubmit={onSubmit}
-          className="shadow-soft mt-8 space-y-6 rounded-2xl border border-border/70 bg-card p-6"
+          className="shadow-soft mt-8 space-y-5 rounded-2xl border border-border/70 bg-card p-4 sm:space-y-6 sm:p-6"
         >
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label={t("share.name")} required>
@@ -149,7 +149,7 @@ function SharePage() {
               maxLength={200}
               value={form.title}
               onChange={(e) => set("title", e.target.value)}
-              placeholder="Global Informatics Challenge"
+              placeholder={t("share.titlePlaceholder")}
               className="h-11 rounded-xl"
             />
           </Field>
@@ -165,7 +165,7 @@ function SharePage() {
               />
             </Field>
             <div className="sm:col-span-2">
-              <Field label={t("share.gradesLabel")} required>
+              <Field label={t("share.gradesLabel")}>
                 <div className="flex flex-wrap gap-2">
                   {GRADES.map((g) => {
                     const on = form.grades.includes(g);
@@ -180,7 +180,7 @@ function SharePage() {
                             sortGrades(on ? form.grades.filter((x) => x !== g) : [...form.grades, g]),
                           )
                         }
-                        className={`rounded-full border px-4 py-2 text-sm transition-all ${
+                        className={`rounded-full border px-3 py-2 text-sm sm:px-4 transition-all ${
                           on
                             ? "border-primary bg-primary text-primary-foreground shadow-soft"
                             : "border-border/70 bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
@@ -212,7 +212,7 @@ function SharePage() {
                             AGE_RANGES.filter((x) => (x === a ? !on : (form.ages ?? []).includes(x))),
                           )
                         }
-                        className={`rounded-full border px-4 py-2 text-sm transition-all ${
+                        className={`rounded-full border px-3 py-2 text-sm sm:px-4 transition-all ${
                           on
                             ? "border-primary bg-primary text-primary-foreground shadow-soft"
                             : "border-border/70 bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
