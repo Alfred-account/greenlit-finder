@@ -61,7 +61,7 @@ function SharePage() {
   const router = useRouter();
   const submit = useServerFn(submitOpportunity);
   const [form, setForm] = useState<SubmissionInput>(empty);
-  const { t, tSphere, tGrade, tGrades, tCost, tFormat, tDelivery, tPlace, lang } = useI18n();
+  const { t, tSphere, tSphereHint, tGrade, tGrades, tCost, tFormat, tDelivery, tPlace, lang } = useI18n();
   const namePlaceholder = useMemo(() => sampleName(lang), [lang]);
 
 
