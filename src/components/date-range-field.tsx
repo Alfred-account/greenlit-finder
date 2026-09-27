@@ -105,8 +105,13 @@ export function DateRangeField({
             captionLayout="dropdown"
             numberOfMonths={1}
             onSelect={(range) => {
-              onChange(range?.from ? toISO(range.from) : "", range?.to ? toISO(range.to) : "");
-              if (range?.from && range?.to) setOpen(false);
+              const f = range?.from ? toISO(range.from) : "";
+              // The calendar reports from===to on the very first click; treat
+              // that as "start picked, still waiting for the end date".
+              let end = range?.to ? toISO(range.to) : "";
+              if (f && end === f) end = "";
+              onChange(f, end);
+              if (f && end) setOpen(false);
             }}
             className="pointer-events-auto p-4 text-base [--cell-size:2.75rem]"
           />
