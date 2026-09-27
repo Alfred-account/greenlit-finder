@@ -183,6 +183,11 @@ function Home() {
     });
   }, [items, query, sphere, grade, age, cost, format, delivery, country, city, from, to, onlySaved, savedIds, sort, lang, tSphere]);
 
+  /** Promoted cards leave the grid and drift in their own strip, so they
+      never flood the screen no matter how many are pinned in Airtable. */
+  const promotedList = useMemo(() => filtered.filter((o) => o.promoted), [filtered]);
+  const regularList = useMemo(() => filtered.filter((o) => !o.promoted), [filtered]);
+
   /** Spheres actually present in the data, so the filter grows with Airtable. */
   const sphereOptions = useMemo(() => {
     const present = new Set(items.map((o) => o.sphere));
@@ -491,10 +496,54 @@ function Home() {
         </div>
 
 
+        {!isPending && promotedList.length > 0 && (
+          <section aria-label={t("card.top")} className="mt-6">
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary">
+              <Sparkles className="size-4" />
+              {t("promoted.strip")}
+            </p>
+            {promotedList.length > 2 ? (
+              <div className="relative -mx-4 overflow-hidden sm:-mx-6">
+                <div
+                  className="marquee-x flex w-max gap-5 px-4 py-1 sm:px-6"
+                  style={{ ["--marquee-dur" as string]: `${promotedList.length * 14}s` }}
+                >
+                  {[...promotedList, ...promotedList].map((item, i) => (
+                    <div key={`${item.id}-${i}`} className="w-72 shrink-0 sm:w-80" aria-hidden={i >= promotedList.length}>
+                      <OpportunityCard
+                        item={item}
+                        index={i % promotedList.length}
+                        saved={isSaved(item.id)}
+                        onToggleSave={() => void toggle(item.id)}
+                        onOpen={() => setActive(item)}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                {promotedList.map((item, i) => (
+                  <OpportunityCard
+                    key={item.id}
+                    item={item}
+                    index={i}
+                    saved={isSaved(item.id)}
+                    onToggleSave={() => void toggle(item.id)}
+                    onOpen={() => setActive(item)}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {isPending
             ? Array.from({ length: 6 }).map((_, i) => <OpportunityCardSkeleton key={i} />)
-            : filtered.map((item, i) => (
+            : regularList.map((item, i) => (
                 <OpportunityCard
                   key={item.id}
                   item={item}
