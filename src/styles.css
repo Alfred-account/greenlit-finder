@@ -389,12 +389,34 @@
   animation: cta-load-bar 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+/* Promoted strip: slow endless horizontal drift. The track holds the list
+   twice; translating by -50% loops it seamlessly. Pauses on hover/focus. */
+@keyframes marquee-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@utility marquee-x {
+  will-change: transform;
+  animation: marquee-x var(--marquee-dur, 45s) linear infinite;
+
+  &:hover,
+  &:focus-within {
+    animation-play-state: paused;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cta-glow,
   .cta-glow::after,
   .ivy-drift-x,
   .ivy-drift-y,
-  .tour-spotlight {
+  .tour-spotlight,
+  .marquee-x {
 
     animation: none;
   }
