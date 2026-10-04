@@ -196,6 +196,7 @@ export function formatAges(ages: string[], suffix: string) {
 export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
   {
     id: "s1",
+    promoted: true,
     title: "Global Informatics Challenge",
     sphere: "Computer Science & Technology",
     country: "Kazakhstan",
@@ -218,6 +219,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
   },
   {
     id: "s2",
+    promoted: true,
     title: "Model United Nations Summit",
     sphere: "International Relations",
     country: "International",
@@ -235,6 +237,7 @@ export const SAMPLE_OPPORTUNITIES: Opportunity[] = [
   },
   {
     id: "s3",
+    promoted: true,
     title: "Young Filmmakers Lab",
     sphere: "Film & Directing",
     country: "International",
