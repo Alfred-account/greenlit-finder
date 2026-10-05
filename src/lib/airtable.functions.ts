@@ -97,71 +97,64 @@ function mapRecord(rec: { id: string; fields: Fields }): Opportunity {
   };
 }
 
+function getApiUrl() {
+  const base =
+    (import.meta.env.VITE_API_URL as string | undefined) ||
+    process.env.VITE_API_URL ||
+    "https://airtable-sync-worker.nursauletmedeu.workers.dev";
+  return `${base.replace(/\/+$/, "")}/api/opportunities`;
+}
+
+/** Worker returns flat lowercase keys (title, description_ru, cost…). Map them to the Airtable-style field names mapRecord understands. */
+function flatToFields(item: Record<string, unknown>): Fields {
+  const f: Fields = {};
+  const alias: Record<string, string> = {
+    description_ru: "Description",
+    snippet_ru: "Snippet",
+    steps_ru: "Steps",
+    title_ru: "Title",
+    url: "URL",
+    age_range: "Age_Range",
+    instagram_url: "Instagram_URL",
+    registration_url: "Registration_URL",
+    cost_amount: "Cost_Amount",
+  };
+  for (const [k, v] of Object.entries(item)) {
+    const lk = k.toLowerCase();
+    const name =
+      alias[lk] ??
+      lk
+        .split("_")
+        .map((p, i) => (i > 0 && (p === "en" || p === "kk") ? p.toUpperCase() : p.charAt(0).toUpperCase() + p.slice(1)))
+        .join("_");
+    if (f[name] === undefined || f[name] === "") f[name] = v;
+  }
+  return f;
+}
+
 export const fetchOpportunities = createServerFn({ method: "GET" }).handler(async (): Promise<{
   items: Opportunity[];
   source: "airtable" | "sample";
   error?: string;
 }> => {
-  const config = getConfig();
-  if (!config) {
-    return {
-      items: SAMPLE_OPPORTUNITIES,
-      source: "sample",
-      error: "Airtable не настроен: отсутствуют переменные окружения AIRTABLE_API_KEY и/или AIRTABLE_BASE_ID.",
-    };
-  }
-
-  const endpoint = `https://api.airtable.com/v0/${config.baseId}/${encodeURIComponent(config.table)}`;
-
-  async function request(withFilter: boolean) {
-    const url = new URL(endpoint);
-    if (withFilter) url.searchParams.set("filterByFormula", "{Published}");
-    url.searchParams.set("pageSize", "100");
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${config!.apiKey}` } });
-    return { res, url: url.toString() };
-  }
-
+  const url = getApiUrl();
   try {
-    let { res, url } = await request(true);
-    // 422 usually means the {Published} field does not exist in this table — retry unfiltered.
-    if (res.status === 422) {
-      const first = await res.text();
-      console.error(`[airtable] Filtered request failed [422] ${url}: ${first} — retrying without filterByFormula`);
-      ({ res, url } = await request(false));
-    }
-
+    const res = await fetch(url);
     if (!res.ok) {
-      const body = await res.text();
-      const message = `[airtable] Fetch failed [${res.status} ${res.statusText}] ${url} (table="${config.table}", base="${config.baseId}"): ${body}`;
+      const message = `[worker] Fetch failed [${res.status} ${res.statusText}] ${url}: ${await res.text()}`;
       console.error(message);
       return { items: SAMPLE_OPPORTUNITIES, source: "sample", error: message };
     }
-
-    let data = (await res.json()) as { records?: { id: string; fields: Fields }[] };
-    let records = data.records ?? [];
-
-    // A table where nobody ticked {Published} returns 0 rows — show the real
-    // rows instead of demo data.
-    if (records.length === 0) {
-      console.warn(`[airtable] Filtered query returned 0 records — retrying without filterByFormula`);
-      const retry = await request(false);
-      if (retry.res.ok) {
-        data = (await retry.res.json()) as { records?: { id: string; fields: Fields }[] };
-        records = data.records ?? [];
-      }
-    }
-
-    console.log(`[airtable] Loaded ${records.length} records from table "${config.table}"`);
-    if (records.length === 0) {
-      return {
-        items: [],
-        source: "airtable",
-        error: `[airtable] Table "${config.table}" in base "${config.baseId}" returned 0 records.`,
-      };
-    }
-    return { items: records.map(mapRecord), source: "airtable" };
+    const data = (await res.json()) as unknown;
+    const list = Array.isArray(data) ? (data as Record<string, unknown>[]) : [];
+    const items = list
+      .filter((it) => it && typeof it === "object")
+      .filter((it) => it.published === undefined || Boolean(it.published))
+      .map((it, i) => mapRecord({ id: String(it.id ?? it.record_id ?? `w${i}`), fields: flatToFields(it) }));
+    console.log(`[worker] Loaded ${items.length} records from ${url}`);
+    return { items, source: "airtable" };
   } catch (e) {
-    const message = `[airtable] Network error: ${e instanceof Error ? `${e.name}: ${e.message}` : String(e)}`;
+    const message = `[worker] Network error: ${e instanceof Error ? `${e.name}: ${e.message}` : String(e)}`;
     console.error(message);
     return { items: SAMPLE_OPPORTUNITIES, source: "sample", error: message };
   }
