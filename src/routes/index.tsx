@@ -188,11 +188,11 @@ function Home() {
   const promotedList = useMemo(() => filtered.filter((o) => o.promoted), [filtered]);
   const regularList = useMemo(() => filtered.filter((o) => !o.promoted), [filtered]);
 
-  /** Spheres actually present in the data, so the filter grows with Airtable. */
+  /** Always show the complete canonical list and append any custom Worker fields. */
   const sphereOptions = useMemo(() => {
     const present = new Set(items.map((o) => o.sphere));
     const extra = [...present].filter((s) => !SPHERES.includes(s as (typeof SPHERES)[number])).sort();
-    return [...SPHERES.filter((s) => present.has(s) || items.length === 0), ...extra];
+    return [...SPHERES, ...extra];
   }, [items]);
 
   /** 22 → "20+", 57 → "55+", 121 → "120+" */
