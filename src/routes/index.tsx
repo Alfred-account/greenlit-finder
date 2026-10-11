@@ -190,10 +190,8 @@ function Home() {
 
   /** Always show the complete canonical list and append any custom Worker fields. */
   const sphereOptions = useMemo(() => {
-    const present = new Set(items.map((o) => o.sphere));
-    const extra = [...present].filter((s) => !SPHERES.includes(s as (typeof SPHERES)[number])).sort();
-    return [...SPHERES, ...extra];
-  }, [items]);
+    return [...SPHERES] as string[];
+  }, []);
 
   /** 22 → "20+", 57 → "55+", 121 → "120+" */
   const stats = useMemo(() => {
