@@ -711,12 +711,12 @@ function RotatingBadge() {
       window.setTimeout(() => {
         setI((v) => (v + 1) % list.length);
         setShow(true);
-      }, 300);
-    }, 4000);
+      }, 600);
+    }, 4500);
     return () => window.clearInterval(id);
   }, [list.length]);
   return (
-    <span className={`text-balance transition-opacity duration-300 ${show ? "opacity-100" : "opacity-0"}`} aria-live="polite">
+    <span className={`inline-block text-balance transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${show ? "translate-y-0 opacity-100 blur-0" : "-translate-y-1.5 opacity-0 blur-[3px]"}`} aria-live="polite">
       {list[i % list.length]}
     </span>
   );
