@@ -252,7 +252,7 @@ function Home() {
         <IvyBackdrop />
         <span className="rise-in relative inline-flex max-w-full items-center gap-2 rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-xs font-medium text-primary backdrop-blur sm:px-4 sm:text-sm">
           <Sparkles className="size-4 shrink-0" />
-          <span className="text-balance">{t("hero.badge")}</span>
+          <RotatingBadge />
         </span>
 
         <h1
@@ -666,5 +666,58 @@ function FilterSelect({
         </SelectContent>
       </Select>
     </div>
+  );
+}
+
+const BADGES: Record<string, string[]> = {
+  ru: [
+    "Возможности, которые подходят именно тебе",
+    "Олимпиады, которые прокачают твоё портфолио",
+    "Летние школы и программы по всему миру",
+    "MUN, хакатоны и конкурсы — в одном месте",
+    "Стипендии и гранты для школьников",
+    "Не пропусти дедлайн своей мечты",
+    "Твой следующий шаг к топовому университету",
+  ],
+  kk: [
+    "Саған дәл келетін мүмкіндіктер",
+    "Портфолиоңды күшейтетін олимпиадалар",
+    "Әлем бойынша жазғы мектептер мен бағдарламалар",
+    "MUN, хакатондар мен байқаулар — бір жерде",
+    "Оқушыларға арналған стипендиялар мен гранттар",
+    "Арманыңның дедлайнын өткізіп алма",
+    "Үздік университетке келесі қадамың",
+  ],
+  en: [
+    "Discover opportunities that fit you",
+    "Olympiads that level up your portfolio",
+    "Summer schools and programs worldwide",
+    "MUN, hackathons and contests — all in one place",
+    "Scholarships and grants for students",
+    "Never miss your dream deadline",
+    "Your next step toward a top university",
+  ],
+};
+
+function RotatingBadge() {
+  const { lang } = useI18n();
+  const list = BADGES[lang] ?? BADGES.en;
+  const [i, setI] = useState(0);
+  const [show, setShow] = useState(true);
+  useEffect(() => {
+    setI(Math.floor(Math.random() * list.length));
+    const id = window.setInterval(() => {
+      setShow(false);
+      window.setTimeout(() => {
+        setI((v) => (v + 1) % list.length);
+        setShow(true);
+      }, 300);
+    }, 4000);
+    return () => window.clearInterval(id);
+  }, [list.length]);
+  return (
+    <span className={`text-balance transition-opacity duration-300 ${show ? "opacity-100" : "opacity-0"}`} aria-live="polite">
+      {list[i % list.length]}
+    </span>
   );
 }
