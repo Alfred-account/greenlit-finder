@@ -79,6 +79,9 @@ export function normalizeSphere(raw: string): string {
   if (!value) return "Science & Research";
   const exact = SPHERES.find((s) => s.toLowerCase() === value.toLowerCase());
   if (exact) return exact;
+  const key = (v: string) => v.toLowerCase().replace(/\band\b|и|&/g, "").replace(/[^\p{L}]/gu, "");
+  const loose = SPHERES.find((s) => key(s) === key(value));
+  if (loose) return loose;
   const alias = SPHERE_ALIASES[value.toLowerCase()];
   if (alias) return alias;
   const partial = SPHERES.find((s) => s.toLowerCase().includes(value.toLowerCase()));
