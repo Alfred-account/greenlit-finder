@@ -496,9 +496,10 @@ function Home() {
 
         {!isPending && promotedList.length > 0 && (
           <section aria-label={t("card.top")} className="mt-6">
-            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary">
-              <Sparkles className="size-4" />
+            <p className="mb-3 flex items-center gap-3 text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+              <span aria-hidden className="h-px w-8 bg-primary" />
               {t("promoted.strip")}
+              <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent" />
             </p>
             {promotedList.length > 2 ? (
               <div className="relative -mx-4 overflow-hidden sm:-mx-6">
