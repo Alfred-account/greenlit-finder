@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Check, Share2, Cake, TrendingUp } from "lucide-react";
+import { CalendarDays, Users, User, ArrowUpRight, Globe, MapPin, Blend, Bookmark, Check, Share2, Cake } from "lucide-react";
 import { toast } from "sonner";
 
 
@@ -135,7 +135,7 @@ export function OpportunityCard({
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 pr-20">
+      <div className={`flex flex-wrap items-center gap-2 pr-20 ${item.promoted ? "pl-10" : ""}`}>
         <Badge variant="secondary" className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
           {tSphere(item.sphere)}
         </Badge>
