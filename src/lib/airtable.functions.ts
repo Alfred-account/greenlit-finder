@@ -202,6 +202,7 @@ export const submitOpportunity = createServerFn({ method: "POST" })
 
     const res = await fetch(`https://api.airtable.com/v0/${config.baseId}/${encodeURIComponent(config.table)}`, {
       method: "POST",
+      cache: "no-store",
       headers: {
         Authorization: `Bearer ${config.apiKey}`,
         "Content-Type": "application/json",
