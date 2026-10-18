@@ -192,7 +192,7 @@ const submissionSchema = z.object({
 export type SubmissionInput = z.infer<typeof submissionSchema>;
 
 export const submitOpportunity = createServerFn({ method: "POST" })
-  .inputValidator((data: SubmissionInput) => submissionSchema.parse(data))
+  .validator((data: SubmissionInput) => submissionSchema.parse(data))
   .handler(async ({ data }): Promise<{ ok: true; stored: boolean }> => {
     const config = getConfig();
     if (!config) {
