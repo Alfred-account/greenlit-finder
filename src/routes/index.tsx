@@ -71,7 +71,7 @@ function Home() {
     queryKey: ["opportunities"],
     queryFn: () => getOpportunities(),
     // Airtable answers slowly; keep the catalog instant on repeat visits.
-    staleTime: 5 * 60_000,
+    staleTime: 0,
     gcTime: 30 * 60_000,
     refetchOnWindowFocus: false,
   });

@@ -139,7 +139,10 @@ export const fetchOpportunities = createServerFn({ method: "GET" }).handler(asyn
 }> => {
   const url = getApiUrl();
   try {
-    const res = await fetch(url);
+    const res = await fetch(`${url}?t=${Date.now()}`, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+    });
     if (!res.ok) {
       const message = `[worker] Fetch failed [${res.status} ${res.statusText}] ${url}: ${await res.text()}`;
       console.error(message);
