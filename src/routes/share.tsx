@@ -32,6 +32,8 @@ export const Route = createFileRoute("/share")({
         property: "og:description",
         content: "Бесплатное размещение олимпиад и конкурсов в каталоге Green Lit Space.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: SharePage,
