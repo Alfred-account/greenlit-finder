@@ -389,24 +389,31 @@
   animation: cta-load-bar 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* Promoted strip: slow endless horizontal drift. The track holds the list
-   twice; translating by -50% loops it seamlessly. Pauses on hover/focus. */
-@keyframes marquee-x {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-50%, 0, 0);
+.featured-strip {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.featured-strip-item {
+  flex-basis: min(88%, 22rem);
+}
+
+.featured-strip-item > [role="button"] {
+  height: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 640px) {
+  .featured-strip-item {
+    flex-basis: calc((100% - 1.25rem) / 2);
   }
 }
 
-@utility marquee-x {
-  will-change: transform;
-  animation: marquee-x var(--marquee-dur, 45s) linear infinite;
-
-  &:hover,
-  &:focus-within {
-    animation-play-state: paused;
+@media (min-width: 1024px) {
+  .featured-strip-item {
+    flex-basis: calc((100% - 2.5rem) / 3);
   }
 }
 
@@ -415,8 +422,7 @@
   .cta-glow::after,
   .ivy-drift-x,
   .ivy-drift-y,
-  .tour-spotlight,
-  .marquee-x {
+   .tour-spotlight {
 
     animation: none;
   }

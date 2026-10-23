@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep featured opportunities in a native horizontal scroll viewport with requestAnimationFrame auto-scroll, rather than translated duplicate tracks, so touch inertia, trackpad gestures, and accessible card actions share one scroll position.

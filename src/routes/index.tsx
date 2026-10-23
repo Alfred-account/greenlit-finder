@@ -6,6 +6,7 @@ import { ArrowDown, Bookmark, Filter, Info, Megaphone, RotateCcw, Search, Sparkl
 
 import { CityField } from "@/components/city-field";
 import { DateRangeField } from "@/components/date-range-field";
+import { FeaturedStrip } from "@/components/featured-strip";
 import { FilterTourButton, TourOverlay, type TourPhase } from "@/components/filter-tour";
 import { IvyBackdrop } from "@/components/ivy-backdrop";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -501,41 +502,12 @@ function Home() {
               {t("promoted.strip")}
               <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent" />
             </p>
-            {promotedList.length > 2 ? (
-              <div className="relative -mx-4 overflow-hidden sm:-mx-6">
-                <div
-                  className="marquee-x flex w-max gap-5 px-4 py-1 sm:px-6"
-                  style={{ ["--marquee-dur" as string]: `${promotedList.length * 14}s` }}
-                >
-                  {[...promotedList, ...promotedList].map((item, i) => (
-                    <div key={`${item.id}-${i}`} className="w-72 shrink-0 sm:w-80" aria-hidden={i >= promotedList.length}>
-                      <OpportunityCard
-                        item={item}
-                        index={i % promotedList.length}
-                        saved={isSaved(item.id)}
-                        onToggleSave={() => void toggle(item.id)}
-                        onOpen={() => setActive(item)}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background to-transparent" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent" />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                {promotedList.map((item, i) => (
-                  <OpportunityCard
-                    key={item.id}
-                    item={item}
-                    index={i}
-                    saved={isSaved(item.id)}
-                    onToggleSave={() => void toggle(item.id)}
-                    onOpen={() => setActive(item)}
-                  />
-                ))}
-              </div>
-            )}
+            <FeaturedStrip
+              items={promotedList}
+              isSaved={isSaved}
+              onToggleSave={(id) => void toggle(id)}
+              onOpen={setActive}
+            />
           </section>
         )}
 
